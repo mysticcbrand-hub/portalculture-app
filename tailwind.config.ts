@@ -8,9 +8,8 @@ const config: Config = {
   ],
   theme: {
     extend: {
-      colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+      fontFamily: {
+        sans: ['-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
       },
     },
   },
