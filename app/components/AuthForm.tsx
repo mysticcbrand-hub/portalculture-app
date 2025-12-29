@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { AuthError } from '@supabase/supabase-js'
 
 export default function AuthForm() {
   const [isLogin, setIsLogin] = useState(true)
@@ -39,8 +40,9 @@ export default function AuthForm() {
         if (error) throw error
         setMessage({ type: 'success', text: '¡Cuenta creada! Revisa tu email para verificar.' })
       }
-    } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || 'Algo salió mal' })
+    } catch (error) {
+      const authError = error as AuthError
+      setMessage({ type: 'error', text: authError.message || 'Algo salió mal' })
     } finally {
       setLoading(false)
     }

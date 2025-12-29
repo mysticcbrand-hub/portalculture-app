@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { User } from '@supabase/supabase-js'
 import Script from 'next/script'
 
 export default function TypeformEmbed() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
