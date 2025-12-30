@@ -2,19 +2,16 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
-import { Session } from '@supabase/supabase-js'
 import AuthForm from './components/AuthForm'
 import { useRouter } from 'next/navigation'
 
 export default function Home() {
   const router = useRouter()
-  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     // Check current session
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
       setLoading(false)
       
       // If user is logged in, redirect to dashboard
@@ -27,7 +24,6 @@ export default function Home() {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
       if (session) {
         router.push('/dashboard')
       }
