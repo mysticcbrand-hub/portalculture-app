@@ -11,28 +11,40 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check if user is logged in
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
-      setLoading(false)
-      
-      // If not logged in, redirect to home
-      if (!user) {
-        router.push('/')
-      }
-    })
+    let mounted = true
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-      if (!session?.user) {
-        router.push('/')
+    const getUser = async () => {
+      try {
+        // Wait a bit for session to be set
+        await new Promise(resolve => setTimeout(resolve, 500))
+        
+        const { data: { user }, error } = await supabase.auth.getUser()
+        
+        if (!mounted) return
+        
+        if (error) {
+          console.error('Error getting user:', error)
+        }
+        
+        if (user) {
+          console.log('✅ User found:', user.email)
+          setUser(user)
+        } else {
+          console.log('No user, redirecting...')
+          router.push('/')
+        }
+      } catch (err) {
+        console.error('Get user error:', err)
+      } finally {
+        if (mounted) setLoading(false)
       }
-    })
+    }
 
-    return () => subscription.unsubscribe()
+    getUser()
+
+    return () => {
+      mounted = false
+    }
   }, [router])
 
   const handleLogout = async () => {
@@ -45,8 +57,16 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-white/60 text-sm">Cargando...</p>
+          <p className="text-white/60 text-sm">Cargando dashboard...</p>
         </div>
+      </div>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white/60">Redirigiendo...</div>
       </div>
     )
   }
@@ -63,7 +83,7 @@ export default function DashboardPage() {
           </div>
           <div className="flex items-center gap-4">
             <span className="text-sm text-white/60 hidden md:block">
-              {user?.user_metadata?.name || user?.user_metadata?.full_name || user?.email}
+              {user.user_metadata?.name || user.user_metadata?.full_name || user.email}
             </span>
             <button
               onClick={handleLogout}
@@ -151,36 +171,23 @@ export default function DashboardPage() {
               </p>
 
               <div className="space-y-3">
-                {/* Placeholder courses - You can update these later */}
-                <a
-                  href="#"
-                  className="block p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all"
-                >
+                <div className="block p-4 rounded-xl bg-white/5 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-semibold text-white mb-1">Curso 1</h4>
                       <p className="text-sm text-white/40">Próximamente</p>
                     </div>
-                    <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
                   </div>
-                </a>
+                </div>
 
-                <a
-                  href="#"
-                  className="block p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all"
-                >
+                <div className="block p-4 rounded-xl bg-white/5 border border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-semibold text-white mb-1">Curso 2</h4>
                       <p className="text-sm text-white/40">Próximamente</p>
                     </div>
-                    <svg className="w-5 h-5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
                   </div>
-                </a>
+                </div>
               </div>
             </div>
           </div>
