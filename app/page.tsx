@@ -4,9 +4,10 @@ import { useState, useEffect } from 'react'
 import { supabase } from './lib/supabase'
 import { Session } from '@supabase/supabase-js'
 import AuthForm from './components/AuthForm'
-import TypeformEmbed from './components/TypeformEmbed'
+import { useRouter } from 'next/navigation'
 
 export default function Home() {
+  const router = useRouter()
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -15,6 +16,11 @@ export default function Home() {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session)
       setLoading(false)
+      
+      // If user is logged in, redirect to dashboard
+      if (session) {
+        router.push('/dashboard')
+      }
     })
 
     // Listen for auth changes
@@ -22,10 +28,13 @@ export default function Home() {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session)
+      if (session) {
+        router.push('/dashboard')
+      }
     })
 
     return () => subscription.unsubscribe()
-  }, [])
+  }, [router])
 
   if (loading) {
     return (
@@ -38,9 +47,6 @@ export default function Home() {
     )
   }
 
-  if (!session) {
-    return <AuthForm />
-  }
-
-  return <TypeformEmbed />
+  // Show auth form if not logged in
+  return <AuthForm />
 }
