@@ -20,14 +20,38 @@ export default function AdminWaitlist() {
   const [approved, setApproved] = useState<WaitlistUser[]>([])
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState<string | null>(null)
+  const [userEmail, setUserEmail] = useState<string>('')
+  const [error, setError] = useState<string>('')
 
   useEffect(() => {
     // Verificar que el usuario esté logueado y sea admin
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      if (!user || user.email !== 'mysticcbrand@gmail.com') {
-        router.push('/')
+    supabase.auth.getUser().then(({ data: { user }, error: authError }) => {
+      console.log('Auth check:', { user, error: authError })
+      
+      if (authError) {
+        console.error('Auth error:', authError)
+        setError(`Error de autenticación: ${authError.message}`)
         return
       }
+      
+      if (!user) {
+        console.log('No user found, redirecting to home')
+        setError('No hay usuario logueado')
+        setTimeout(() => router.push('/'), 2000)
+        return
+      }
+      
+      setUserEmail(user.email || '')
+      console.log('User email:', user.email)
+      
+      if (user.email !== 'mysticcbrand@gmail.com') {
+        console.log('User is not admin:', user.email)
+        setError(`Usuario no autorizado: ${user.email}. Solo mysticcbrand@gmail.com puede acceder.`)
+        setTimeout(() => router.push('/'), 2000)
+        return
+      }
+      
+      console.log('User is admin, loading waitlist')
       loadWaitlist()
     })
   }, [router])
@@ -35,23 +59,39 @@ export default function AdminWaitlist() {
   const loadWaitlist = async () => {
     setLoading(true)
     
-    // Cargar pendientes
-    const { data: pendingData } = await supabase
-      .from('waitlist')
-      .select('*')
-      .eq('status', 'pending')
-      .order('submitted_at', { ascending: false })
-    
-    // Cargar aprobados
-    const { data: approvedData } = await supabase
-      .from('waitlist')
-      .select('*')
-      .eq('status', 'approved')
-      .order('approved_at', { ascending: false })
-    
-    setPending(pendingData || [])
-    setApproved(approvedData || [])
-    setLoading(false)
+    try {
+      // Cargar pendientes
+      const { data: pendingData, error: pendingError } = await supabase
+        .from('waitlist')
+        .select('*')
+        .eq('status', 'pending')
+        .order('submitted_at', { ascending: false })
+      
+      if (pendingError) {
+        console.error('Error loading pending:', pendingError)
+        setError(`Error cargando pendientes: ${pendingError.message}`)
+      }
+      
+      // Cargar aprobados
+      const { data: approvedData, error: approvedError } = await supabase
+        .from('waitlist')
+        .select('*')
+        .eq('status', 'approved')
+        .order('approved_at', { ascending: false })
+      
+      if (approvedError) {
+        console.error('Error loading approved:', approvedError)
+        setError(`Error cargando aprobados: ${approvedError.message}`)
+      }
+      
+      setPending(pendingData || [])
+      setApproved(approvedData || [])
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError(`Error inesperado: ${err}`)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const approveUser = async (user: WaitlistUser) => {
@@ -87,12 +127,33 @@ export default function AdminWaitlist() {
     }
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black p-8">
+        <div className="max-w-2xl w-full bg-red-500/10 border border-red-500/30 rounded-2xl p-8">
+          <h1 className="text-2xl font-bold text-red-400 mb-4">❌ Error de Acceso</h1>
+          <p className="text-white/80 mb-4">{error}</p>
+          <div className="text-sm text-white/40 mb-4">
+            <p>Email detectado: <span className="text-white/60">{userEmail || 'Ninguno'}</span></p>
+            <p>Email requerido: <span className="text-white/60">mysticcbrand@gmail.com</span></p>
+          </div>
+          <button
+            onClick={() => router.push('/')}
+            className="px-6 py-3 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition"
+          >
+            Volver al inicio
+          </button>
+        </div>
+      </div>
+    )
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-white/60 text-sm">Cargando...</p>
+          <p className="text-white/60 text-sm">Cargando panel de administración...</p>
         </div>
       </div>
     )
@@ -106,6 +167,7 @@ export default function AdminWaitlist() {
           <div>
             <h1 className="text-4xl font-bold text-white mb-2">Panel de Administración</h1>
             <p className="text-white/60">Portal Culture - Lista de Espera</p>
+            <p className="text-white/40 text-sm mt-1">Logueado como: {userEmail}</p>
           </div>
           <button
             onClick={() => router.push('/dashboard')}
