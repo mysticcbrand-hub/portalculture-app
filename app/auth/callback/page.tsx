@@ -11,45 +11,55 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Get the hash fragment from URL
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
         const accessToken = hashParams.get('access_token')
         const refreshToken = hashParams.get('refresh_token')
+        const expiresIn = hashParams.get('expires_in')
 
-        console.log('Callback - Hash params:', { 
-          hasAccessToken: !!accessToken, 
-          hasRefreshToken: !!refreshToken 
+        console.log('Tokens:', { 
+          hasAccess: !!accessToken,
+          hasRefresh: !!refreshToken,
+          accessLength: accessToken?.length || 0,
+          refreshLength: refreshToken?.length || 0,
+          expiresIn
         })
 
-        if (accessToken && refreshToken) {
-          // Set the session manually
+        if (accessToken) {
+          // Try to set session even without refresh token
           const { data, error } = await supabase.auth.setSession({
             access_token: accessToken,
-            refresh_token: refreshToken
+            refresh_token: refreshToken || '' // Empty string if no refresh token
           })
 
           if (error) {
-            console.error('Error setting session:', error)
-            setError(error.message)
-            setTimeout(() => router.push('/'), 2000)
-            return
+            console.error('setSession error:', error.message)
+            // Try alternative: just set the token and let Supabase handle it
+            try {
+              // Store token manually in localStorage
+              localStorage.setItem('sb-access-token', accessToken)
+              if (refreshToken) {
+                localStorage.setItem('sb-refresh-token', refreshToken)
+              }
+              console.log('✅ Tokens stored in localStorage')
+              router.push('/dashboard')
+              return
+            } catch (storageError) {
+              console.error('localStorage error:', storageError)
+              setError('Error guardando sesión')
+              setTimeout(() => router.push('/'), 2000)
+              return
+            }
           }
 
-          console.log('✅ Session set successfully:', data.session?.user.email)
-          
-          // Redirect to dashboard
+          console.log('✅ Session set:', data.user?.email)
           router.push('/dashboard')
         } else {
-          console.log('No tokens in hash, checking session...')
-          
-          // Check if session exists
+          console.log('No access token, checking existing session...')
           const { data: { session } } = await supabase.auth.getSession()
           
           if (session) {
-            console.log('✅ Session exists, redirecting to dashboard')
             router.push('/dashboard')
           } else {
-            console.log('No session found, redirecting to home')
             router.push('/')
           }
         }
