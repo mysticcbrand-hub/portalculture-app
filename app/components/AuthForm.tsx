@@ -16,25 +16,22 @@ export default function AuthForm() {
 
   const handleOAuthLogin = async (provider: 'google' | 'discord') => {
     setOauthLoading(provider)
-    setMessage(null)
     
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-          skipBrowserRedirect: false
+          redirectTo: `${window.location.origin}/auth/callback`
         },
       })
       
-      if (error) throw error
-      
-      // Browser will redirect automatically
-      console.log('OAuth initiated:', data)
-      
+      if (error) {
+        console.error('OAuth error:', error)
+        setMessage({ type: 'error', text: error.message })
+        setOauthLoading(null)
+      }
     } catch (error) {
-      const authError = error as AuthError
-      setMessage({ type: 'error', text: authError.message || 'Error al conectar' })
+      console.error('OAuth catch error:', error)
       setOauthLoading(null)
     }
   }
@@ -54,8 +51,7 @@ export default function AuthForm() {
         password,
       })
       if (error) throw error
-      setMessage({ type: 'success', text: '¡Bienvenido de vuelta!' })
-      setTimeout(() => router.push('/dashboard'), 500)
+      router.push('/dashboard')
     } catch (error) {
       const authError = error as AuthError
       setMessage({ type: 'error', text: authError.message || 'Algo salió mal' })
@@ -71,7 +67,7 @@ export default function AuthForm() {
       <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/3 rounded-full blur-3xl" />
 
       <div className="relative z-10 w-full max-w-md">
-        <div className="text-center mb-12 animate-fadeIn">
+        <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
             Portal Culture
           </h1>
@@ -80,58 +76,46 @@ export default function AuthForm() {
           </p>
         </div>
 
-        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl animate-fadeIn">
+        <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl">
           {!isLogin ? (
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold mb-2 text-white">Proceso de Selección</h2>
                 <p className="text-sm text-white/60">
-                  Completa el formulario para solicitar tu acceso a la comunidad
+                  Completa el formulario para solicitar tu acceso
                 </p>
               </div>
 
               <button
                 onClick={handleRegisterClick}
-                className="w-full py-4 px-6 chrome-btn rounded-xl font-semibold text-white"
+                className="w-full py-4 px-6 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-semibold text-white transition"
               >
                 Continuar al Registro
               </button>
-
-              <div className="text-center text-xs text-white/40">
-                100% gratuito · Respuesta en 24h
-              </div>
             </div>
           ) : (
             <form onSubmit={handleAuth} className="space-y-6">
               <div>
-                <label htmlFor="email" className="block text-sm font-medium mb-2 text-white/80">
-                  Email
-                </label>
+                <label className="block text-sm font-medium mb-2 text-white/80">Email</label>
                 <input
                   type="email"
-                  id="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="input-field"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/30"
                   placeholder="tu@email.com"
                   required
-                  disabled={loading}
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="block text-sm font-medium mb-2 text-white/80">
-                  Contraseña
-                </label>
+                <label className="block text-sm font-medium mb-2 text-white/80">Contraseña</label>
                 <input
                   type="password"
-                  id="password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="input-field"
+                  className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-white/30"
                   placeholder="••••••••"
                   required
-                  disabled={loading}
                   minLength={6}
                 />
               </div>
@@ -149,17 +133,9 @@ export default function AuthForm() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full py-4 px-6 chrome-btn rounded-xl font-semibold text-white
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 px-6 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl font-semibold text-white transition disabled:opacity-50"
               >
-                {loading ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                    Procesando...
-                  </span>
-                ) : (
-                  'Iniciar Sesión'
-                )}
+                {loading ? 'Iniciando...' : 'Iniciar Sesión'}
               </button>
             </form>
           )}
@@ -170,9 +146,7 @@ export default function AuthForm() {
                 <div className="w-full border-t border-white/10"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-transparent text-white/40">
-                  {isLogin ? 'O inicia sesión con' : 'O regístrate con'}
-                </span>
+                <span className="px-4 bg-transparent text-white/40">O continúa con</span>
               </div>
             </div>
 
@@ -180,10 +154,7 @@ export default function AuthForm() {
               <button
                 onClick={() => handleOAuthLogin('google')}
                 disabled={oauthLoading !== null}
-                className="flex items-center justify-center gap-2 py-3 px-4 
-                         bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20
-                         rounded-xl transition-all duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition disabled:opacity-50"
               >
                 {oauthLoading === 'google' ? (
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -203,10 +174,7 @@ export default function AuthForm() {
               <button
                 onClick={() => handleOAuthLogin('discord')}
                 disabled={oauthLoading !== null}
-                className="flex items-center justify-center gap-2 py-3 px-4 
-                         bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/20 hover:border-[#5865F2]/40
-                         rounded-xl transition-all duration-300
-                         disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex items-center justify-center gap-2 py-3 px-4 bg-[#5865F2]/10 hover:bg-[#5865F2]/20 border border-[#5865F2]/20 rounded-xl transition disabled:opacity-50"
               >
                 {oauthLoading === 'discord' ? (
                   <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -224,12 +192,8 @@ export default function AuthForm() {
 
           <div className="mt-6 text-center">
             <button
-              onClick={() => {
-                setIsLogin(!isLogin)
-                setMessage(null)
-              }}
-              className="text-sm text-white/60 hover:text-white transition-colors"
-              disabled={loading || oauthLoading !== null}
+              onClick={() => setIsLogin(!isLogin)}
+              className="text-sm text-white/60 hover:text-white transition"
             >
               {isLogin ? '¿No tienes cuenta? ' : '¿Ya tienes cuenta? '}
               <span className="text-white font-medium">
@@ -238,10 +202,6 @@ export default function AuthForm() {
             </button>
           </div>
         </div>
-
-        <p className="text-center text-xs text-white/40 mt-8">
-          Al continuar, aceptas nuestros términos y condiciones
-        </p>
       </div>
     </div>
   )
