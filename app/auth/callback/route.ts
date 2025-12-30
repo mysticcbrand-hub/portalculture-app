@@ -32,6 +32,7 @@ export async function GET(request: Request) {
     }
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/auth/auth-code-error`)
+  // If no code, redirect to a page that will handle the hash fragment
+  // (for implicit flow with access_token in hash)
+  return NextResponse.redirect(`${origin}/auth/confirm`)
 }
