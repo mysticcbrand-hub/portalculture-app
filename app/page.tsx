@@ -8,31 +8,51 @@ import { useRouter } from 'next/navigation'
 export default function Home() {
   const router = useRouter()
   const [loading, setLoading] = useState(true)
+  const [checkingSession, setCheckingSession] = useState(true)
 
   useEffect(() => {
-    // Check current session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setLoading(false)
-      
-      // If user is logged in, redirect to dashboard
-      if (session) {
-        router.push('/dashboard')
+    // Check if user is already logged in
+    const checkSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Error checking session:', error)
+        }
+        
+        if (session) {
+          console.log('✅ User already logged in, redirecting to dashboard')
+          router.push('/dashboard')
+        } else {
+          console.log('No active session')
+          setCheckingSession(false)
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
+        setCheckingSession(false)
+      } finally {
+        setLoading(false)
       }
-    })
+    }
+
+    checkSession()
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       if (session) {
+        console.log('✅ Auth state changed - user logged in')
         router.push('/dashboard')
       }
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [router])
 
-  if (loading) {
+  if (loading || checkingSession) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
         <div className="flex flex-col items-center gap-4">
@@ -43,6 +63,5 @@ export default function Home() {
     )
   }
 
-  // Show auth form if not logged in
   return <AuthForm />
 }
