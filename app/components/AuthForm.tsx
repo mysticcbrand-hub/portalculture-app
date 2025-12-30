@@ -35,7 +35,7 @@ export default function AuthForm() {
 
   const handleRegisterClick = () => {
     // Redirect to typeform registration
-    router.push('/register')
+    router.push('/cuestionario')
   }
 
   const handleAuth = async (e: React.FormEvent) => {
