@@ -19,13 +19,19 @@ export default function AuthForm() {
     setMessage(null)
     
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/dashboard`,
+          skipBrowserRedirect: false
         },
       })
+      
       if (error) throw error
+      
+      // Browser will redirect automatically
+      console.log('OAuth initiated:', data)
+      
     } catch (error) {
       const authError = error as AuthError
       setMessage({ type: 'error', text: authError.message || 'Error al conectar' })
@@ -34,7 +40,6 @@ export default function AuthForm() {
   }
 
   const handleRegisterClick = () => {
-    // Redirect to typeform registration
     router.push('/cuestionario')
   }
 
@@ -44,13 +49,13 @@ export default function AuthForm() {
     setMessage(null)
 
     try {
-      // Login with email/password
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
       if (error) throw error
       setMessage({ type: 'success', text: '¡Bienvenido de vuelta!' })
+      setTimeout(() => router.push('/dashboard'), 500)
     } catch (error) {
       const authError = error as AuthError
       setMessage({ type: 'error', text: authError.message || 'Algo salió mal' })
@@ -61,13 +66,11 @@ export default function AuthForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-6 py-12 bg-black relative overflow-hidden">
-      {/* Background gradient effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent" />
       <div className="absolute top-20 right-20 w-96 h-96 bg-white/5 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-20 w-96 h-96 bg-white/3 rounded-full blur-3xl" />
 
       <div className="relative z-10 w-full max-w-md">
-        {/* Logo / Header */}
         <div className="text-center mb-12 animate-fadeIn">
           <h1 className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
             Portal Culture
@@ -77,10 +80,8 @@ export default function AuthForm() {
           </p>
         </div>
 
-        {/* Auth Form */}
         <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-2xl animate-fadeIn">
           {!isLogin ? (
-            // Registration view - just show the button
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold mb-2 text-white">Proceso de Selección</h2>
@@ -101,7 +102,6 @@ export default function AuthForm() {
               </div>
             </div>
           ) : (
-            // Login form
             <form onSubmit={handleAuth} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium mb-2 text-white/80">
@@ -164,7 +164,6 @@ export default function AuthForm() {
             </form>
           )}
 
-          {/* OAuth Buttons */}
           <div className="mt-6 space-y-3">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
@@ -223,7 +222,6 @@ export default function AuthForm() {
             </div>
           </div>
 
-          {/* Toggle Login/Signup */}
           <div className="mt-6 text-center">
             <button
               onClick={() => {
@@ -241,7 +239,6 @@ export default function AuthForm() {
           </div>
         </div>
 
-        {/* Footer text */}
         <p className="text-center text-xs text-white/40 mt-8">
           Al continuar, aceptas nuestros términos y condiciones
         </p>
