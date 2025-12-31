@@ -5,14 +5,18 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
     // Registro directo con Supabase REST API
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/signup`,
+      `${supabaseUrl}/auth/v1/signup`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'apikey': supabaseKey!,
+          'Authorization': `Bearer ${supabaseKey!}`
         },
         body: JSON.stringify({ email, password })
       }
@@ -29,12 +33,13 @@ export async function POST(request: Request) {
 
     // Login automático después de registro
     const loginResponse = await fetch(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+      `${supabaseUrl}/auth/v1/token?grant_type=password`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'apikey': supabaseKey!,
+          'Authorization': `Bearer ${supabaseKey!}`
         },
         body: JSON.stringify({ email, password })
       }
