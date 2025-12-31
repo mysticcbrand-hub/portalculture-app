@@ -37,18 +37,16 @@ export default function LoginPage() {
         }
       } else {
         // Registro - PRIMERO verificar que esté aprobado en waitlist
-        const { data: waitlistData, error: waitlistError } = await supabase
-          .from('waitlist')
-          .select('status')
-          .eq('email', email)
-          .single()
+        const checkResponse = await fetch('/api/check-waitlist', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        })
 
-        if (waitlistError || !waitlistData) {
-          throw new Error('No tienes una invitación aprobada. Por favor, completa el cuestionario primero en la página principal.')
-        }
+        const checkData = await checkResponse.json()
 
-        if (waitlistData.status !== 'approved') {
-          throw new Error('Tu solicitud aún está siendo revisada. Te contactaremos pronto por email.')
+        if (!checkData.approved) {
+          throw new Error(checkData.message)
         }
 
         // Si está aprobado, crear cuenta
