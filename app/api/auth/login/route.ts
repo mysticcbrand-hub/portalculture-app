@@ -1,63 +1,56 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { createServerClient, type CookieOptions } from '@supabase/ssr'
+import axios from 'axios'
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
-    const cookieStore = await cookies()
 
-    // Usar cliente SSR de Supabase con opciones para evitar headers largos
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    // Usar axios en lugar de fetch (no tiene problemas con headers largos)
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
+      { email, password },
       {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value, ...options })
-            } catch (e) {
-              // Ignorar errores de cookies
-            }
-          },
-          remove(name: string, options: CookieOptions) {
-            try {
-              cookieStore.set({ name, value: '', ...options })
-            } catch (e) {
-              // Ignorar errores
-            }
-          },
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
         },
-        auth: {
-          flowType: 'pkce',
-          detectSessionInUrl: false,
-          persistSession: true,
-          autoRefreshToken: false,
-        },
-        global: {
-          headers: {
-            'x-my-custom-header': 'my-app',
-          },
-        },
+        validateStatus: () => true // Aceptar cualquier status
       }
     )
 
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
-    })
-
-    if (error) {
+    if (response.status !== 200) {
       return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
+        { error: response.data.error_description || response.data.message || 'Error al iniciar sesión' },
+        { status: response.status }
       )
     }
 
-    // Las cookies ya se guardan automáticamente con @supabase/ssr
+    const data = response.data
+
+    // Guardar tokens en cookies
+    const cookieStore = await cookies()
+    
+    if (data.access_token) {
+      cookieStore.set('sb-access-token', data.access_token, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: data.expires_in || 3600
+      })
+    }
+
+    if (data.refresh_token) {
+      cookieStore.set('sb-refresh-token', data.refresh_token, {
+        path: '/',
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7
+      })
+    }
+
     return NextResponse.json({ success: true, user: data.user })
   } catch (error: any) {
     console.error('Login error:', error)
