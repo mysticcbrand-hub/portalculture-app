@@ -262,14 +262,22 @@ export default function AdminWaitlistPage() {
                       {entry.metadata.answers.map((answer: any, idx: number) => {
                         // Extraer el valor de la respuesta de forma segura
                         let answerValue = 'N/A'
-                        if (answer.text) answerValue = answer.text
-                        else if (answer.choice) answerValue = answer.choice
-                        else if (answer.email) answerValue = answer.email
-                        else if (answer.number) answerValue = answer.number.toString()
+                        if (answer.text) answerValue = String(answer.text)
+                        else if (answer.choice) answerValue = String(answer.choice)
+                        else if (answer.email) answerValue = String(answer.email)
+                        else if (answer.number) answerValue = String(answer.number)
                         else if (answer.boolean !== undefined) answerValue = answer.boolean ? 'Sí' : 'No'
                         else if (typeof answer === 'string') answerValue = answer
                         
-                        const questionLabel = answer.field?.label || answer.field?.title || `Pregunta ${idx + 1}`
+                        // Extraer label de forma segura (puede ser objeto)
+                        let questionLabel = `Pregunta ${idx + 1}`
+                        if (typeof answer.field?.label === 'string') {
+                          questionLabel = answer.field.label
+                        } else if (typeof answer.field?.title === 'string') {
+                          questionLabel = answer.field.title
+                        } else if (answer.field?.ref) {
+                          questionLabel = `Campo: ${answer.field.ref}`
+                        }
                         
                         return (
                           <div key={idx} className="text-sm">
