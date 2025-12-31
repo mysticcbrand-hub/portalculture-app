@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json()
     const cookieStore = await cookies()
 
-    // Usar cliente SSR de Supabase
+    // Usar cliente SSR de Supabase con opciones para evitar headers largos
     const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -17,10 +17,29 @@ export async function POST(request: Request) {
             return cookieStore.get(name)?.value
           },
           set(name: string, value: string, options: CookieOptions) {
-            cookieStore.set({ name, value, ...options })
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch (e) {
+              // Ignorar errores de cookies
+            }
           },
           remove(name: string, options: CookieOptions) {
-            cookieStore.set({ name, value: '', ...options })
+            try {
+              cookieStore.set({ name, value: '', ...options })
+            } catch (e) {
+              // Ignorar errores
+            }
+          },
+        },
+        auth: {
+          flowType: 'pkce',
+          detectSessionInUrl: false,
+          persistSession: true,
+          autoRefreshToken: false,
+        },
+        global: {
+          headers: {
+            'x-my-custom-header': 'my-app',
           },
         },
       }
