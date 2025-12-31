@@ -1,117 +1,96 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabase'
-import { User } from '@supabase/supabase-js'
-import Script from 'next/script'
+import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export default function CuestionarioPage() {
-  const router = useRouter()
-  const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [userEmail, setUserEmail] = useState<string | null>(null)
+  const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
-    // Check if user is logged in
-    supabase.auth.getUser().then(({ data: { user } }) => {
-      setUser(user)
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        router.push('/')
+        return
+      }
+      
+      setUserEmail(user.email || null)
       setLoading(false)
-    })
+    }
 
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [])
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-  }
+    checkUser()
+  }, [router, supabase])
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-white/60 text-sm">Cargando...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black flex flex-col">
-      {/* Typeform Embed Script */}
-      <Script src="//embed.typeform.com/next/embed.js" strategy="lazyOnload" />
-
+    <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <div className="border-b border-white/10 backdrop-blur-xl bg-white/5 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <h1 className="text-xl font-bold text-white">Portal Culture</h1>
-            {user && (
-              <span className="text-sm text-white/60">
-                {user.user_metadata?.name || user.user_metadata?.full_name || user.email}
-              </span>
+      <header className="p-6 glass border-b border-white/10">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+            PORTAL CULTURE
+          </h1>
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut()
+              router.push('/')
+            }}
+            className="text-sm text-gray-400 hover:text-white transition-colors"
+          >
+            Cerrar sesión
+          </button>
+        </div>
+      </header>
+
+      {/* Content */}
+      <main className="flex-1 p-6">
+        <div className="max-w-4xl mx-auto">
+          <div className="glass rounded-3xl p-8 mb-6">
+            <h2 className="text-3xl font-bold mb-4">Cuestionario de ingreso</h2>
+            <p className="text-gray-400 mb-6">
+              Para formar parte de Portal Culture, completa este breve cuestionario. 
+              Una vez revisado por nuestro equipo, recibirás un email con acceso completo a la plataforma.
+            </p>
+            {userEmail && (
+              <div className="p-4 bg-white/5 border border-white/10 rounded-xl mb-6">
+                <p className="text-sm text-gray-400">
+                  Registrado como: <span className="text-white font-medium">{userEmail}</span>
+                </p>
+              </div>
             )}
           </div>
-          {user && (
-            <button
-              onClick={handleLogout}
-              className="text-sm text-white/60 hover:text-white transition-colors px-4 py-2 rounded-lg hover:bg-white/5"
-            >
-              Cerrar sesión
-            </button>
-          )}
-        </div>
-      </div>
 
-      {/* Welcome message */}
-      <div className="max-w-4xl mx-auto px-6 py-8 text-center">
-        <h2 className="text-3xl md:text-4xl font-bold mb-3 bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
-          ¡Bienvenido al proceso de selección!
-        </h2>
-        <p className="text-white/60 text-lg mb-2">
-          Completa este cuestionario para solicitar tu acceso a Portal Culture
-        </p>
-        <p className="text-white/40 text-sm">
-          Respuesta en menos de 24h · 100% gratuito
-        </p>
-      </div>
-
-      {/* Typeform Embed - Full screen */}
-      <div className="flex-1 relative">
-        <div className="absolute inset-0 flex items-center justify-center p-6">
-          <div className="w-full h-full max-w-5xl">
-            {/* Typeform Widget Container */}
-            <div 
-              data-tf-live="01KDNY02YBPCQYJ5MTTVWPCZ2J"
-              data-tf-hidden={user ? `name=${user.user_metadata?.name || user.user_metadata?.full_name || ''},email=${user.email || ''}` : ''}
-              data-tf-opacity="0"
-              data-tf-iframe-props="title=Portal Culture - Cuestionario de Acceso"
-              data-tf-transitive-search-params
-              data-tf-medium="snippet"
-              className="w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-white/10"
-              style={{ 
-                height: 'calc(100vh - 240px)',
-                minHeight: '500px',
-              }}
+          {/* Typeform embed */}
+          <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
+            <iframe
+              src={`https://form.typeform.com/to/${process.env.NEXT_PUBLIC_TYPEFORM_ID}?email=${userEmail}`}
+              style={{ width: '100%', height: '100%', border: 'none' }}
+              allow="camera; microphone; autoplay; encrypted-media;"
             />
           </div>
-        </div>
-      </div>
 
-      {/* Footer hint */}
-      <div className="py-4 text-center">
-        <p className="text-white/40 text-xs">
-          Después de completar el formulario, recibirás un email con los siguientes pasos
-        </p>
-      </div>
+          <div className="mt-6 text-center">
+            <p className="text-sm text-gray-500">
+              Al completar el cuestionario, tu solicitud será revisada en las próximas 24-48 horas.
+            </p>
+          </div>
+        </div>
+      </main>
     </div>
   )
 }

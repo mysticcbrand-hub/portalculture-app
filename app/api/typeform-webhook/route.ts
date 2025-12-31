@@ -1,69 +1,78 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
-
-interface TypeformAnswer {
-  type: string
-  email?: string
-  text?: string
-  short_text?: string
-  [key: string]: unknown
-}
+import { supabaseAdmin } from '@/lib/supabase-server'
 
 export async function POST(request: Request) {
   try {
     const body = await request.json()
     
-    // Extraer datos de Typeform
-    const formResponse = body.form_response
-    const answers = formResponse.answers as TypeformAnswer[]
+    console.log('Typeform webhook received:', JSON.stringify(body, null, 2))
+
+    // Extract data from Typeform webhook
+    const { form_response } = body
     
-    // Mapear respuestas
-    const emailAnswer = answers.find((a) => a.type === 'email')
-    const nameAnswer = answers.find((a) => a.type === 'text' || a.type === 'short_text')
+    if (!form_response) {
+      return NextResponse.json({ error: 'Invalid webhook data' }, { status: 400 })
+    }
+
+    const { response_id, answers, hidden } = form_response
     
-    const email = emailAnswer?.email
-    const name = nameAnswer?.text || nameAnswer?.short_text || 'Sin nombre'
+    // Get email from hidden fields (we pass it when embedding the form)
+    const email = hidden?.email
     
     if (!email) {
-      return NextResponse.json({ error: 'Email not found' }, { status: 400 })
+      console.error('No email found in webhook data')
+      return NextResponse.json({ error: 'No email provided' }, { status: 400 })
     }
-    
-    // Guardar en Supabase
-    const { data, error } = await supabase
+
+    // Extract name from answers (assuming first question is name)
+    let name = 'Usuario'
+    if (answers && answers.length > 0) {
+      const nameAnswer = answers.find((a: any) => 
+        a.type === 'text' || a.type === 'short_text'
+      )
+      if (nameAnswer?.text) {
+        name = nameAnswer.text
+      }
+    }
+
+    // Save to waitlist table
+    const { data, error } = await supabaseAdmin
       .from('waitlist')
-      .insert({
-        email,
-        name,
-        typeform_response_id: formResponse.response_id,
-        status: 'pending',
-        metadata: formResponse
-      })
+      .insert([
+        {
+          email,
+          name,
+          typeform_response_id: response_id,
+          status: 'pending',
+          metadata: {
+            answers: answers || [],
+            hidden: hidden || {}
+          }
+        }
+      ])
       .select()
-      .single()
-    
+
     if (error) {
       console.error('Error saving to waitlist:', error)
-      return NextResponse.json({ error: error.message }, { status: 400 })
+      return NextResponse.json({ error: error.message }, { status: 500 })
     }
-    
-    console.log('✅ Usuario agregado a waitlist:', email)
+
+    console.log('Successfully saved to waitlist:', data)
+
     return NextResponse.json({ success: true, data })
-    
-  } catch (error) {
+  } catch (error: any) {
     console.error('Webhook error:', error)
-    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
+    return NextResponse.json(
+      { error: error.message || 'Internal server error' },
+      { status: 500 }
+    )
   }
 }
 
-// Para verificar que el endpoint funciona
+// Handle GET requests for testing
 export async function GET() {
   return NextResponse.json({ 
-    status: 'ok',
-    message: 'Typeform webhook endpoint ready'
+    message: 'Typeform webhook endpoint is active',
+    timestamp: new Date().toISOString()
   })
 }

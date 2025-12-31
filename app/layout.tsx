@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Portal Culture - App",
-  description: "Accede a la comunidad exclusiva de desarrollo personal",
+  title: "Portal Culture - Dashboard",
+  description: "Comunidad exclusiva de desarrollo personal y crecimiento",
 };
 
 export default function RootLayout({

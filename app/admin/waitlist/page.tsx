@@ -1,273 +1,278 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { supabase } from '../../lib/supabase'
+import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
-interface WaitlistUser {
+interface WaitlistEntry {
   id: string
   email: string
   name: string
-  status: string
+  status: 'pending' | 'approved' | 'rejected'
   submitted_at: string
   approved_at: string | null
-  metadata: Record<string, unknown>
+  metadata: any
 }
 
-export default function AdminWaitlist() {
-  const router = useRouter()
-  const [pending, setPending] = useState<WaitlistUser[]>([])
-  const [approved, setApproved] = useState<WaitlistUser[]>([])
+export default function AdminWaitlistPage() {
   const [loading, setLoading] = useState(true)
+  const [entries, setEntries] = useState<WaitlistEntry[]>([])
+  const [filter, setFilter] = useState<'all' | 'pending' | 'approved' | 'rejected'>('pending')
   const [processing, setProcessing] = useState<string | null>(null)
-  const [userEmail, setUserEmail] = useState<string>('')
-  const [error, setError] = useState<string>('')
+  const router = useRouter()
+  const supabase = createClient()
 
   useEffect(() => {
-    // Verificar que el usuario esté logueado y sea admin
-    supabase.auth.getUser().then(({ data: { user }, error: authError }) => {
-      console.log('Auth check:', { user, error: authError })
-      
-      if (authError) {
-        console.error('Auth error:', authError)
-        setError(`Error de autenticación: ${authError.message}`)
-        return
-      }
-      
-      if (!user) {
-        console.log('No user found, redirecting to home')
-        setError('No hay usuario logueado')
-        setTimeout(() => router.push('/'), 2000)
-        return
-      }
-      
-      setUserEmail(user.email || '')
-      console.log('User email:', user.email)
-      
-      if (user.email !== 'mysticcbrand@gmail.com') {
-        console.log('User is not admin:', user.email)
-        setError(`Usuario no autorizado: ${user.email}. Solo mysticcbrand@gmail.com puede acceder.`)
-        setTimeout(() => router.push('/'), 2000)
-        return
-      }
-      
-      console.log('User is admin, loading waitlist')
-      loadWaitlist()
-    })
-  }, [router])
+    checkAdmin()
+  }, [])
 
-  const loadWaitlist = async () => {
-    setLoading(true)
-    
-    try {
-      // Cargar pendientes
-      const { data: pendingData, error: pendingError } = await supabase
-        .from('waitlist')
-        .select('*')
-        .eq('status', 'pending')
-        .order('submitted_at', { ascending: false })
-      
-      if (pendingError) {
-        console.error('Error loading pending:', pendingError)
-        setError(`Error cargando pendientes: ${pendingError.message}`)
-      }
-      
-      // Cargar aprobados
-      const { data: approvedData, error: approvedError } = await supabase
-        .from('waitlist')
-        .select('*')
-        .eq('status', 'approved')
-        .order('approved_at', { ascending: false })
-      
-      if (approvedError) {
-        console.error('Error loading approved:', approvedError)
-        setError(`Error cargando aprobados: ${approvedError.message}`)
-      }
-      
-      setPending(pendingData || [])
-      setApproved(approvedData || [])
-    } catch (err) {
-      console.error('Unexpected error:', err)
-      setError(`Error inesperado: ${err}`)
-    } finally {
-      setLoading(false)
+  useEffect(() => {
+    if (!loading) {
+      loadEntries()
     }
+  }, [filter, loading])
+
+  const checkAdmin = async () => {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user || user.email !== 'mysticcbrand@gmail.com') {
+      router.push('/dashboard')
+      return
+    }
+    
+    setLoading(false)
   }
 
-  const approveUser = async (user: WaitlistUser) => {
-    setProcessing(user.id)
+  const loadEntries = async () => {
+    let query = supabase
+      .from('waitlist')
+      .select('*')
+      .order('submitted_at', { ascending: false })
+
+    if (filter !== 'all') {
+      query = query.eq('status', filter)
+    }
+
+    const { data, error } = await query
+
+    if (error) {
+      console.error('Error loading waitlist:', error)
+      return
+    }
+
+    setEntries(data || [])
+  }
+
+  const handleApprove = async (entry: WaitlistEntry) => {
+    setProcessing(entry.id)
     
     try {
-      const response = await fetch('/api/approve-user', {
+      // 1. Update status in Supabase
+      const { error: updateError } = await supabase
+        .from('waitlist')
+        .update({ 
+          status: 'approved',
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', entry.id)
+
+      if (updateError) throw updateError
+
+      // 2. Send to Mailerlite
+      const response = await fetch('/api/mailerlite/add-subscriber', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          id: user.id,
-          email: user.email,
-          name: user.name
+          email: entry.email,
+          name: entry.name
         })
       })
-      
-      const data = await response.json()
-      
+
+      const result = await response.json()
+
       if (!response.ok) {
-        throw new Error(data.error || 'Error al aprobar usuario')
+        throw new Error(result.error || 'Error adding to Mailerlite')
       }
+
+      // 3. Reload entries
+      await loadEntries()
       
-      // Recargar lista
-      await loadWaitlist()
-      
-      alert(`✅ ${user.name} ha sido aprobado y se le envió el email!`)
-      
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Error desconocido'
-      alert(`❌ Error: ${errorMessage}`)
+      alert(`✅ ${entry.name} ha sido aprobado y añadido a Mailerlite`)
+    } catch (error: any) {
+      console.error('Error approving entry:', error)
+      alert(`❌ Error: ${error.message}`)
     } finally {
       setProcessing(null)
     }
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black p-8">
-        <div className="max-w-2xl w-full bg-red-500/10 border border-red-500/30 rounded-2xl p-8">
-          <h1 className="text-2xl font-bold text-red-400 mb-4">❌ Error de Acceso</h1>
-          <p className="text-white/80 mb-4">{error}</p>
-          <div className="text-sm text-white/40 mb-4">
-            <p>Email detectado: <span className="text-white/60">{userEmail || 'Ninguno'}</span></p>
-            <p>Email requerido: <span className="text-white/60">mysticcbrand@gmail.com</span></p>
-          </div>
-          <button
-            onClick={() => router.push('/')}
-            className="px-6 py-3 bg-white/10 border border-white/20 rounded-lg text-white hover:bg-white/20 transition"
-          >
-            Volver al inicio
-          </button>
-        </div>
-      </div>
-    )
+  const handleReject = async (entry: WaitlistEntry) => {
+    if (!confirm(`¿Rechazar la solicitud de ${entry.name}?`)) return
+    
+    setProcessing(entry.id)
+    
+    try {
+      const { error } = await supabase
+        .from('waitlist')
+        .update({ status: 'rejected' })
+        .eq('id', entry.id)
+
+      if (error) throw error
+
+      await loadEntries()
+      alert(`${entry.name} ha sido rechazado`)
+    } catch (error: any) {
+      console.error('Error rejecting entry:', error)
+      alert(`Error: ${error.message}`)
+    } finally {
+      setProcessing(null)
+    }
+  }
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/')
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-white/60 text-sm">Cargando panel de administración...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-white/20 border-t-white rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-400">Cargando...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-black p-8">
+    <div className="min-h-screen">
       {/* Header */}
-      <div className="max-w-7xl mx-auto mb-12">
-        <div className="flex items-center justify-between">
+      <header className="glass border-b border-white/10 sticky top-0 z-50 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-4xl font-bold text-white mb-2">Panel de Administración</h1>
-            <p className="text-white/60">Portal Culture - Lista de Espera</p>
-            <p className="text-white/40 text-sm mt-1">Logueado como: {userEmail}</p>
+            <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+              PORTAL CULTURE
+            </h1>
+            <p className="text-sm text-gray-400">Panel de Administración</p>
           </div>
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="px-6 py-3 bg-white/5 border border-white/10 rounded-lg
-                     text-white hover:bg-white/10 transition"
-          >
-            Ir al Dashboard
-          </button>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto space-y-12">
-        {/* Pending Section */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-2xl font-bold text-white">
-              Pendientes de Aprobación ({pending.length})
-            </h2>
+          <div className="flex items-center gap-4">
             <button
-              onClick={loadWaitlist}
-              className="px-4 py-2 bg-white/5 border border-white/10 rounded-lg
-                       text-white/60 hover:text-white hover:bg-white/10 transition text-sm"
+              onClick={() => router.push('/dashboard')}
+              className="px-4 py-2 text-sm glass glass-hover rounded-xl"
             >
-              ↻ Recargar
+              Dashboard
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="px-4 py-2 text-sm glass glass-hover rounded-xl"
+            >
+              Cerrar sesión
             </button>
           </div>
+        </div>
+      </header>
 
-          {pending.length === 0 ? (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-12 text-center">
-              <p className="text-white/40">No hay usuarios pendientes</p>
+      <main className="max-w-7xl mx-auto px-6 py-12">
+        <div className="mb-8">
+          <h2 className="text-4xl font-bold mb-2">Lista de Espera</h2>
+          <p className="text-gray-400">Gestiona las solicitudes de acceso a Portal Culture</p>
+        </div>
+
+        {/* Filters */}
+        <div className="flex gap-3 mb-6">
+          {(['all', 'pending', 'approved', 'rejected'] as const).map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-4 py-2 rounded-xl font-medium transition-all ${
+                filter === f
+                  ? 'bg-white text-black'
+                  : 'glass glass-hover'
+              }`}
+            >
+              {f === 'all' && 'Todas'}
+              {f === 'pending' && `Pendientes (${entries.length})`}
+              {f === 'approved' && 'Aprobadas'}
+              {f === 'rejected' && 'Rechazadas'}
+            </button>
+          ))}
+        </div>
+
+        {/* Entries list */}
+        <div className="space-y-4">
+          {entries.length === 0 ? (
+            <div className="glass rounded-3xl p-12 text-center">
+              <p className="text-gray-400">No hay solicitudes en esta categoría</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {pending.map((user) => (
-                <div key={user.id} className="bg-white/5 border border-white/10 rounded-xl p-6
-                                             hover:bg-white/[0.07] transition">
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <h3 className="text-xl font-semibold text-white mb-1">{user.name}</h3>
-                      <p className="text-white/60 mb-3">{user.email}</p>
-                      <div className="flex gap-4 text-sm text-white/40">
-                        <span>📅 {new Date(user.submitted_at).toLocaleString('es-ES')}</span>
-                      </div>
+            entries.map((entry) => (
+              <div key={entry.id} className="glass rounded-3xl p-6">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
+                      <h3 className="text-xl font-bold">{entry.name}</h3>
+                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        entry.status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                        entry.status === 'approved' ? 'bg-green-500/20 text-green-400' :
+                        'bg-red-500/20 text-red-400'
+                      }`}>
+                        {entry.status === 'pending' ? 'Pendiente' :
+                         entry.status === 'approved' ? 'Aprobado' : 'Rechazado'}
+                      </span>
                     </div>
-                    
-                    <button
-                      onClick={() => approveUser(user)}
-                      disabled={processing === user.id}
-                      className="px-8 py-4 bg-green-500/20 border border-green-500/40 rounded-xl
-                               text-green-400 hover:bg-green-500/30 transition font-semibold
-                               disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                    >
-                      {processing === user.id ? (
-                        <>
-                          <div className="w-4 h-4 border-2 border-green-400/20 border-t-green-400 rounded-full animate-spin" />
-                          Procesando...
-                        </>
-                      ) : (
-                        <>✓ Aprobar</>
-                      )}
-                    </button>
+                    <p className="text-gray-400 mb-1">{entry.email}</p>
+                    <p className="text-sm text-gray-500">
+                      Enviado: {new Date(entry.submitted_at).toLocaleString('es-ES')}
+                    </p>
+                    {entry.approved_at && (
+                      <p className="text-sm text-gray-500">
+                        Aprobado: {new Date(entry.approved_at).toLocaleString('es-ES')}
+                      </p>
+                    )}
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </section>
 
-        {/* Approved Section */}
-        <section>
-          <h2 className="text-2xl font-bold text-white mb-6">
-            Aprobados ({approved.length})
-          </h2>
-
-          {approved.length === 0 ? (
-            <div className="bg-white/5 border border-white/10 rounded-xl p-12 text-center">
-              <p className="text-white/40">Aún no has aprobado a nadie</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {approved.map((user) => (
-                <div key={user.id} className="bg-green-500/5 border border-green-500/20 rounded-xl p-4">
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="text-white font-semibold">{user.name}</h4>
-                      <p className="text-white/60 text-sm">{user.email}</p>
+                  {entry.status === 'pending' && (
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => handleApprove(entry)}
+                        disabled={processing === entry.id}
+                        className="px-4 py-2 bg-green-500/20 text-green-400 border border-green-500/30 rounded-xl hover:bg-green-500/30 transition-all disabled:opacity-50"
+                      >
+                        {processing === entry.id ? 'Procesando...' : 'Aprobar'}
+                      </button>
+                      <button
+                        onClick={() => handleReject(entry)}
+                        disabled={processing === entry.id}
+                        className="px-4 py-2 bg-red-500/20 text-red-400 border border-red-500/30 rounded-xl hover:bg-red-500/30 transition-all disabled:opacity-50"
+                      >
+                        Rechazar
+                      </button>
                     </div>
-                    <div className="text-right text-sm text-green-400">
-                      <div>✓ Aprobado</div>
-                      <div className="text-white/40 text-xs">
-                        {user.approved_at && new Date(user.approved_at).toLocaleString('es-ES')}
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-              ))}
-            </div>
+
+                {/* Show metadata if available */}
+                {entry.metadata?.answers && entry.metadata.answers.length > 0 && (
+                  <details className="mt-4">
+                    <summary className="cursor-pointer text-sm text-gray-400 hover:text-white">
+                      Ver respuestas del cuestionario
+                    </summary>
+                    <div className="mt-3 p-4 bg-white/5 rounded-xl space-y-2">
+                      {entry.metadata.answers.map((answer: any, idx: number) => (
+                        <div key={idx} className="text-sm">
+                          <p className="text-gray-400">{answer.field?.label || 'Pregunta'}</p>
+                          <p className="text-white">{answer.text || answer.choice || answer.email || 'N/A'}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </details>
+                )}
+              </div>
+            ))
           )}
-        </section>
-      </div>
+        </div>
+      </main>
     </div>
   )
 }
