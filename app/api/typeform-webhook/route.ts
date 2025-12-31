@@ -16,23 +16,34 @@ export async function POST(request: Request) {
 
     const { response_id, answers, hidden } = form_response
     
-    // Get email from hidden fields (we pass it when embedding the form)
-    const email = hidden?.email
-    
-    if (!email) {
-      console.error('No email found in webhook data')
-      return NextResponse.json({ error: 'No email provided' }, { status: 400 })
-    }
-
-    // Extract name from answers (assuming first question is name)
+    // Extract email from answers (look for email field)
+    let email = null
     let name = 'Usuario'
+    
     if (answers && answers.length > 0) {
+      // Find email field
+      const emailAnswer = answers.find((a: any) => a.type === 'email')
+      if (emailAnswer?.email) {
+        email = emailAnswer.email
+      }
+      
+      // Find name field (first text/short_text field that's not email)
       const nameAnswer = answers.find((a: any) => 
-        a.type === 'text' || a.type === 'short_text'
+        (a.type === 'text' || a.type === 'short_text') && a.text
       )
       if (nameAnswer?.text) {
         name = nameAnswer.text
       }
+    }
+    
+    // Fallback: try to get email from hidden fields
+    if (!email && hidden?.email) {
+      email = hidden.email
+    }
+    
+    if (!email) {
+      console.error('No email found in webhook data. Answers:', answers)
+      return NextResponse.json({ error: 'No email provided' }, { status: 400 })
     }
 
     // Save to waitlist table

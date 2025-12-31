@@ -56,24 +56,23 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protected routes
+  // Protected routes - requieren autenticación
   if (!user && (
     request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/admin') ||
-    request.nextUrl.pathname.startsWith('/cuestionario')
+    request.nextUrl.pathname.startsWith('/admin')
   )) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Admin routes
+  // Admin routes - solo para mysticcbrand@gmail.com
   if (request.nextUrl.pathname.startsWith('/admin')) {
     if (user?.email !== 'mysticcbrand@gmail.com') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
-  // Redirect to dashboard if already logged in
-  if (user && request.nextUrl.pathname === '/') {
+  // Redirect to dashboard if already logged in and trying to access login page
+  if (user && request.nextUrl.pathname === '/login') {
     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
