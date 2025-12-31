@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -14,6 +14,9 @@ export default function LoginPage() {
   const [message, setMessage] = useState<string | null>(null)
   const router = useRouter()
   
+  // Crear cliente de Supabase una sola vez
+  const supabase = useMemo(() => createClient(), [])
+  
   // Debug: Verificar variables de entorno
   useEffect(() => {
     console.log('🔍 Environment variables check:')
@@ -21,8 +24,6 @@ export default function LoginPage() {
     console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? '✅ EXISTS' : '❌ MISSING')
     console.log('NEXT_PUBLIC_TYPEFORM_ID:', process.env.NEXT_PUBLIC_TYPEFORM_ID ? '✅ EXISTS' : '❌ MISSING')
   }, [])
-  
-  const supabase = createClient()
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault()
