@@ -6,6 +6,10 @@ export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
 
+    console.log('🔍 Login attempt for:', email)
+    console.log('🔍 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+    console.log('🔍 API Key length:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length)
+
     // Usar axios en lugar de fetch (no tiene problemas con headers largos)
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
@@ -18,6 +22,9 @@ export async function POST(request: Request) {
         validateStatus: () => true // Aceptar cualquier status
       }
     )
+
+    console.log('🔍 Response status:', response.status)
+    console.log('🔍 Response data:', response.data)
 
     if (response.status !== 200) {
       return NextResponse.json(
