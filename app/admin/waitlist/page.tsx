@@ -253,18 +253,31 @@ export default function AdminWaitlistPage() {
                 </div>
 
                 {/* Show metadata if available */}
-                {entry.metadata?.answers && entry.metadata.answers.length > 0 && (
+                {entry.metadata?.answers && Array.isArray(entry.metadata.answers) && entry.metadata.answers.length > 0 && (
                   <details className="mt-4">
                     <summary className="cursor-pointer text-sm text-gray-400 hover:text-white">
                       Ver respuestas del cuestionario
                     </summary>
                     <div className="mt-3 p-4 bg-white/5 rounded-xl space-y-2">
-                      {entry.metadata.answers.map((answer: any, idx: number) => (
-                        <div key={idx} className="text-sm">
-                          <p className="text-gray-400">{answer.field?.label || 'Pregunta'}</p>
-                          <p className="text-white">{answer.text || answer.choice || answer.email || 'N/A'}</p>
-                        </div>
-                      ))}
+                      {entry.metadata.answers.map((answer: any, idx: number) => {
+                        // Extraer el valor de la respuesta de forma segura
+                        let answerValue = 'N/A'
+                        if (answer.text) answerValue = answer.text
+                        else if (answer.choice) answerValue = answer.choice
+                        else if (answer.email) answerValue = answer.email
+                        else if (answer.number) answerValue = answer.number.toString()
+                        else if (answer.boolean !== undefined) answerValue = answer.boolean ? 'Sí' : 'No'
+                        else if (typeof answer === 'string') answerValue = answer
+                        
+                        const questionLabel = answer.field?.label || answer.field?.title || `Pregunta ${idx + 1}`
+                        
+                        return (
+                          <div key={idx} className="text-sm">
+                            <p className="text-gray-400">{questionLabel}</p>
+                            <p className="text-white">{answerValue}</p>
+                          </div>
+                        )
+                      })}
                     </div>
                   </details>
                 )}
