@@ -33,18 +33,22 @@ export default function LoginPage() {
 
     try {
       if (isLogin) {
-        // Login
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+        // Login con API directa de Supabase (sin usar el cliente)
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
         })
 
-        if (error) throw error
+        const data = await response.json()
 
-        if (data.user) {
-          router.push('/dashboard')
-          router.refresh()
+        if (!response.ok) {
+          throw new Error(data.error || 'Error al iniciar sesión')
         }
+
+        // Redirigir al dashboard
+        router.push('/dashboard')
+        router.refresh()
       } else {
         // Registro - PRIMERO verificar que esté aprobado en waitlist
         const checkResponse = await fetch('/api/check-waitlist', {
@@ -59,26 +63,21 @@ export default function LoginPage() {
           throw new Error(checkData.message)
         }
 
-        // Si está aprobado, crear cuenta
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
+        // Registrar con API directa
+        const response = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
         })
 
-        if (error) throw error
+        const data = await response.json()
 
-        if (data.user) {
-          // Login automático después de registro
-          const { error: loginError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-          })
-
-          if (loginError) throw loginError
-
-          router.push('/dashboard')
-          router.refresh()
+        if (!response.ok) {
+          throw new Error(data.error || 'Error al crear cuenta')
         }
+
+        router.push('/dashboard')
+        router.refresh()
       }
     } catch (error: any) {
       setError(error.message || 'Ocurrió un error')
