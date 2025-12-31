@@ -1,15 +1,29 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
+    const cookieStore = await cookies()
 
-    // Usar cliente de Supabase en el servidor
-    const supabase = createClient(
+    // Usar cliente SSR de Supabase
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: CookieOptions) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
     )
 
     // Registrar usuario
@@ -38,27 +52,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Guardar tokens en cookies
-    const cookieStore = await cookies()
-    
-    if (loginData.session) {
-      cookieStore.set('sb-access-token', loginData.session.access_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: loginData.session.expires_in || 3600
-      })
-
-      cookieStore.set('sb-refresh-token', loginData.session.refresh_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7
-      })
-    }
-
+    // Las cookies ya se guardan automáticamente con @supabase/ssr
     return NextResponse.json({ success: true, user: loginData.user })
   } catch (error: any) {
     console.error('Register error:', error)

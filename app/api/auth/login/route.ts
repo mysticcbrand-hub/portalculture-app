@@ -1,15 +1,29 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
-import { createClient } from '@supabase/supabase-js'
+import { createServerClient, type CookieOptions } from '@supabase/ssr'
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
+    const cookieStore = await cookies()
 
-    // Usar cliente de Supabase en el servidor (NO tiene el bug del navegador)
-    const supabase = createClient(
+    // Usar cliente SSR de Supabase
+    const supabase = createServerClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: CookieOptions) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: CookieOptions) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
     )
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -24,27 +38,7 @@ export async function POST(request: Request) {
       )
     }
 
-    // Guardar tokens en cookies
-    const cookieStore = await cookies()
-    
-    if (data.session) {
-      cookieStore.set('sb-access-token', data.session.access_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: data.session.expires_in || 3600
-      })
-
-      cookieStore.set('sb-refresh-token', data.session.refresh_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7 // 7 días
-      })
-    }
-
+    // Las cookies ya se guardan automáticamente con @supabase/ssr
     return NextResponse.json({ success: true, user: data.user })
   } catch (error: any) {
     console.error('Login error:', error)
