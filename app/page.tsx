@@ -1,15 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Script from 'next/script'
 
 export default function HomePage() {
   const [submitted, setSubmitted] = useState(false)
 
+  useEffect(() => {
+    // Detectar cuando se completa el formulario (opcional)
+    // Puedes usar eventos de Typeform si los necesitas
+  }, [])
+
   return (
-    <div className="min-h-screen flex flex-col">
-      {/* Header */}
-      <header className="p-6 glass border-b border-white/10">
+    <>
+      {/* Typeform Script */}
+      <Script src="//embed.typeform.com/next/embed.js" strategy="lazyOnload" />
+      
+      <div className="min-h-screen flex flex-col">
+        {/* Header */}
+        <header className="p-6 glass border-b border-white/10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <h1 className="text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
             PORTAL CULTURE
@@ -48,13 +58,9 @@ export default function HomePage() {
 
               {/* Typeform embed */}
               <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
-                <iframe
-                  src={`https://form.typeform.com/to/${process.env.NEXT_PUBLIC_TYPEFORM_ID}`}
-                  style={{ width: '100%', height: '100%', border: 'none' }}
-                  allow="camera; microphone; autoplay; encrypted-media;"
-                  onLoad={() => {
-                    // Detectar cuando se completa el formulario (opcional)
-                  }}
+                <div 
+                  data-tf-live="01KDNY02YBPCQYJ5MTTVWPCZ2J"
+                  style={{ width: '100%', height: '100%' }}
                 />
               </div>
 
@@ -84,9 +90,10 @@ export default function HomePage() {
         </div>
       </main>
 
-      <footer className="text-center text-xs text-gray-500 p-6">
-        © 2025 Portal Culture. Todos los derechos reservados.
-      </footer>
-    </div>
+        <footer className="text-center text-xs text-gray-500 p-6">
+          © 2025 Portal Culture. Todos los derechos reservados.
+        </footer>
+      </div>
+    </>
   )
 }
