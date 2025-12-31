@@ -1,65 +1,56 @@
 import { NextResponse } from 'next/server'
 import { cookies } from 'next/headers'
+import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
 
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-    // Registro directo con Supabase REST API
-    const response = await fetch(
-      `${supabaseUrl}/auth/v1/signup`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseKey!,
-          'Authorization': `Bearer ${supabaseKey!}`
-        },
-        body: JSON.stringify({ email, password })
-      }
+    // Usar cliente de Supabase en el servidor
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
     )
 
-    const data = await response.json()
+    // Registrar usuario
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+      email,
+      password
+    })
 
-    if (!response.ok) {
+    if (signUpError) {
       return NextResponse.json(
-        { error: data.error_description || data.message || 'Error al crear cuenta' },
-        { status: response.status }
+        { error: signUpError.message },
+        { status: 400 }
       )
     }
 
     // Login automático después de registro
-    const loginResponse = await fetch(
-      `${supabaseUrl}/auth/v1/token?grant_type=password`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': supabaseKey!,
-          'Authorization': `Bearer ${supabaseKey!}`
-        },
-        body: JSON.stringify({ email, password })
-      }
-    )
+    const { data: loginData, error: loginError } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    })
 
-    const loginData = await loginResponse.json()
+    if (loginError) {
+      return NextResponse.json(
+        { error: loginError.message },
+        { status: 400 }
+      )
+    }
 
-    if (loginResponse.ok) {
-      // Guardar tokens en cookies
-      const cookieStore = await cookies()
-      
-      cookieStore.set('sb-access-token', loginData.access_token, {
+    // Guardar tokens en cookies
+    const cookieStore = await cookies()
+    
+    if (loginData.session) {
+      cookieStore.set('sb-access-token', loginData.session.access_token, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: loginData.expires_in
+        maxAge: loginData.session.expires_in || 3600
       })
 
-      cookieStore.set('sb-refresh-token', loginData.refresh_token, {
+      cookieStore.set('sb-refresh-token', loginData.session.refresh_token, {
         path: '/',
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -68,7 +59,7 @@ export async function POST(request: Request) {
       })
     }
 
-    return NextResponse.json({ success: true, user: data.user })
+    return NextResponse.json({ success: true, user: loginData.user })
   } catch (error: any) {
     console.error('Register error:', error)
     return NextResponse.json(
