@@ -81,7 +81,7 @@ export default function DashboardPage() {
         <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12">
           {/* Discord card */}
           <a
-            href="https://whop.com/joined/portalacademy/discord-czCjI6sxcVSfFY/app/"
+            href="https://whop.com/portalacademy/accesoexclusivo"
             target="_blank"
             rel="noopener noreferrer"
             className="glass glass-hover rounded-2xl md:rounded-3xl p-6 md:p-8 block group"
@@ -136,7 +136,7 @@ export default function DashboardPage() {
           </p>
           <div className="flex gap-4 justify-center">
             <a
-              href="https://whop.com/joined/portalacademy/discord-czCjI6sxcVSfFY/app/"
+              href="https://whop.com/portalacademy/accesoexclusivo"
               target="_blank"
               rel="noopener noreferrer"
               className="px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
