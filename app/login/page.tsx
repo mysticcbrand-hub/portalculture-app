@@ -146,19 +146,19 @@ export default function LoginPage() {
         </Link>
 
         {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-2">
+        <div className="text-center mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent mb-2">
             PORTAL CULTURE
           </h1>
-          <p className="text-gray-400 text-sm">Acceso a miembros</p>
+          <p className="text-gray-400 text-xs md:text-sm">Acceso a miembros</p>
         </div>
 
         {/* Auth card */}
-        <div className="glass rounded-3xl p-8 shadow-2xl">
+        <div className="glass rounded-2xl md:rounded-3xl p-6 md:p-8 shadow-2xl">
           <div className="flex gap-2 mb-6">
             <button
               onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
+              className={`flex-1 py-2.5 md:py-3 px-3 md:px-4 rounded-xl text-sm md:text-base font-medium transition-all ${
                 isLogin
                   ? 'bg-white text-black'
                   : 'text-gray-400 hover:text-white'
@@ -168,7 +168,7 @@ export default function LoginPage() {
             </button>
             <button
               onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 px-4 rounded-xl font-medium transition-all ${
+              className={`flex-1 py-2.5 md:py-3 px-3 md:px-4 rounded-xl text-sm md:text-base font-medium transition-all ${
                 !isLogin
                   ? 'bg-white text-black'
                   : 'text-gray-400 hover:text-white'
@@ -180,21 +180,21 @@ export default function LoginPage() {
 
           <form onSubmit={handleAuth} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-300">
+              <label className="block text-xs md:text-sm font-medium mb-2 text-gray-300">
                 Email
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-white/30 transition-all"
+                className="w-full px-3 md:px-4 py-2.5 md:py-3 text-sm md:text-base bg-white/5 border border-white/10 rounded-xl focus:outline-none focus:border-white/30 transition-all"
                 placeholder="tu@email.com"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2 text-gray-300">
+              <label className="block text-xs md:text-sm font-medium mb-2 text-gray-300">
                 Contraseña
               </label>
               <input
