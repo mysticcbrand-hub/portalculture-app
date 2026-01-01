@@ -5,7 +5,12 @@ export const metadata: Metadata = {
   title: "Portal Culture - Dashboard",
   description: "Comunidad exclusiva de desarrollo personal y crecimiento",
   icons: {
-    icon: '/favicon.ico',
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
+      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+    ],
+    apple: '/favicon.ico',
   },
 };
 
