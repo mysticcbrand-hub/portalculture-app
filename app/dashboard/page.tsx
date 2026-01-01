@@ -128,19 +128,21 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Stats section */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="glass rounded-3xl p-6 text-center">
-            <p className="text-4xl font-bold mb-2">Nivel 1</p>
-            <p className="text-gray-400">Tu nivel actual</p>
-          </div>
-          <div className="glass rounded-3xl p-6 text-center">
-            <p className="text-4xl font-bold mb-2">0</p>
-            <p className="text-gray-400">Desafíos completados</p>
-          </div>
-          <div className="glass rounded-3xl p-6 text-center">
-            <p className="text-4xl font-bold mb-2">0</p>
-            <p className="text-gray-400">Puntos acumulados</p>
+        {/* CTA Section */}
+        <div className="glass rounded-3xl p-8 text-center">
+          <h3 className="text-2xl font-bold mb-4">¿Listo para crecer?</h3>
+          <p className="text-gray-400 mb-6">
+            Únete a la comunidad, accede a los cursos y empieza tu transformación hoy.
+          </p>
+          <div className="flex gap-4 justify-center">
+            <a
+              href="https://whop.com/joined/portalacademy/discord-czCjI6sxcVSfFY/app/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
+            >
+              Ir a Discord
+            </a>
           </div>
         </div>
       </main>
