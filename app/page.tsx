@@ -20,8 +20,13 @@ export default function HomePage() {
 
   return (
     <>
-      {/* Typeform Script */}
-      <Script src="//embed.typeform.com/next/embed.js" strategy="afterInteractive" />
+      {/* Typeform Scripts */}
+      <Script src="//embed.typeform.com/next/embed.js" strategy="beforeInteractive" />
+      {isMobile && (
+        <Script id="typeform-popup-init" strategy="afterInteractive">
+          {`console.log('Typeform script loaded for mobile popup')`}
+        </Script>
+      )}
       
       <div className="min-h-screen flex flex-col">
         {/* Header */}
@@ -62,7 +67,7 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Typeform embed - Desktop: inline, Mobile: popup */}
+              {/* Typeform embed - Desktop: inline, Mobile: direct link */}
               {isMobile ? (
                 <div className="glass rounded-2xl p-8 text-center">
                   <div className="mb-6">
@@ -71,20 +76,17 @@ export default function HomePage() {
                     </svg>
                     <h3 className="text-xl font-bold mb-2">Cuestionario de Acceso</h3>
                     <p className="text-gray-400 text-sm">
-                      Completa el formulario en pantalla completa para una mejor experiencia
+                      Completa el formulario para solicitar tu invitación
                     </p>
                   </div>
-                  <button
-                    data-tf-popup="n0EFRLFF"
-                    data-tf-opacity="100"
-                    data-tf-size="100"
-                    data-tf-iframe-props="title=Portal Culture Application"
-                    data-tf-transitive-search-params
-                    data-tf-medium="snippet"
-                    className="w-full px-6 py-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
+                  <a
+                    href="https://form.typeform.com/to/n0EFRLFF"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block w-full px-6 py-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
                   >
-                    Comenzar Cuestionario
-                  </button>
+                    Comenzar Cuestionario →
+                  </a>
                 </div>
               ) : (
                 <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
