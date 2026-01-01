@@ -6,10 +6,16 @@ import Script from 'next/script'
 
 export default function HomePage() {
   const [submitted, setSubmitted] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    // Detectar cuando se completa el formulario (opcional)
-    // Puedes usar eventos de Typeform si los necesitas
+    // Detectar móvil
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
   return (
@@ -56,18 +62,42 @@ export default function HomePage() {
                 </p>
               </div>
 
-              {/* Typeform embed */}
-              <div className="glass rounded-2xl md:rounded-3xl overflow-hidden" style={{ height: 'clamp(500px, 80vh, 650px)' }}>
-                <div 
-                  data-tf-live="01KDNY02YBPCQYJ5MTTVWPCZ2J"
-                  data-tf-opacity="0"
-                  data-tf-iframe-props="title=Portal Culture Application"
-                  data-tf-transitive-search-params
-                  data-tf-medium="snippet"
-                  data-tf-hidden="utm_source=xxxxx,utm_medium=xxxxx,utm_campaign=xxxxx,utm_term=xxxxx,utm_content=xxxxx"
-                  style={{ width: '100%', height: '100%' }}
-                />
-              </div>
+              {/* Typeform embed - Desktop: inline, Mobile: popup */}
+              {isMobile ? (
+                <div className="glass rounded-2xl p-8 text-center">
+                  <div className="mb-6">
+                    <svg className="w-16 h-16 mx-auto text-purple-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    <h3 className="text-xl font-bold mb-2">Cuestionario de Acceso</h3>
+                    <p className="text-gray-400 text-sm">
+                      Completa el formulario en pantalla completa para una mejor experiencia
+                    </p>
+                  </div>
+                  <button
+                    data-tf-popup="01KDNY02YBPCQYJ5MTTVWPCZ2J"
+                    data-tf-opacity="100"
+                    data-tf-size="100"
+                    data-tf-iframe-props="title=Portal Culture Application"
+                    data-tf-transitive-search-params
+                    data-tf-medium="snippet"
+                    className="w-full px-6 py-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
+                  >
+                    Comenzar Cuestionario
+                  </button>
+                </div>
+              ) : (
+                <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
+                  <div 
+                    data-tf-live="01KDNY02YBPCQYJ5MTTVWPCZ2J"
+                    data-tf-opacity="0"
+                    data-tf-iframe-props="title=Portal Culture Application"
+                    data-tf-transitive-search-params
+                    data-tf-medium="snippet"
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                </div>
+              )}
 
               <div className="mt-4 md:mt-6 text-center">
                 <p className="text-xs md:text-sm text-gray-500">
