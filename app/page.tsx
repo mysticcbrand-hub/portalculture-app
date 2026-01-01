@@ -15,7 +15,7 @@ export default function HomePage() {
   return (
     <>
       {/* Typeform Script */}
-      <Script src="//embed.typeform.com/next/embed.js" strategy="lazyOnload" />
+      <Script src="//embed.typeform.com/next/embed.js" strategy="afterInteractive" />
       
       <div className="min-h-screen flex flex-col">
         {/* Header */}
@@ -57,9 +57,14 @@ export default function HomePage() {
               </div>
 
               {/* Typeform embed */}
-              <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
+              <div className="glass rounded-3xl overflow-hidden" style={{ height: 'clamp(500px, 80vh, 650px)' }}>
                 <div 
                   data-tf-live="01KDNY02YBPCQYJ5MTTVWPCZ2J"
+                  data-tf-opacity="0"
+                  data-tf-iframe-props="title=Portal Culture Application"
+                  data-tf-transitive-search-params
+                  data-tf-medium="snippet"
+                  data-tf-hidden="utm_source=xxxxx,utm_medium=xxxxx,utm_campaign=xxxxx,utm_term=xxxxx,utm_content=xxxxx"
                   style={{ width: '100%', height: '100%' }}
                 />
               </div>
