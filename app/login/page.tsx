@@ -277,7 +277,7 @@ export default function LoginPage() {
         </div>
 
         <p className="text-center text-xs text-gray-500 mt-6">
-          © 2025 Portal Culture. Todos los derechos reservados.
+          © 2026 Portal Culture. Todos los derechos reservados.
         </p>
       </div>
     </div>
