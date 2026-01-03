@@ -140,9 +140,8 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Cards grid */}
-        <div className="grid md:grid-cols-2 gap-4 md:gap-6 mb-8 md:mb-12">
-          {/* Discord card */}
+        {/* Discord Card */}
+        <div className="mb-8">
           <a
             href="https://whop.com/portalacademy/accesoexclusivo"
             target="_blank"
@@ -164,7 +163,31 @@ export default function DashboardPage() {
               Únete a nuestra comunidad exclusiva. Conecta con otros miembros, participa en desafíos y comparte tu progreso.
             </p>
           </a>
+        </div>
 
+        {/* Courses Section */}
+        <div className="mb-8">
+          <h3 className="text-2xl md:text-3xl font-bold mb-6">Los 5 Templos</h3>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {courses.map((course) => (
+              <a
+                key={course.id}
+                href={course.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="glass glass-hover rounded-2xl p-6 block group transition-all hover:scale-105"
+              >
+                <div className="text-4xl mb-4">{course.emoji}</div>
+                <h4 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">{course.name}</h4>
+                <div className="flex items-center gap-2 text-sm text-gray-400 group-hover:text-white transition-colors">
+                  <span>Acceder</span>
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
 
         {/* CTA Section */}
