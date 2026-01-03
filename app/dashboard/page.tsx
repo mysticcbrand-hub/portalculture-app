@@ -43,14 +43,62 @@ export default function DashboardPage() {
     )
   }
 
+  const courses = [
+    { id: 1, emoji: '🧠', name: 'Templo de Atenas', link: 'https://whop.com/portalacademy/accesoexclusivo' },
+    { id: 2, emoji: '💪', name: 'Templo de Ares', link: 'https://whop.com/portalacademy/accesoexclusivo' },
+    { id: 3, emoji: '🗣️', name: 'Templo de Apolo', link: 'https://whop.com/portalacademy/accesoexclusivo' },
+    { id: 4, emoji: '⚡', name: 'Templo de Zeus', link: 'https://whop.com/portalacademy/accesoexclusivo' },
+    { id: 5, emoji: '🧲', name: 'Templo de Adonis', link: 'https://whop.com/portalacademy/accesoexclusivo' },
+  ]
+
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Mesh Gradient Background */}
+      <div className="fixed inset-0 bg-black -z-10">
+        <div className="absolute inset-0">
+          {/* Blob 1 - Muted Brown */}
+          <div 
+            className="absolute w-[800px] h-[800px] rounded-full blur-[130px] opacity-20"
+            style={{
+              background: 'radial-gradient(circle, #78350f 0%, transparent 70%)',
+              top: '10%',
+              left: '10%',
+              animation: 'meshFloat1 25s ease-in-out infinite',
+            }}
+          />
+          
+          {/* Blob 2 - Muted White/Gray */}
+          <div 
+            className="absolute w-[700px] h-[700px] rounded-full blur-[120px] opacity-15"
+            style={{
+              background: 'radial-gradient(circle, #9ca3af 0%, transparent 70%)',
+              bottom: '15%',
+              right: '15%',
+              animation: 'meshFloat2 22s ease-in-out infinite',
+            }}
+          />
+          
+          {/* Blob 3 - Warm Beige */}
+          <div 
+            className="absolute w-[600px] h-[600px] rounded-full blur-[100px] opacity-18"
+            style={{
+              background: 'radial-gradient(circle, #a16207 0%, transparent 70%)',
+              top: '40%',
+              right: '30%',
+              animation: 'meshFloat3 20s ease-in-out infinite',
+            }}
+          />
+        </div>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
+      </div>
+
       {/* Header */}
       <header className="glass border-b border-white/10 sticky top-0 z-50 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
-          <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-            PORTAL CULTURE
-          </h1>
+          <div className="flex items-center gap-3">
+            <img src="/favicon.ico" alt="Portal Culture" className="w-8 h-8 md:w-10 md:h-10" />
+            <span className="text-lg md:text-xl font-bold text-white">Portal Culture</span>
+          </div>
           <div className="flex items-center gap-2 md:gap-4">
             <span className="text-xs md:text-sm text-gray-400 hidden sm:inline">
               {user?.email}
@@ -64,6 +112,21 @@ export default function DashboardPage() {
           </div>
         </div>
       </header>
+
+      <style jsx>{`
+        @keyframes meshFloat1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(40px, -60px) scale(1.1); }
+        }
+        @keyframes meshFloat2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(-50px, 50px) scale(1.05); }
+        }
+        @keyframes meshFloat3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          50% { transform: translate(30px, 40px) scale(1.08); }
+        }
+      `}</style>
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
@@ -102,30 +165,6 @@ export default function DashboardPage() {
             </p>
           </a>
 
-          {/* Courses card */}
-          <div className="glass rounded-2xl md:rounded-3xl p-6 md:p-8">
-            <div className="flex items-start justify-between mb-4 md:mb-6">
-              <div className="p-3 md:p-4 glass rounded-xl md:rounded-2xl">
-                <svg className="w-6 h-6 md:w-8 md:h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
-              </div>
-            </div>
-            <h3 className="text-xl md:text-2xl font-bold mb-2">Cursos Exclusivos</h3>
-            <p className="text-sm md:text-base text-gray-400 mb-4 md:mb-6">
-              Accede a contenido premium diseñado para acelerar tu crecimiento personal y profesional.
-            </p>
-            <div className="space-y-2 md:space-y-3">
-              <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
-                <p className="font-medium mb-1 text-sm md:text-base">Mindset de Alto Rendimiento</p>
-                <p className="text-xs md:text-sm text-gray-400">Próximamente</p>
-              </div>
-              <div className="p-3 md:p-4 bg-white/5 rounded-xl border border-white/10">
-                <p className="font-medium mb-1 text-sm md:text-base">Productividad Extrema</p>
-                <p className="text-xs md:text-sm text-gray-400">Próximamente</p>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* CTA Section */}
