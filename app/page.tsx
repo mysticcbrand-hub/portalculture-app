@@ -6,9 +6,13 @@ import Script from 'next/script'
 
 export default function HomePage() {
   const [submitted, setSubmitted] = useState(false)
-  const [isMobile, setIsMobile] = useState<boolean | null>(null)
+  const [isMobile, setIsMobile] = useState(false)
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    // Mark as client-side rendered
+    setIsClient(true)
+    
     // Detectar móvil
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768)
@@ -21,12 +25,7 @@ export default function HomePage() {
   return (
     <>
       {/* Typeform Scripts */}
-      <Script src="//embed.typeform.com/next/embed.js" strategy="beforeInteractive" />
-      {isMobile && (
-        <Script id="typeform-popup-init" strategy="afterInteractive">
-          {`console.log('Typeform script loaded for mobile popup')`}
-        </Script>
-      )}
+      <Script src="//embed.typeform.com/next/embed.js" strategy="afterInteractive" />
       
       <div className="min-h-screen flex flex-col">
         {/* Header */}
@@ -70,8 +69,8 @@ export default function HomePage() {
               </div>
 
               {/* Typeform embed - Desktop: inline, Mobile: direct link */}
-              {isMobile === null ? (
-                // Loading state
+              {!isClient ? (
+                // Loading state during SSR
                 <div className="glass rounded-3xl p-12 text-center">
                   <div className="animate-pulse">
                     <div className="h-8 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
