@@ -99,13 +99,14 @@ export default function HomePage() {
                 </div>
               ) : (
                 <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
-                  <div 
-                    data-tf-live="n0EFRLFF"
-                    data-tf-opacity="0"
-                    data-tf-iframe-props="title=Portal Culture Application"
-                    data-tf-transitive-search-params
-                    data-tf-medium="snippet"
-                    style={{ width: '100%', height: '100%' }}
+                  <iframe 
+                    src="https://form.typeform.com/to/n0EFRLFF?typeform-medium=embed-snippet"
+                    style={{ 
+                      width: '100%', 
+                      height: '100%',
+                      border: 'none'
+                    }}
+                    title="Portal Culture Application"
                   />
                 </div>
               )}
