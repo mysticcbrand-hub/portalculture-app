@@ -6,7 +6,7 @@ import Script from 'next/script'
 
 export default function HomePage() {
   const [submitted, setSubmitted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+  const [isMobile, setIsMobile] = useState<boolean | null>(null)
 
   useEffect(() => {
     // Detectar móvil
@@ -70,7 +70,15 @@ export default function HomePage() {
               </div>
 
               {/* Typeform embed - Desktop: inline, Mobile: direct link */}
-              {isMobile ? (
+              {isMobile === null ? (
+                // Loading state
+                <div className="glass rounded-3xl p-12 text-center">
+                  <div className="animate-pulse">
+                    <div className="h-8 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
+                    <div className="h-4 bg-white/10 rounded w-1/2 mx-auto"></div>
+                  </div>
+                </div>
+              ) : isMobile ? (
                 <div className="glass rounded-2xl p-8 text-center">
                   <div className="mb-6">
                     <svg className="w-16 h-16 mx-auto text-purple-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
