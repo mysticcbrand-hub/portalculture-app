@@ -57,13 +57,15 @@ export default function HomePage() {
           {!submitted ? (
             <>
               <div className="glass rounded-2xl md:rounded-3xl p-6 md:p-8 mb-4 md:mb-6 text-center">
+                <div className="inline-block px-4 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full text-red-400 text-xs md:text-sm font-semibold mb-3 md:mb-4">
+                  ⚡ PLAZAS LIMITADAS
+                </div>
                 <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Únete a Portal Culture</h2>
                 <p className="text-gray-400 text-base md:text-lg mb-3 md:mb-4">
                   Comunidad exclusiva de desarrollo personal y crecimiento
                 </p>
                 <p className="text-gray-500 text-xs md:text-sm">
-                  Completa este breve cuestionario para solicitar acceso. Revisamos cada solicitud manualmente 
-                  y te contactaremos por email en las próximas 24-48 horas.
+                  Completa el cuestionario ahora. <span className="text-yellow-400 font-semibold">El precio sube pronto</span> y las plazas son limitadas.
                 </p>
               </div>
 
@@ -116,9 +118,13 @@ export default function HomePage() {
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">¡Solicitud Enviada!</h2>
               <p className="text-gray-400 text-base md:text-lg mb-4 md:mb-6">
-                Gracias por tu interés en Portal Culture. Revisaremos tu solicitud y te contactaremos 
-                por email en las próximas 24-48 horas.
+                Gracias por tu interés en Portal Culture. Tu solicitud está siendo revisada.
               </p>
+              <div className="inline-block px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-4">
+                <p className="text-yellow-400 font-semibold text-sm md:text-base">
+                  ⚡ Asegura tu plaza ahora - El precio aumenta pronto
+                </p>
+              </div>
               <p className="text-xs md:text-sm text-gray-500">
                 Revisa tu bandeja de entrada (y spam) para recibir tu invitación.
               </p>
