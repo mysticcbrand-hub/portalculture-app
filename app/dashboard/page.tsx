@@ -190,23 +190,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* CTA Section */}
-        <div className="glass rounded-2xl md:rounded-3xl p-6 md:p-8 text-center">
-          <h3 className="text-xl md:text-2xl font-bold mb-3 md:mb-4">¿Listo para crecer?</h3>
-          <p className="text-sm md:text-base text-gray-400 mb-4 md:mb-6">
-            Únete a la comunidad, accede a los cursos y empieza tu transformación hoy.
-          </p>
-          <div className="flex gap-4 justify-center">
-            <a
-              href="https://whop.com/portalacademy/accesoexclusivo"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-5 md:px-6 py-2.5 md:py-3 text-sm md:text-base bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
-            >
-              Ir a Discord
-            </a>
-          </div>
-        </div>
       </main>
     </div>
   )
