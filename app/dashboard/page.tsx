@@ -44,11 +44,11 @@ export default function DashboardPage() {
   }
 
   const courses = [
-    { id: 1, emoji: '🧠', name: 'Templo de Atenas', link: 'https://whop.com/joined/portalacademy/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 2, emoji: '💪', name: 'Templo de Ares', link: 'https://whop.com/joined/portalacademy/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 3, emoji: '🗣️', name: 'Templo de Apolo', link: 'https://whop.com/joined/portalacademy/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 4, emoji: '⚡', name: 'Templo de Zeus', link: 'https://whop.com/joined/portalacademy/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 5, emoji: '🧲', name: 'Templo de Adonis', link: 'https://whop.com/joined/portalacademy/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
+    { id: 1, emoji: '🧠', name: 'Templo de Atenas', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
+    { id: 2, emoji: '💪', name: 'Templo de Ares', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
+    { id: 3, emoji: '🗣️', name: 'Templo de Apolo', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
+    { id: 4, emoji: '⚡', name: 'Templo de Zeus', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
+    { id: 5, emoji: '🧲', name: 'Templo de Adonis', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
   ]
 
   return (
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         {/* Discord Card */}
         <div className="mb-8">
           <a
-            href="https://whop.com/portalacademy/accesoexclusivo"
+            href="https://whop.com/portalculture/accesoexclusivo"
             target="_blank"
             rel="noopener noreferrer"
             className="glass glass-hover rounded-2xl md:rounded-3xl p-6 md:p-8 block group"
