@@ -52,7 +52,7 @@ export default function DashboardPage() {
   ]
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
+    <div className="min-h-screen relative overflow-x-hidden">
       {/* Mesh Gradient Background */}
       <div className="fixed inset-0 bg-black -z-10">
         <div className="absolute inset-0">
@@ -129,13 +129,13 @@ export default function DashboardPage() {
       `}</style>
 
       {/* Main content */}
-      <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12">
+      <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 overflow-x-hidden">
         {/* Welcome section */}
         <div className="mb-8 md:mb-12">
-          <h2 className="text-3xl md:text-5xl font-bold mb-3 md:mb-4">
+          <h2 className="text-2xl md:text-3xl lg:text-5xl font-bold mb-3 md:mb-4 break-words">
             Bienvenido a Portal Culture
           </h2>
-          <p className="text-base md:text-xl text-gray-400">
+          <p className="text-sm md:text-base lg:text-xl text-gray-400">
             Tu comunidad exclusiva de desarrollo personal y crecimiento.
           </p>
         </div>
@@ -166,22 +166,22 @@ export default function DashboardPage() {
         </div>
 
         {/* Courses Section */}
-        <div className="mb-8">
-          <h3 className="text-2xl md:text-3xl font-bold mb-6">Los 5 Templos</h3>
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="mb-8 overflow-x-hidden">
+          <h3 className="text-xl md:text-2xl lg:text-3xl font-bold mb-6">Los 5 Templos</h3>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
             {courses.map((course) => (
               <a
                 key={course.id}
                 href={course.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass glass-hover rounded-2xl p-6 block group transition-all hover:scale-105"
+                className="glass glass-hover rounded-2xl p-6 block group transition-all hover:scale-105 w-full min-w-0"
               >
                 <div className="text-4xl mb-4">{course.emoji}</div>
-                <h4 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">{course.name}</h4>
+                <h4 className="text-lg font-bold mb-2 group-hover:text-white transition-colors break-words">{course.name}</h4>
                 <div className="flex items-center gap-2 text-sm text-gray-400 group-hover:text-white transition-colors">
                   <span>Acceder</span>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </div>
