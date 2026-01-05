@@ -175,13 +175,13 @@ export default function DashboardPage() {
                 href={course.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass glass-hover rounded-2xl p-6 block group transition-all hover:scale-105 w-full min-w-0"
+                className="glass rounded-2xl p-6 block group transition-all duration-300 w-full min-w-0 hover:bg-white/10 active:scale-95 md:hover:scale-[1.02]"
               >
-                <div className="text-4xl mb-4">{course.emoji}</div>
-                <h4 className="text-lg font-bold mb-2 group-hover:text-white transition-colors break-words">{course.name}</h4>
+                <div className="text-4xl mb-4 transition-transform group-hover:scale-110">{course.emoji}</div>
+                <h4 className="text-lg font-bold mb-2 text-white/90 group-hover:text-white transition-colors break-words">{course.name}</h4>
                 <div className="flex items-center gap-2 text-sm text-gray-400 group-hover:text-white transition-colors">
                   <span>Acceder</span>
-                  <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-4 h-4 flex-shrink-0 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                   </svg>
                 </div>
