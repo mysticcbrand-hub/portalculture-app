@@ -7,6 +7,8 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   id: string;
@@ -322,8 +324,31 @@ export default function AICoach() {
                     : 'bg-white/5 text-white border border-white/10'
                 }`}
               >
-                <div className="text-sm whitespace-pre-wrap break-words">
-                  {msg.content}
+                <div className="text-sm prose prose-invert prose-sm max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      // Custom styles for markdown elements
+                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                      em: ({ children }) => <em className="italic">{children}</em>,
+                      ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
+                      ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
+                      li: ({ children }) => <li className="ml-2">{children}</li>,
+                      code: ({ children }) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-sm">{children}</code>,
+                      pre: ({ children }) => <pre className="bg-white/10 p-3 rounded-lg overflow-x-auto mb-2">{children}</pre>,
+                      h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
+                      h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
+                      h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
+                      a: ({ href, children }) => (
+                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                          {children}
+                        </a>
+                      ),
+                    }}
+                  >
+                    {msg.content}
+                  </ReactMarkdown>
                 </div>
               </div>
             </div>
