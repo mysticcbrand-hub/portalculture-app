@@ -263,8 +263,12 @@ export default function AICoach() {
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10" />
           <div className="relative flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center">
-                <span className="text-xl">⚡</span>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center overflow-hidden">
+                <img 
+                  src="/ai.png" 
+                  alt="NOVA AI" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               <div>
                 <h3 className="text-white font-bold">NOVA AI Coach</h3>
