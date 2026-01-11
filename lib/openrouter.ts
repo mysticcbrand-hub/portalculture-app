@@ -16,8 +16,17 @@ export interface ChatCompletionOptions {
 }
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Use Meta Llama 3.2 3B (free tier, VERIFIED working, good for conversation)
-const DEFAULT_MODEL = 'meta-llama/llama-3.2-3b-instruct:free';
+
+// Primary model: Most powerful free model
+const DEFAULT_MODEL = 'google/gemini-2.0-flash-exp:free';
+
+// Fallback models if primary is rate limited
+const FALLBACK_MODELS = [
+  'google/gemma-3-27b-it:free',        // Google Gemma 27B (muy capaz)
+  'openai/gpt-oss-120b:free',          // OpenAI 120B (potente)
+  'nvidia/nemotron-3-nano-30b-a3b:free', // NVIDIA 30B (sólido)
+  'meta-llama/llama-3.2-3b-instruct:free' // Llama 3B (último recurso)
+];
 
 /**
  * Generate chat completion with automatic fallback
