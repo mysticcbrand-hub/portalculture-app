@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
+import AICoach from '@/components/AICoach'
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -192,6 +193,9 @@ export default function DashboardPage() {
         </div>
 
       </main>
+
+      {/* AI Coach Widget */}
+      <AICoach />
     </div>
   )
 }
