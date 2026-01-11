@@ -16,7 +16,8 @@ export interface ChatCompletionOptions {
 }
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const DEFAULT_MODEL = 'google/gemini-2.0-flash-exp:free';
+// Use Meta Llama as default (more stable than Gemini free tier)
+const DEFAULT_MODEL = 'meta-llama/llama-3.1-8b-instruct:free';
 
 /**
  * Generate chat completion (non-streaming)
