@@ -271,7 +271,7 @@ export default function AICoach() {
                 />
               </div>
               <div>
-                <h3 className="text-white font-bold">NOVA AI Coach</h3>
+                <h3 className="text-white font-bold">NOVA™ AI Coach</h3>
                 <p className="text-xs text-white/50">Tu mentor de transformación</p>
               </div>
             </div>
