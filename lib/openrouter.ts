@@ -16,8 +16,8 @@ export interface ChatCompletionOptions {
 }
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Use NVIDIA Nemotron as default (free tier, designed for reasoning and conversation)
-const DEFAULT_MODEL = 'nvidia/nemotron-nano-9b-v2:free';
+// Use Meta Llama 3.2 3B (free tier, VERIFIED working, good for conversation)
+const DEFAULT_MODEL = 'meta-llama/llama-3.2-3b-instruct:free';
 
 /**
  * Generate chat completion (non-streaming)
