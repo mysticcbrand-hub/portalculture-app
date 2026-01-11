@@ -20,7 +20,7 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 const DEFAULT_MODEL = 'meta-llama/llama-3.2-3b-instruct:free';
 
 /**
- * Generate chat completion (non-streaming)
+ * Generate chat completion with automatic fallback
  */
 export async function chatCompletion(
   messages: ChatMessage[],
@@ -32,34 +32,55 @@ export async function chatCompletion(
     throw new Error('OPENROUTER_API_KEY not found in environment variables');
   }
 
-  const response = await fetch(OPENROUTER_API_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://app-portalculture.vercel.app',
-      'X-Title': 'Portal Culture AI Coach',
-    },
-    body: JSON.stringify({
-      model: options.model || DEFAULT_MODEL,
-      messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.maxTokens ?? 1000,
-    }),
-  });
+  const modelsToTry = [options.model || DEFAULT_MODEL, ...FALLBACK_MODELS];
+  let lastError: any = null;
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
+  for (const model of modelsToTry) {
+    try {
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://app-portalculture.vercel.app',
+          'X-Title': 'Portal Culture AI Coach',
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: options.temperature ?? 0.7,
+          max_tokens: options.maxTokens ?? 1000,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        const errorData = JSON.parse(error);
+        
+        // If rate limited (429) or model not found (404), try next model
+        if (response.status === 429 || response.status === 404) {
+          console.log(`Model ${model} failed with ${response.status}, trying fallback...`);
+          lastError = new Error(`${response.status}: ${errorData.error?.message || error}`);
+          continue;
+        }
+        
+        throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content;
+      
+    } catch (error) {
+      lastError = error;
+      continue;
+    }
   }
 
-  const data = await response.json();
-  return data.choices[0].message.content;
+  throw lastError || new Error('All models failed');
 }
 
 /**
- * Generate chat completion with streaming
- * Returns a ReadableStream for Server-Sent Events
+ * Generate chat completion with streaming and automatic fallback
  */
 export async function chatCompletionStream(
   messages: ChatMessage[],
@@ -71,29 +92,50 @@ export async function chatCompletionStream(
     throw new Error('OPENROUTER_API_KEY not found in environment variables');
   }
 
-  const response = await fetch(OPENROUTER_API_URL, {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': 'https://app-portalculture.vercel.app',
-      'X-Title': 'Portal Culture AI Coach',
-    },
-    body: JSON.stringify({
-      model: options.model || DEFAULT_MODEL,
-      messages,
-      temperature: options.temperature ?? 0.7,
-      max_tokens: options.maxTokens ?? 1000,
-      stream: true,
-    }),
-  });
+  const modelsToTry = [options.model || DEFAULT_MODEL, ...FALLBACK_MODELS];
+  let lastError: any = null;
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
+  for (const model of modelsToTry) {
+    try {
+      const response = await fetch(OPENROUTER_API_URL, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://app-portalculture.vercel.app',
+          'X-Title': 'Portal Culture AI Coach',
+        },
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature: options.temperature ?? 0.8, // Slightly higher for more personality
+          max_tokens: options.maxTokens ?? 1000,
+          stream: true,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.text();
+        
+        // If rate limited or not found, try next model
+        if (response.status === 429 || response.status === 404) {
+          console.log(`Model ${model} failed with ${response.status}, trying fallback...`);
+          lastError = new Error(`${response.status}: ${error}`);
+          continue;
+        }
+        
+        throw new Error(`OpenRouter API error: ${response.status} - ${error}`);
+      }
+
+      return response.body!;
+      
+    } catch (error) {
+      lastError = error;
+      continue;
+    }
   }
 
-  return response.body!;
+  throw lastError || new Error('All models failed');
 }
 
 /**
