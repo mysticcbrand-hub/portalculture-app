@@ -16,8 +16,8 @@ export interface ChatCompletionOptions {
 }
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-// Use Mistral Devstral as default (free tier, good reasoning)
-const DEFAULT_MODEL = 'mistralai/devstral-2512:free';
+// Use NVIDIA Nemotron as default (free tier, designed for reasoning and conversation)
+const DEFAULT_MODEL = 'nvidia/nemotron-nano-9b-v2:free';
 
 /**
  * Generate chat completion (non-streaming)
