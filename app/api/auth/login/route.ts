@@ -27,9 +27,23 @@ export async function POST(request: Request) {
     console.log('🔍 Response data:', response.data)
 
     if (response.status !== 200) {
+      console.error('🔴 Login failed:', JSON.stringify(response.data))
+      
+      // Mensajes de error más claros
+      let errorMessage = 'Error al iniciar sesión'
+      if (response.data.error === 'invalid_grant') {
+        errorMessage = 'Credenciales incorrectas'
+      } else if (response.data.error_description) {
+        errorMessage = response.data.error_description
+      } else if (response.data.msg) {
+        errorMessage = response.data.msg
+      } else if (response.data.message) {
+        errorMessage = response.data.message
+      }
+      
       return NextResponse.json(
-        { error: response.data.error_description || response.data.message || 'Error al iniciar sesión' },
-        { status: response.status }
+        { error: errorMessage },
+        { status: 400 }
       )
     }
 
