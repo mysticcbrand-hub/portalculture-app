@@ -125,7 +125,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <img src="/favicon.ico" alt="Portal Culture" className="w-8 h-8 md:w-10 md:h-10" />
-            <span className="text-lg md:text-xl font-bold text-white">Portal Culture</span>
+            <span className="text-lg md:text-xl font-bold text-red-500">🔴 TEST DEPLOY 2024</span>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <span className="text-xs md:text-sm text-gray-400 hidden sm:inline">
