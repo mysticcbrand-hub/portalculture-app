@@ -31,12 +31,12 @@ export default function Cuestionario() {
         // User is logged in, redirect to dashboard
         router.push('/dashboard')
       } else {
-        // No user, go to login
-        router.push('/login')
+        // No user, redirect to app homepage
+        window.location.href = 'https://app-portalculture.vercel.app'
       }
     } catch (error) {
       console.error('Error checking account:', error)
-      router.push('/login')
+      window.location.href = 'https://app-portalculture.vercel.app'
     }
   }
 
