@@ -1,150 +1,408 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Script from 'next/script'
+import { useRouter } from 'next/navigation'
 
 export default function HomePage() {
-  const [submitted, setSubmitted] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
-  const [isClient, setIsClient] = useState(false)
+  const [mode, setMode] = useState<'login' | 'register'>('login')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [acceptedTerms, setAcceptedTerms] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
+  const [showForgotPassword, setShowForgotPassword] = useState(false)
+  const [forgotEmail, setForgotEmail] = useState('')
+  const router = useRouter()
 
-  useEffect(() => {
-    // Mark as client-side rendered
-    setIsClient(true)
-    
-    // Detectar móvil
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+  // Password validation
+  const passwordRequirements = {
+    length: password.length >= 8,
+    case: /[a-z]/.test(password) && /[A-Z]/.test(password),
+    special: /[!@#$%^&*(),.?":{}|<>]/.test(password),
+  }
+  const isPasswordValid = passwordRequirements.length && passwordRequirements.case && passwordRequirements.special
+  const passwordsMatch = password === confirmPassword
+
+  // Show toast notification
+  const showToast = (message: string, type: 'success' | 'error') => {
+    setToast({ message, type })
+    setTimeout(() => setToast(null), 5000)
+  }
+
+  // Handle login
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al iniciar sesión')
+      }
+
+      // Redirect to access selection
+      router.push('/seleccionar-acceso')
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
     }
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
+  }
+
+  // Handle register
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    // Validations
+    if (!isPasswordValid) {
+      setError('La contraseña no cumple los requisitos')
+      setLoading(false)
+      return
+    }
+
+    if (!passwordsMatch) {
+      setError('Las contraseñas no coinciden')
+      setLoading(false)
+      return
+    }
+
+    if (!acceptedTerms) {
+      setError('Debes aceptar los términos y condiciones')
+      setLoading(false)
+      return
+    }
+
+    try {
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al crear la cuenta')
+      }
+
+      // Show success toast and switch to login
+      showToast('Cuenta creada. Verifica tu correo para confirmar.', 'success')
+      setMode('login')
+      setPassword('')
+      setConfirmPassword('')
+      setAcceptedTerms(false)
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Handle forgot password
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setLoading(true)
+    setError(null)
+
+    try {
+      const response = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: forgotEmail })
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al enviar el correo')
+      }
+
+      showToast('Te hemos enviado un correo para restablecer tu contraseña', 'success')
+      setShowForgotPassword(false)
+      setForgotEmail('')
+    } catch (err: any) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <>
-      {/* Typeform Scripts */}
-      <Script src="//embed.typeform.com/next/embed.js" strategy="afterInteractive" />
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
+      {/* Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/50 via-black to-zinc-900/50" />
       
-      <div className="min-h-screen flex flex-col">
-        {/* Header */}
-        <header className="p-4 md:p-6 glass border-b border-white/10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <h1 className="text-lg md:text-2xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
+      {/* Subtle glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-3xl" />
+
+      {/* Toast notification */}
+      {toast && (
+        <div 
+          className={`
+            fixed top-6 left-1/2 -translate-x-1/2 z-50
+            px-5 py-3 rounded-xl
+            backdrop-blur-xl border
+            transition-all duration-500 ease-out
+            animate-slide-down
+            ${toast.type === 'success' 
+              ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+              : 'bg-red-500/10 border-red-500/20 text-red-400'
+            }
+          `}
+        >
+          <div className="flex items-center gap-2 text-sm font-medium">
+            {toast.type === 'success' ? (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            ) : (
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            )}
+            {toast.message}
+          </div>
+        </div>
+      )}
+
+      <div className="relative z-10 w-full max-w-sm">
+        {/* Logo */}
+        <div className="text-center mb-8">
+          <h1 className="text-2xl font-semibold text-white tracking-tight">
             PORTAL CULTURE
           </h1>
-          <Link
-            href="/login"
-            className="text-xs md:text-sm glass glass-hover px-3 md:px-4 py-1.5 md:py-2 rounded-xl"
-          >
-            Ya tengo cuenta
-          </Link>
         </div>
-      </header>
 
-      {/* Background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20 -z-10" />
-      
-      {/* Animated orbs */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse -z-10" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000 -z-10" />
-
-      {/* Content */}
-      <main className="flex-1 p-4 md:p-6">
-        <div className="max-w-4xl mx-auto">
-          {!submitted ? (
-            <>
-              <div className="glass rounded-2xl md:rounded-3xl p-6 md:p-8 mb-4 md:mb-6 text-center">
-                <div className="inline-block px-4 py-1.5 bg-red-500/20 border border-red-500/30 rounded-full text-red-400 text-xs md:text-sm font-semibold mb-3 md:mb-4">
-                  ⚡ PLAZAS LIMITADAS
-                </div>
-                <h2 className="text-2xl md:text-4xl font-bold mb-3 md:mb-4">Únete a Portal Culture</h2>
-                <p className="text-gray-400 text-base md:text-lg mb-3 md:mb-4">
-                  Comunidad exclusiva de desarrollo personal y crecimiento
-                </p>
-                <p className="text-gray-500 text-xs md:text-sm">
-                  Completa el cuestionario ahora. <span className="text-yellow-400 font-semibold">El precio sube pronto</span> y las plazas son limitadas.
-                </p>
-              </div>
-
-              {/* Typeform embed - Desktop: inline, Mobile: direct link */}
-              {!isClient ? (
-                // Loading state during SSR
-                <div className="glass rounded-3xl p-12 text-center">
-                  <div className="animate-pulse">
-                    <div className="h-8 bg-white/10 rounded w-3/4 mx-auto mb-4"></div>
-                    <div className="h-4 bg-white/10 rounded w-1/2 mx-auto"></div>
-                  </div>
-                </div>
-              ) : isMobile ? (
-                <div className="glass rounded-2xl p-8 text-center">
-                  <div className="mb-6">
-                    <svg className="w-16 h-16 mx-auto text-purple-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
-                    <h3 className="text-xl font-bold mb-2">Cuestionario de Acceso</h3>
-                    <p className="text-gray-400 text-sm">
-                      Completa el formulario para solicitar tu invitación
-                    </p>
-                  </div>
-                  <a
-                    href="https://form.typeform.com/to/n0EFRLFF"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block w-full px-6 py-4 bg-white text-black font-semibold rounded-xl hover:bg-gray-200 transition-all"
-                  >
-                    Comenzar Cuestionario →
-                  </a>
-                </div>
-              ) : (
-                <div className="glass rounded-3xl overflow-hidden" style={{ height: '650px' }}>
-                  <iframe 
-                    src="https://form.typeform.com/to/n0EFRLFF?typeform-medium=embed-snippet"
-                    style={{ 
-                      width: '100%', 
-                      height: '100%',
-                      border: 'none'
-                    }}
-                    title="Portal Culture Application"
+        {/* Forgot Password Modal */}
+        {showForgotPassword ? (
+          <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
+            <button
+              onClick={() => setShowForgotPassword(false)}
+              className="text-white/50 hover:text-white mb-4 text-sm flex items-center gap-1 transition-colors"
+            >
+              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              Volver
+            </button>
+            
+            <h2 className="text-lg font-medium text-white mb-2">Restablecer contraseña</h2>
+            <p className="text-sm text-white/50 mb-6">Te enviaremos un enlace para restablecer tu contraseña</p>
+            
+            <form onSubmit={handleForgotPassword} className="space-y-4">
+              <input
+                type="email"
+                value={forgotEmail}
+                onChange={(e) => setForgotEmail(e.target.value)}
+                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
+                placeholder="tu@email.com"
+                required
+              />
+              
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Enviando...' : 'Enviar enlace'}
+              </button>
+            </form>
+          </div>
+        ) : (
+          /* Main Auth Card */
+          <div 
+            className={`
+              bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl
+              transition-all duration-500 ease-out
+              ${mode === 'register' ? 'pb-8' : ''}
+            `}
+          >
+            {/* Login Form */}
+            {mode === 'login' && (
+              <form onSubmit={handleLogin} className="space-y-4">
+                <div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
+                    placeholder="Correo electrónico"
+                    required
                   />
                 </div>
-              )}
 
-              <div className="mt-4 md:mt-6 text-center">
-                <p className="text-xs md:text-sm text-gray-500">
-                  Al completar el cuestionario, tu solicitud será revisada por nuestro equipo.
-                </p>
-              </div>
-            </>
-          ) : (
-            <div className="glass rounded-2xl md:rounded-3xl p-8 md:p-12 text-center">
-              <div className="w-16 h-16 md:w-20 md:h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4 md:mb-6">
-                <svg className="w-8 h-8 md:w-10 md:h-10 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-3 md:mb-4">¡Solicitud Enviada!</h2>
-              <p className="text-gray-400 text-base md:text-lg mb-4 md:mb-6">
-                Gracias por tu interés en Portal Culture. Tu solicitud está siendo revisada.
-              </p>
-              <div className="inline-block px-4 py-2 bg-yellow-500/10 border border-yellow-500/30 rounded-xl mb-4">
-                <p className="text-yellow-400 font-semibold text-sm md:text-base">
-                  ⚡ Asegura tu plaza ahora - El precio aumenta pronto
-                </p>
-              </div>
-              <p className="text-xs md:text-sm text-gray-500">
-                Revisa tu bandeja de entrada (y spam) para recibir tu invitación.
+                <div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
+                    placeholder="Contraseña"
+                    required
+                  />
+                </div>
+
+                {error && (
+                  <p className="text-red-400 text-xs">{error}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50"
+                >
+                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="w-full text-center text-xs text-white/40 hover:text-white/60 transition-colors"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </form>
+            )}
+
+            {/* Register Form */}
+            {mode === 'register' && (
+              <form onSubmit={handleRegister} className="space-y-4">
+                <div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
+                    placeholder="Correo electrónico"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
+                    placeholder="Contraseña"
+                    required
+                  />
+                  
+                  {/* Password requirements */}
+                  <div className="mt-2 space-y-1">
+                    <div className={`flex items-center gap-2 text-xs ${passwordRequirements.length ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-1 h-1 rounded-full ${passwordRequirements.length ? 'bg-green-400' : 'bg-white/30'}`} />
+                      Mínimo 8 caracteres
+                    </div>
+                    <div className={`flex items-center gap-2 text-xs ${passwordRequirements.case ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-1 h-1 rounded-full ${passwordRequirements.case ? 'bg-green-400' : 'bg-white/30'}`} />
+                      1 mayúscula y 1 minúscula
+                    </div>
+                    <div className={`flex items-center gap-2 text-xs ${passwordRequirements.special ? 'text-green-400' : 'text-white/30'}`}>
+                      <div className={`w-1 h-1 rounded-full ${passwordRequirements.special ? 'bg-green-400' : 'bg-white/30'}`} />
+                      1 carácter especial (!@#$%...)
+                    </div>
+                  </div>
+                </div>
+
+                <div>
+                  <input
+                    type="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none transition-colors ${
+                      confirmPassword && !passwordsMatch ? 'border-red-500/50' : 'border-white/10 focus:border-white/20'
+                    }`}
+                    placeholder="Repetir contraseña"
+                    required
+                  />
+                  {confirmPassword && !passwordsMatch && (
+                    <p className="text-red-400 text-xs mt-1">Las contraseñas no coinciden</p>
+                  )}
+                </div>
+
+                {/* Terms checkbox */}
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-white focus:ring-0 focus:ring-offset-0"
+                  />
+                  <span className="text-xs text-white/50 leading-relaxed">
+                    Acepto los{' '}
+                    <a href="/terminos" className="text-white/70 underline hover:text-white">términos de uso</a>
+                    {' '}y las{' '}
+                    <a href="/privacidad" className="text-white/70 underline hover:text-white">políticas del club</a>
+                  </span>
+                </label>
+
+                {error && (
+                  <p className="text-red-400 text-xs">{error}</p>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={loading || !isPasswordValid || !passwordsMatch || !acceptedTerms}
+                  className="w-full py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+                </button>
+              </form>
+            )}
+
+            {/* Toggle mode */}
+            <div className="mt-6 pt-4 border-t border-white/5 text-center">
+              <p className="text-xs text-white/40">
+                {mode === 'login' ? '¿Aún no tienes cuenta?' : '¿Ya tienes cuenta?'}
+                <button
+                  onClick={() => {
+                    setMode(mode === 'login' ? 'register' : 'login')
+                    setError(null)
+                    setPassword('')
+                    setConfirmPassword('')
+                  }}
+                  className="ml-1 text-white/70 hover:text-white transition-colors"
+                >
+                  {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
+                </button>
               </p>
             </div>
-          )}
-        </div>
-      </main>
+          </div>
+        )}
 
-        <footer className="text-center text-xs text-gray-500 p-4 md:p-6">
-          © 2026 Portal Culture. Todos los derechos reservados.
-        </footer>
+        <p className="text-center text-[10px] text-white/20 mt-6">
+          © 2026 Portal Culture
+        </p>
       </div>
-    </>
+
+      <style jsx>{`
+        @keyframes slide-down {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(-20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+        .animate-slide-down {
+          animation: slide-down 0.3s ease-out;
+        }
+      `}</style>
+    </div>
   )
 }
