@@ -54,36 +54,35 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Hero-style Background - B&W VISIBLE Version */}
+      {/* EXACT Hero Background - Same as Landing */}
       <div className="fixed inset-0 bg-black -z-10">
-        {/* Primary gradient glow - white/gray (INCREASED opacity) */}
+        {/* Subtle gradient glow */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `radial-gradient(
               ellipse 80% 60% at 50% 45%,
-              rgba(255, 255, 255, 0.15) 0%,
-              rgba(200, 200, 200, 0.08) 30%,
-              rgba(150, 150, 150, 0.04) 50%,
+              rgba(99, 102, 241, 0.08) 0%,
+              rgba(139, 92, 246, 0.04) 30%,
               transparent 70%
             )`,
           }}
         />
         
-        {/* Secondary subtle accent - lighter gray (INCREASED) */}
+        {/* Secondary subtle accent */}
         <div 
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: 'radial-gradient(ellipse 60% 40% at 70% 20%, rgba(180, 180, 180, 0.08) 0%, rgba(140, 140, 140, 0.04) 40%, transparent 60%)',
+            background: 'radial-gradient(ellipse 60% 40% at 70% 20%, rgba(168, 85, 247, 0.04) 0%, transparent 50%)',
           }}
         />
         
-        {/* Noise texture - visible anti-banding */}
+        {/* Noise texture - subtle */}
         <div 
           className="absolute inset-0 pointer-events-none z-[5]"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            opacity: 0.05,
+            opacity: 0.04,
             mixBlendMode: 'overlay',
           }}
         />
