@@ -54,28 +54,68 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Apple-style pure black background with subtle depth */}
-      <div className="fixed inset-0 bg-black -z-10">
-        {/* Ultra-subtle depth gradient for premium feel */}
+      {/* Premium smooth background - Multi-layer anti-banding */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        {/* Base solid black */}
+        <div className="absolute inset-0 bg-black" />
+        
+        {/* Ambient depth - ultra smooth with 10+ stops */}
         <div 
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0"
           style={{
             background: `radial-gradient(
-              ellipse 90% 70% at 50% 40%,
-              rgba(20, 20, 20, 0.4) 0%,
-              rgba(10, 10, 10, 0.2) 40%,
+              circle at 50% 30%,
+              rgba(40, 40, 50, 0.15) 0%,
+              rgba(35, 35, 45, 0.12) 10%,
+              rgba(30, 30, 40, 0.10) 20%,
+              rgba(25, 25, 35, 0.08) 30%,
+              rgba(20, 20, 30, 0.06) 40%,
+              rgba(15, 15, 25, 0.04) 50%,
+              rgba(10, 10, 20, 0.03) 60%,
+              rgba(8, 8, 15, 0.02) 70%,
+              rgba(5, 5, 10, 0.01) 80%,
+              transparent 90%
+            )`,
+          }}
+        />
+        
+        {/* Secondary glow for depth */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(
+              ellipse 120% 100% at 80% 20%,
+              rgba(60, 60, 80, 0.08) 0%,
+              rgba(45, 45, 65, 0.05) 25%,
+              rgba(30, 30, 50, 0.03) 50%,
               transparent 70%
             )`,
           }}
         />
         
-        {/* Fine grain for LCD/OLED consistency */}
+        {/* Film grain texture for premium feel and anti-banding */}
         <div 
-          className="absolute inset-0 pointer-events-none"
+          className="absolute inset-0"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            opacity: 0.03,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.35'/%3E%3C/svg%3E")`,
+            backgroundSize: '256px 256px',
+            opacity: 0.04,
             mixBlendMode: 'soft-light',
+          }}
+        />
+        
+        {/* Subtle vignette */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            background: `radial-gradient(
+              ellipse 80% 80% at 50% 50%,
+              transparent 0%,
+              transparent 40%,
+              rgba(0, 0, 0, 0.2) 70%,
+              rgba(0, 0, 0, 0.4) 90%,
+              rgba(0, 0, 0, 0.6) 100%
+            )`,
           }}
         />
       </div>
