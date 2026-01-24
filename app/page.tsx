@@ -98,7 +98,7 @@ export default function HomePage() {
       }
 
       // Show success toast and switch to login
-      showToast('Cuenta creada. Verifica tu correo para confirmar.', 'success')
+      showToast('Cuenta creada. Ya puedes iniciar sesión.', 'success')
       setMode('login')
       setPassword('')
       setConfirmPassword('')

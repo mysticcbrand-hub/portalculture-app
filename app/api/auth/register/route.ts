@@ -23,12 +23,14 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Registrar usuario con email de confirmación
+    // Registrar usuario sin verificación de email
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-portalculture.vercel.app'}/auth/callback`,
+        data: {
+          email_confirmed: true
+        }
       }
     })
 
@@ -46,11 +48,10 @@ export async function POST(request: Request) {
       )
     }
 
-    // No hacemos login automático - el usuario debe verificar su correo primero
+    // Cuenta creada - el usuario puede iniciar sesión inmediatamente
     return NextResponse.json({ 
       success: true, 
-      message: 'Cuenta creada. Revisa tu correo para verificar.',
-      requiresVerification: true
+      message: 'Cuenta creada correctamente.'
     })
   } catch (error: any) {
     console.error('Register error:', error)
