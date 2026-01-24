@@ -7,7 +7,7 @@ export default function SeleccionarAcceso() {
   const [hoveredOption, setHoveredOption] = useState<number | null>(null)
 
   const handleWaitlist = () => {
-    window.open('https://whop.com/checkout/plan_2kXdGgagLpw4A', '_blank')
+    window.location.href = '/cuestionario'
   }
 
   const handleFastPass = () => {
@@ -178,13 +178,13 @@ export default function SeleccionarAcceso() {
             <div className="flex items-start justify-between gap-4 mb-3 lg:mb-6">
               <div className="flex-1">
                 <span className="text-[10px] lg:text-sm font-mono text-white/40 uppercase tracking-wider">Opción 2</span>
-                <h2 className="text-xl lg:text-4xl font-bold text-white mt-1 lg:mt-2 mb-1 lg:mb-4">Acceso Gratuito</h2>
+                <h2 className="text-xl lg:text-4xl font-bold text-white mt-1 lg:mt-2 mb-1 lg:mb-4">Lista de Espera</h2>
                 
                 {/* Pricing inline */}
                 <div className="flex items-baseline gap-2">
                   <span className="text-3xl lg:text-5xl font-bold text-white">GRATIS</span>
                 </div>
-                <p className="text-[10px] lg:text-sm text-white/50 mt-0.5">Acceso limitado</p>
+                <p className="text-[10px] lg:text-sm text-white/50 mt-0.5">Espera de 3-7 días</p>
               </div>
             </div>
 
@@ -192,27 +192,27 @@ export default function SeleccionarAcceso() {
             <ul className="grid grid-cols-2 lg:flex lg:flex-col gap-2 lg:gap-4 mb-4 lg:mb-8">
               <li className="flex items-start gap-2 text-white/70">
                 <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/40 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
-                <span className="text-xs lg:text-base">Discord</span>
+                <span className="text-xs lg:text-base">Cuestionario</span>
+              </li>
+              <li className="flex items-start gap-2 text-white/70">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/40 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-xs lg:text-base">Espera 3-7 días</span>
+              </li>
+              <li className="flex items-start gap-2 text-white/70">
+                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/40 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span className="text-xs lg:text-base">Aprobación manual</span>
               </li>
               <li className="flex items-start gap-2 text-white/70">
                 <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/40 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                 </svg>
-                <span className="text-xs lg:text-base">Comunidad</span>
-              </li>
-              <li className="flex items-start gap-2 text-white/70">
-                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/40 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-xs lg:text-base">Contenido básico</span>
-              </li>
-              <li className="flex items-start gap-2 text-white/70">
-                <svg className="w-4 h-4 lg:w-6 lg:h-6 text-white/40 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-                <span className="text-xs lg:text-base">Sin compromiso</span>
+                <span className="text-xs lg:text-base">Mismo acceso</span>
               </li>
             </ul>
 
@@ -220,7 +220,7 @@ export default function SeleccionarAcceso() {
               onClick={handleWaitlist}
               className="w-full px-5 py-3 lg:px-8 lg:py-4 bg-white/10 hover:bg-white/15 text-white text-sm lg:text-base font-semibold rounded-xl transition-all duration-300 border border-white/20 hover:border-white/30 cursor-pointer active:scale-95"
             >
-              Acceder Gratis
+              Unirse a la Lista
             </button>
 
             <p className="text-xs text-white/40 text-center mt-3 lg:mt-4">
