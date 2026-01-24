@@ -3,14 +3,12 @@
 /**
  * AI Coach Chat Component
  * Premium Liquid Glass UI for NOVA AI Coach
- * With haptic feedback for premium interactions
  */
 
 import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import haptics from '@/lib/haptics';
 
 interface Message {
   id: string;
@@ -101,9 +99,6 @@ export default function AICoach() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
-    // Haptic feedback when sending message
-    haptics.messageSent();
-
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -158,9 +153,6 @@ export default function AICoach() {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
-      
-      // Haptic feedback when assistant starts responding
-      haptics.messageReceived();
 
       if (reader) {
         while (true) {
@@ -241,23 +233,10 @@ export default function AICoach() {
     }
   };
 
-  // Handle opening chat with haptic
-  const handleOpenChat = () => {
-    haptics.glassPress();
-    setIsOpen(true);
-  };
-
-  // Handle closing chat with haptic
-  const handleCloseChat = () => {
-    haptics.glassTap();
-    setIsOpen(false);
-  };
-
   if (!isOpen) {
     return (
       <button
-        onClick={handleOpenChat}
-        onTouchStart={() => haptics.glassTap()}
+        onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group"
       >
         <div className="relative">
