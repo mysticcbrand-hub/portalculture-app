@@ -2,13 +2,15 @@
 
 /**
  * AI Coach Chat Component
- * Premium glassmorphism UI for NOVA AI Coach
+ * Premium Liquid Glass UI for NOVA AI Coach
+ * With haptic feedback for premium interactions
  */
 
 import { useState, useRef, useEffect } from 'react';
 import { createClient } from '@/utils/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import haptics from '@/lib/haptics';
 
 interface Message {
   id: string;
@@ -99,6 +101,9 @@ export default function AICoach() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    // Haptic feedback when sending message
+    haptics.messageSent();
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -153,6 +158,9 @@ export default function AICoach() {
       };
 
       setMessages(prev => [...prev, assistantMessage]);
+      
+      // Haptic feedback when assistant starts responding
+      haptics.messageReceived();
 
       if (reader) {
         while (true) {
@@ -233,21 +241,34 @@ export default function AICoach() {
     }
   };
 
+  // Handle opening chat with haptic
+  const handleOpenChat = () => {
+    haptics.glassPress();
+    setIsOpen(true);
+  };
+
+  // Handle closing chat with haptic
+  const handleCloseChat = () => {
+    haptics.glassTap();
+    setIsOpen(false);
+  };
+
   if (!isOpen) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-8 right-8 z-50 group"
+        onClick={handleOpenChat}
+        onTouchStart={() => haptics.glassTap()}
+        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group"
       >
         <div className="relative">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-xl opacity-50 group-hover:opacity-75 transition-opacity" />
-          <div className="relative bg-black/80 backdrop-blur-xl border border-white/10 rounded-full p-4 hover:border-white/20 transition-all">
-            <svg className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          {/* Liquid Glass FAB */}
+          <div className="liquid-glass-fab p-4 md:p-5">
+            <svg className="w-7 h-7 md:w-8 md:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
             </svg>
           </div>
         </div>
-        <div className="absolute -top-12 right-0 bg-black/90 backdrop-blur-xl border border-white/10 px-4 py-2 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+        <div className="absolute -top-12 right-0 liquid-glass-chip opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
           <span className="text-sm text-white font-medium">Habla con NOVA 🔥</span>
         </div>
       </button>

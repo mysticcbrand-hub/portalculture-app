@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { hapticImpact, hapticNotification, hapticSelection } from '@/lib/haptics'
 
 export default function HomePage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -51,8 +52,10 @@ export default function HomePage() {
       }
 
       // Redirect to access selection
+      hapticNotification('success')
       router.push('/seleccionar-acceso')
     } catch (err: any) {
+      hapticNotification('error')
       setError(err.message)
     } finally {
       setLoading(false)
@@ -98,12 +101,14 @@ export default function HomePage() {
       }
 
       // Show success toast and switch to login
+      hapticNotification('success')
       showToast('Cuenta creada. Ya puedes iniciar sesión.', 'success')
       setMode('login')
       setPassword('')
       setConfirmPassword('')
       setAcceptedTerms(false)
     } catch (err: any) {
+      hapticNotification('error')
       setError(err.message)
     } finally {
       setLoading(false)
@@ -141,13 +146,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-      {/* Animated Mesh Gradient Background */}
+      {/* Animated Mesh Gradient Background - Monochrome */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Blob 1 - Purple/Blue */}
+        {/* Blob 1 - White/Light */}
         <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-30"
+          className="absolute w-[600px] h-[600px] rounded-full opacity-[0.04]"
           style={{
-            background: 'radial-gradient(circle, #6366f1 0%, #4f46e5 30%, #3730a3 50%, transparent 70%)',
+            background: 'radial-gradient(circle, #ffffff 0%, #e5e5e5 30%, #a3a3a3 50%, transparent 70%)',
             top: '-15%',
             right: '-10%',
             animation: 'float1 18s ease-in-out infinite',
@@ -155,11 +160,11 @@ export default function HomePage() {
           }}
         />
         
-        {/* Blob 2 - Teal/Cyan */}
+        {/* Blob 2 - Gray */}
         <div 
-          className="absolute w-[500px] h-[500px] rounded-full opacity-25"
+          className="absolute w-[500px] h-[500px] rounded-full opacity-[0.05]"
           style={{
-            background: 'radial-gradient(circle, #14b8a6 0%, #0d9488 30%, #0f766e 50%, transparent 70%)',
+            background: 'radial-gradient(circle, #d4d4d4 0%, #a3a3a3 30%, #737373 50%, transparent 70%)',
             bottom: '-10%',
             left: '-5%',
             animation: 'float2 20s ease-in-out infinite',
@@ -167,11 +172,11 @@ export default function HomePage() {
           }}
         />
         
-        {/* Blob 3 - Pink/Rose */}
+        {/* Blob 3 - Dark Gray */}
         <div 
-          className="absolute w-[400px] h-[400px] rounded-full opacity-20"
+          className="absolute w-[400px] h-[400px] rounded-full opacity-[0.06]"
           style={{
-            background: 'radial-gradient(circle, #ec4899 0%, #db2777 30%, #be185d 50%, transparent 70%)',
+            background: 'radial-gradient(circle, #a3a3a3 0%, #737373 30%, #525252 50%, transparent 70%)',
             top: '40%',
             left: '20%',
             animation: 'float3 22s ease-in-out infinite',
@@ -181,14 +186,14 @@ export default function HomePage() {
         
         {/* Noise overlay for anti-banding */}
         <div 
-          className="absolute inset-0 opacity-[0.02] mix-blend-overlay"
+          className="absolute inset-0 opacity-[0.015] mix-blend-overlay"
           style={{
             backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
           }}
         />
         
         {/* Depth gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
       </div>
 
       {/* Toast notification */}
@@ -241,7 +246,7 @@ export default function HomePage() {
         {showForgotPassword ? (
           <div className="relative group">
             {/* Card glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-white/[0.08] via-white/[0.05] to-white/[0.08] rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
             
             <div className="relative bg-black/40 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               <button
@@ -267,7 +272,7 @@ export default function HomePage() {
                     placeholder="tu@email.com"
                     required
                   />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                 </div>
                 
                 <button
@@ -284,7 +289,7 @@ export default function HomePage() {
           /* Main Auth Card */
           <div className="relative group">
             {/* Card glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+            <div className="absolute -inset-1 bg-gradient-to-r from-white/[0.08] via-white/[0.05] to-white/[0.08] rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
             
             <div 
               className={`
@@ -308,7 +313,7 @@ export default function HomePage() {
                       placeholder="Correo electrónico"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                   </div>
 
                   <div className="relative group/input">
@@ -320,7 +325,7 @@ export default function HomePage() {
                       placeholder="Contraseña"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                   </div>
 
                   {error && (
@@ -357,7 +362,7 @@ export default function HomePage() {
                       placeholder="Correo electrónico"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                   </div>
 
                   <div className="relative group/input">
@@ -369,7 +374,7 @@ export default function HomePage() {
                       placeholder="Contraseña"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                     
                     {/* Password requirements */}
                     <div className="mt-3 space-y-1.5 px-1">
@@ -399,7 +404,7 @@ export default function HomePage() {
                       placeholder="Repetir contraseña"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                     {confirmPassword && !passwordsMatch && (
                       <p className="text-red-400 text-xs mt-2 px-1">Las contraseñas no coinciden</p>
                     )}

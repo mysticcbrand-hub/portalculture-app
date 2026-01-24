@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import AICoach from '@/components/AICoach'
+import haptics from '@/lib/haptics'
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -28,9 +29,15 @@ export default function DashboardPage() {
   }, [router, supabase])
 
   const handleSignOut = async () => {
+    haptics.buttonPress()
     await supabase.auth.signOut()
     router.push('/')
     router.refresh()
+  }
+
+  // Haptic feedback for card interactions
+  const handleCardTap = () => {
+    haptics.cardTap()
   }
 
   if (loading) {
@@ -93,9 +100,9 @@ export default function DashboardPage() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70" />
       </div>
 
-      {/* Header */}
-      <header className="glass border-b border-white/10 sticky top-0 z-50 backdrop-blur-xl">
-        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
+      {/* Header - Liquid Glass */}
+      <header className="liquid-glass border-b border-white/10 sticky top-0 z-50 rounded-none">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <img src="/favicon.ico" alt="Portal Culture" className="w-8 h-8 md:w-10 md:h-10" />
             <span className="text-lg md:text-xl font-bold text-white">Portal Culture</span>
@@ -106,7 +113,7 @@ export default function DashboardPage() {
             </span>
             <button
               onClick={handleSignOut}
-              className="px-3 md:px-4 py-2 text-xs md:text-sm glass glass-hover rounded-xl"
+              className="liquid-glass-button px-3 md:px-4 py-2 text-xs md:text-sm rounded-xl"
             >
               Salir
             </button>
@@ -141,13 +148,15 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        {/* Discord Card */}
+        {/* Discord Card - Liquid Glass */}
         <div className="mb-8">
           <a
             href="https://whop.com/checkout/plan_2kXdGgagLpw4A"
             target="_blank"
             rel="noopener noreferrer"
-            className="glass glass-hover rounded-2xl md:rounded-3xl p-6 md:p-8 block group"
+            onClick={handleCardTap}
+            onTouchStart={handleCardTap}
+            className="liquid-glass-card p-6 md:p-8 block group"
           >
             <div className="flex items-start justify-between mb-4 md:mb-6">
               <div className="p-3 md:p-4 glass rounded-xl md:rounded-2xl">
@@ -176,8 +185,9 @@ export default function DashboardPage() {
                 href={course.link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="glass glass-hover rounded-2xl p-6 block group transition-all duration-300 hover:scale-105 w-full"
-                style={{ backfaceVisibility: 'hidden', willChange: 'transform' }}
+                onClick={handleCardTap}
+                onTouchStart={handleCardTap}
+                className="liquid-glass-card p-6 block group"
               >
                 <div className="text-4xl mb-4">{course.emoji}</div>
                 <h4 className="text-lg font-bold mb-2 group-hover:text-white transition-colors">{course.name}</h4>
