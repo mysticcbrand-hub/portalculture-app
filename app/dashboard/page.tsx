@@ -54,39 +54,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* EXACT Hero Background - Same as Landing */}
-      <div className="fixed inset-0 bg-black -z-10">
-        {/* Subtle gradient glow */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: `radial-gradient(
-              ellipse 80% 60% at 50% 45%,
-              rgba(99, 102, 241, 0.08) 0%,
-              rgba(139, 92, 246, 0.04) 30%,
-              transparent 70%
-            )`,
-          }}
-        />
-        
-        {/* Secondary subtle accent */}
-        <div 
-          className="absolute inset-0 pointer-events-none"
-          style={{
-            background: 'radial-gradient(ellipse 60% 40% at 70% 20%, rgba(168, 85, 247, 0.04) 0%, transparent 50%)',
-          }}
-        />
-        
-        {/* Noise texture - subtle */}
-        <div 
-          className="absolute inset-0 pointer-events-none z-[5]"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            opacity: 0.04,
-            mixBlendMode: 'overlay',
-          }}
-        />
-      </div>
+      {/* Pure black background - NO gradients */}
+      <div className="fixed inset-0 bg-black -z-10" />
 
       {/* Header - Liquid Glass */}
       <header className="liquid-glass border-b border-white/10 sticky top-0 z-50 rounded-none">
