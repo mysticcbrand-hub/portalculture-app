@@ -61,7 +61,7 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/dashboard') ||
     request.nextUrl.pathname.startsWith('/admin')
   )) {
-    return NextResponse.redirect(new URL('/login', request.url))
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   // Admin routes - solo para mysticcbrand@gmail.com
@@ -69,11 +69,6 @@ export async function middleware(request: NextRequest) {
     if (user?.email !== 'mysticcbrand@gmail.com') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
-  }
-
-  // Redirect to dashboard if already logged in and trying to access login page
-  if (user && request.nextUrl.pathname === '/login') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return response
