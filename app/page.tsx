@@ -141,11 +141,55 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-zinc-900/50 via-black to-zinc-900/50" />
-      
-      {/* Subtle glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/[0.02] rounded-full blur-3xl" />
+      {/* Animated Mesh Gradient Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Blob 1 - Purple/Blue */}
+        <div 
+          className="absolute w-[600px] h-[600px] rounded-full opacity-30"
+          style={{
+            background: 'radial-gradient(circle, #6366f1 0%, #4f46e5 30%, #3730a3 50%, transparent 70%)',
+            top: '-15%',
+            right: '-10%',
+            animation: 'float1 18s ease-in-out infinite',
+            filter: 'blur(80px)',
+          }}
+        />
+        
+        {/* Blob 2 - Teal/Cyan */}
+        <div 
+          className="absolute w-[500px] h-[500px] rounded-full opacity-25"
+          style={{
+            background: 'radial-gradient(circle, #14b8a6 0%, #0d9488 30%, #0f766e 50%, transparent 70%)',
+            bottom: '-10%',
+            left: '-5%',
+            animation: 'float2 20s ease-in-out infinite',
+            filter: 'blur(70px)',
+          }}
+        />
+        
+        {/* Blob 3 - Pink/Rose */}
+        <div 
+          className="absolute w-[400px] h-[400px] rounded-full opacity-20"
+          style={{
+            background: 'radial-gradient(circle, #ec4899 0%, #db2777 30%, #be185d 50%, transparent 70%)',
+            top: '40%',
+            left: '20%',
+            animation: 'float3 22s ease-in-out infinite',
+            filter: 'blur(60px)',
+          }}
+        />
+        
+        {/* Noise overlay for anti-banding */}
+        <div 
+          className="absolute inset-0 opacity-[0.02] mix-blend-overlay"
+          style={{
+            backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
+          }}
+        />
+        
+        {/* Depth gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
+      </div>
 
       {/* Toast notification */}
       {toast && (
@@ -180,205 +224,236 @@ export default function HomePage() {
       <div className="relative z-10 w-full max-w-sm">
         {/* Logo */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-semibold text-white tracking-tight">
+          <h1 className="text-2xl font-bold tracking-tight"
+            style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #a3a3a3 50%, #ffffff 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+            }}
+          >
             PORTAL CULTURE
           </h1>
+          <p className="text-white/40 text-xs mt-1 tracking-wide">Desbloquea tu potencial</p>
         </div>
 
         {/* Forgot Password Modal */}
         {showForgotPassword ? (
-          <div className="bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl">
-            <button
-              onClick={() => setShowForgotPassword(false)}
-              className="text-white/50 hover:text-white mb-4 text-sm flex items-center gap-1 transition-colors"
-            >
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-              Volver
-            </button>
+          <div className="relative group">
+            {/* Card glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
             
-            <h2 className="text-lg font-medium text-white mb-2">Restablecer contraseña</h2>
-            <p className="text-sm text-white/50 mb-6">Te enviaremos un enlace para restablecer tu contraseña</p>
-            
-            <form onSubmit={handleForgotPassword} className="space-y-4">
-              <input
-                type="email"
-                value={forgotEmail}
-                onChange={(e) => setForgotEmail(e.target.value)}
-                className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
-                placeholder="tu@email.com"
-                required
-              />
-              
+            <div className="relative bg-black/40 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
               <button
-                type="submit"
-                disabled={loading}
-                className="w-full py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50"
+                onClick={() => setShowForgotPassword(false)}
+                className="text-white/50 hover:text-white mb-4 text-sm flex items-center gap-1 transition-colors"
               >
-                {loading ? 'Enviando...' : 'Enviar enlace'}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+                Volver
               </button>
-            </form>
-          </div>
-        ) : (
-          /* Main Auth Card */
-          <div 
-            className={`
-              bg-zinc-900/50 backdrop-blur-xl border border-white/10 rounded-2xl p-6 shadow-2xl
-              transition-all duration-500 ease-out
-              ${mode === 'register' ? 'pb-8' : ''}
-            `}
-          >
-            {/* Login Form */}
-            {mode === 'login' && (
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
+              
+              <h2 className="text-lg font-medium text-white mb-2">Restablecer contraseña</h2>
+              <p className="text-sm text-white/50 mb-6">Te enviaremos un enlace para restablecer tu contraseña</p>
+              
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <div className="relative group/input">
                   <input
                     type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
-                    placeholder="Correo electrónico"
+                    value={forgotEmail}
+                    onChange={(e) => setForgotEmail(e.target.value)}
+                    className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
+                    placeholder="tu@email.com"
                     required
                   />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
                 </div>
-
-                <div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
-                    placeholder="Contraseña"
-                    required
-                  />
-                </div>
-
-                {error && (
-                  <p className="text-red-400 text-xs">{error}</p>
-                )}
-
+                
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50"
+                  className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
                 >
-                  {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowForgotPassword(true)}
-                  className="w-full text-center text-xs text-white/40 hover:text-white/60 transition-colors"
-                >
-                  ¿Olvidaste tu contraseña?
+                  {loading ? 'Enviando...' : 'Enviar enlace'}
                 </button>
               </form>
-            )}
+            </div>
+          </div>
+        ) : (
+          /* Main Auth Card */
+          <div className="relative group">
+            {/* Card glow effect */}
+            <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+            
+            <div 
+              className={`
+                relative bg-black/40 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]
+                transition-all duration-500 ease-out
+                ${mode === 'register' ? 'pb-8' : ''}
+              `}
+            >
+              {/* Subtle inner glow */}
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.05] via-transparent to-transparent pointer-events-none" />
+              
+              {/* Login Form */}
+              {mode === 'login' && (
+                <form onSubmit={handleLogin} className="relative space-y-4">
+                  <div className="relative group/input">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
+                      placeholder="Correo electrónico"
+                      required
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                  </div>
 
-            {/* Register Form */}
-            {mode === 'register' && (
-              <form onSubmit={handleRegister} className="space-y-4">
-                <div>
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
-                    placeholder="Correo electrónico"
-                    required
-                  />
-                </div>
+                  <div className="relative group/input">
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
+                      placeholder="Contraseña"
+                      required
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                  </div>
 
-                <div>
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/20 transition-colors"
-                    placeholder="Contraseña"
-                    required
-                  />
-                  
-                  {/* Password requirements */}
-                  <div className="mt-2 space-y-1">
-                    <div className={`flex items-center gap-2 text-xs ${passwordRequirements.length ? 'text-green-400' : 'text-white/30'}`}>
-                      <div className={`w-1 h-1 rounded-full ${passwordRequirements.length ? 'bg-green-400' : 'bg-white/30'}`} />
-                      Mínimo 8 caracteres
-                    </div>
-                    <div className={`flex items-center gap-2 text-xs ${passwordRequirements.case ? 'text-green-400' : 'text-white/30'}`}>
-                      <div className={`w-1 h-1 rounded-full ${passwordRequirements.case ? 'bg-green-400' : 'bg-white/30'}`} />
-                      1 mayúscula y 1 minúscula
-                    </div>
-                    <div className={`flex items-center gap-2 text-xs ${passwordRequirements.special ? 'text-green-400' : 'text-white/30'}`}>
-                      <div className={`w-1 h-1 rounded-full ${passwordRequirements.special ? 'bg-green-400' : 'bg-white/30'}`} />
-                      1 carácter especial (!@#$%...)
+                  {error && (
+                    <p className="text-red-400 text-xs px-1">{error}</p>
+                  )}
+
+                  <button
+                    type="submit"
+                    disabled={loading}
+                    className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+                  >
+                    {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="w-full text-center text-xs text-white/40 hover:text-white/60 transition-colors cursor-pointer"
+                  >
+                    ¿Olvidaste tu contraseña?
+                  </button>
+                </form>
+              )}
+
+              {/* Register Form */}
+              {mode === 'register' && (
+                <form onSubmit={handleRegister} className="relative space-y-4">
+                  <div className="relative group/input">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
+                      placeholder="Correo electrónico"
+                      required
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                  </div>
+
+                  <div className="relative group/input">
+                    <input
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
+                      placeholder="Contraseña"
+                      required
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    
+                    {/* Password requirements */}
+                    <div className="mt-3 space-y-1.5 px-1">
+                      <div className={`flex items-center gap-2 text-xs transition-colors duration-300 ${passwordRequirements.length ? 'text-emerald-400' : 'text-white/30'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${passwordRequirements.length ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                        Mínimo 8 caracteres
+                      </div>
+                      <div className={`flex items-center gap-2 text-xs transition-colors duration-300 ${passwordRequirements.case ? 'text-emerald-400' : 'text-white/30'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${passwordRequirements.case ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                        1 mayúscula y 1 minúscula
+                      </div>
+                      <div className={`flex items-center gap-2 text-xs transition-colors duration-300 ${passwordRequirements.special ? 'text-emerald-400' : 'text-white/30'}`}>
+                        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${passwordRequirements.special ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                        1 carácter especial (!@#$%...)
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div>
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    className={`w-full px-4 py-3 bg-white/5 border rounded-xl text-white text-sm placeholder:text-white/30 focus:outline-none transition-colors ${
-                      confirmPassword && !passwordsMatch ? 'border-red-500/50' : 'border-white/10 focus:border-white/20'
-                    }`}
-                    placeholder="Repetir contraseña"
-                    required
-                  />
-                  {confirmPassword && !passwordsMatch && (
-                    <p className="text-red-400 text-xs mt-1">Las contraseñas no coinciden</p>
+                  <div className="relative group/input">
+                    <input
+                      type="password"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      className={`w-full px-4 py-3.5 bg-white/[0.03] border rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:bg-white/[0.05] transition-all duration-300 ${
+                        confirmPassword && !passwordsMatch ? 'border-red-500/40' : 'border-white/[0.08] focus:border-white/20'
+                      }`}
+                      placeholder="Repetir contraseña"
+                      required
+                    />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-indigo-500/0 via-purple-500/0 to-pink-500/0 group-focus-within/input:from-indigo-500/10 group-focus-within/input:via-purple-500/10 group-focus-within/input:to-pink-500/10 transition-all duration-300 pointer-events-none" />
+                    {confirmPassword && !passwordsMatch && (
+                      <p className="text-red-400 text-xs mt-2 px-1">Las contraseñas no coinciden</p>
+                    )}
+                  </div>
+
+                  {/* Terms checkbox */}
+                  <label className="flex items-start gap-3 cursor-pointer group/check px-1">
+                    <div className="relative mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={acceptedTerms}
+                        onChange={(e) => setAcceptedTerms(e.target.checked)}
+                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                      />
+                    </div>
+                    <span className="text-xs text-white/40 leading-relaxed group-hover/check:text-white/60 transition-colors">
+                      Acepto los{' '}
+                      <a href="/terminos" className="text-white/60 underline hover:text-white transition-colors">términos de uso</a>
+                      {' '}y las{' '}
+                      <a href="/privacidad" className="text-white/60 underline hover:text-white transition-colors">políticas del club</a>
+                    </span>
+                  </label>
+
+                  {error && (
+                    <p className="text-red-400 text-xs px-1">{error}</p>
                   )}
-                </div>
 
-                {/* Terms checkbox */}
-                <label className="flex items-start gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={acceptedTerms}
-                    onChange={(e) => setAcceptedTerms(e.target.checked)}
-                    className="mt-0.5 w-4 h-4 rounded border-white/20 bg-white/5 text-white focus:ring-0 focus:ring-offset-0"
-                  />
-                  <span className="text-xs text-white/50 leading-relaxed">
-                    Acepto los{' '}
-                    <a href="/terminos" className="text-white/70 underline hover:text-white">términos de uso</a>
-                    {' '}y las{' '}
-                    <a href="/privacidad" className="text-white/70 underline hover:text-white">políticas del club</a>
-                  </span>
-                </label>
+                  <button
+                    type="submit"
+                    disabled={loading || !isPasswordValid || !passwordsMatch || !acceptedTerms}
+                    className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+                  >
+                    {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+                  </button>
+                </form>
+              )}
 
-                {error && (
-                  <p className="text-red-400 text-xs">{error}</p>
-                )}
-
-                <button
-                  type="submit"
-                  disabled={loading || !isPasswordValid || !passwordsMatch || !acceptedTerms}
-                  className="w-full py-3 bg-white text-black text-sm font-medium rounded-xl hover:bg-white/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  {loading ? 'Creando cuenta...' : 'Crear cuenta'}
-                </button>
-              </form>
-            )}
-
-            {/* Toggle mode */}
-            <div className="mt-6 pt-4 border-t border-white/5 text-center">
-              <p className="text-xs text-white/40">
-                {mode === 'login' ? '¿Aún no tienes cuenta?' : '¿Ya tienes cuenta?'}
-                <button
-                  onClick={() => {
-                    setMode(mode === 'login' ? 'register' : 'login')
-                    setError(null)
-                    setPassword('')
-                    setConfirmPassword('')
-                  }}
-                  className="ml-1 text-white/70 hover:text-white transition-colors"
-                >
-                  {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
-                </button>
-              </p>
+              {/* Toggle mode */}
+              <div className="relative mt-6 pt-4 border-t border-white/[0.05] text-center">
+                <p className="text-xs text-white/40">
+                  {mode === 'login' ? '¿Aún no tienes cuenta?' : '¿Ya tienes cuenta?'}
+                  <button
+                    onClick={() => {
+                      setMode(mode === 'login' ? 'register' : 'login')
+                      setError(null)
+                      setPassword('')
+                      setConfirmPassword('')
+                    }}
+                    className="ml-1 text-white/60 hover:text-white transition-colors cursor-pointer"
+                  >
+                    {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
+                  </button>
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -401,6 +476,24 @@ export default function HomePage() {
         }
         .animate-slide-down {
           animation: slide-down 0.3s ease-out;
+        }
+        
+        @keyframes float1 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(30px, -50px) scale(1.05); }
+          66% { transform: translate(-20px, 30px) scale(0.95); }
+        }
+        
+        @keyframes float2 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(-40px, 40px) scale(1.08); }
+          66% { transform: translate(25px, -30px) scale(0.92); }
+        }
+        
+        @keyframes float3 {
+          0%, 100% { transform: translate(0, 0) scale(1); }
+          33% { transform: translate(50px, 20px) scale(1.1); }
+          66% { transform: translate(-30px, -40px) scale(0.9); }
         }
       `}</style>
     </div>
