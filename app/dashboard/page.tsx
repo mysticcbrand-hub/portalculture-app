@@ -144,7 +144,7 @@ export default function DashboardPage() {
         {/* Discord Card */}
         <div className="mb-8">
           <a
-            href="https://whop.com/portalculture/accesoexclusivo"
+            href="https://whop.com/checkout/plan_2kXdGgagLpw4A"
             target="_blank"
             rel="noopener noreferrer"
             className="glass glass-hover rounded-2xl md:rounded-3xl p-6 md:p-8 block group"
