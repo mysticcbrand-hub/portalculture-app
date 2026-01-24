@@ -56,20 +56,26 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Protected routes - requieren autenticación
-  if (!user && (
-    request.nextUrl.pathname.startsWith('/dashboard') ||
-    request.nextUrl.pathname.startsWith('/admin')
-  )) {
-    return NextResponse.redirect(new URL('/', request.url))
+  const isAuthPage = request.nextUrl.pathname === '/'
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') || 
+                           request.nextUrl.pathname.startsWith('/admin')
+  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+
+  // CASE 1: Not logged in trying to access protected routes → redirect to login
+  if (!user && isProtectedRoute) {
+    const redirectUrl = new URL('/', request.url)
+    return NextResponse.redirect(redirectUrl)
   }
 
-  // Admin routes - solo para mysticcbrand@gmail.com
-  if (request.nextUrl.pathname.startsWith('/admin')) {
-    if (user?.email !== 'mysticcbrand@gmail.com') {
+  // CASE 2: Admin routes - only mysticcbrand@gmail.com allowed
+  if (user && isAdminRoute) {
+    if (user.email !== 'mysticcbrand@gmail.com') {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
+
+  // CASE 3: Logged in user on auth page → redirect to appropriate dashboard
+  // (This is now handled in the page itself for smoother UX)
 
   return response
 }

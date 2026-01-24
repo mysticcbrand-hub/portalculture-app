@@ -54,78 +54,15 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* TEST BACKGROUND - VERY VISIBLE */}
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        {/* BRIGHT RED TO TEST IF CHANGES DEPLOY */}
-        <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-purple-900 to-blue-900" />
-        
-        {/* Ambient depth - ultra smooth with 10+ stops */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `radial-gradient(
-              circle at 50% 30%,
-              rgba(40, 40, 50, 0.15) 0%,
-              rgba(35, 35, 45, 0.12) 10%,
-              rgba(30, 30, 40, 0.10) 20%,
-              rgba(25, 25, 35, 0.08) 30%,
-              rgba(20, 20, 30, 0.06) 40%,
-              rgba(15, 15, 25, 0.04) 50%,
-              rgba(10, 10, 20, 0.03) 60%,
-              rgba(8, 8, 15, 0.02) 70%,
-              rgba(5, 5, 10, 0.01) 80%,
-              transparent 90%
-            )`,
-          }}
-        />
-        
-        {/* Secondary glow for depth */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `radial-gradient(
-              ellipse 120% 100% at 80% 20%,
-              rgba(60, 60, 80, 0.08) 0%,
-              rgba(45, 45, 65, 0.05) 25%,
-              rgba(30, 30, 50, 0.03) 50%,
-              transparent 70%
-            )`,
-          }}
-        />
-        
-        {/* Film grain texture for premium feel and anti-banding */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.35'/%3E%3C/svg%3E")`,
-            backgroundSize: '256px 256px',
-            opacity: 0.04,
-            mixBlendMode: 'soft-light',
-          }}
-        />
-        
-        {/* Subtle vignette */}
-        <div 
-          className="absolute inset-0"
-          style={{
-            background: `radial-gradient(
-              ellipse 80% 80% at 50% 50%,
-              transparent 0%,
-              transparent 40%,
-              rgba(0, 0, 0, 0.2) 70%,
-              rgba(0, 0, 0, 0.4) 90%,
-              rgba(0, 0, 0, 0.6) 100%
-            )`,
-          }}
-        />
-      </div>
+      {/* Clean black background */}
+      <div className="fixed inset-0 -z-10 bg-black" />
 
       {/* Header - Liquid Glass */}
       <header className="liquid-glass border-b border-white/10 sticky top-0 z-50 rounded-none">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between relative z-10">
           <div className="flex items-center gap-3">
             <img src="/favicon.ico" alt="Portal Culture" className="w-8 h-8 md:w-10 md:h-10" />
-            <span className="text-lg md:text-xl font-bold text-red-500">🔴 TEST DEPLOY 2024</span>
+            <span className="text-lg md:text-xl font-bold text-white">Portal Culture</span>
           </div>
           <div className="flex items-center gap-2 md:gap-4">
             <span className="text-xs md:text-sm text-gray-400 hidden sm:inline">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 export default function HomePage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -10,11 +11,38 @@ export default function HomePage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [checkingSession, setCheckingSession] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const router = useRouter()
+  const supabase = createClient()
+
+  // Check for existing session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          // User is already logged in - redirect to appropriate page
+          if (user.email === 'mysticcbrand@gmail.com') {
+            router.replace('/admin/waitlist')
+          } else {
+            router.replace('/dashboard')
+          }
+        } else {
+          setCheckingSession(false)
+        }
+      } catch (error) {
+        console.error('Session check error:', error)
+        setCheckingSession(false)
+      }
+    }
+
+    checkSession()
+  }, [router, supabase.auth])
 
   // Password validation
   const passwordRequirements = {
@@ -50,8 +78,17 @@ export default function HomePage() {
         throw new Error(data.error || 'Error al iniciar sesión')
       }
 
-      // Redirect to access selection
-      router.push('/seleccionar-acceso')
+      // Successful login - redirect based on user
+      showToast('¡Bienvenido de nuevo!', 'success')
+      
+      // Small delay to show toast, then redirect
+      setTimeout(() => {
+        if (email === 'mysticcbrand@gmail.com') {
+          router.replace('/admin/waitlist')
+        } else {
+          router.replace('/dashboard')
+        }
+      }, 500)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -97,12 +134,29 @@ export default function HomePage() {
         throw new Error(data.error || 'Error al crear la cuenta')
       }
 
-      // Show success toast and switch to login
-      showToast('Cuenta creada. Ya puedes iniciar sesión.', 'success')
-      setMode('login')
-      setPassword('')
-      setConfirmPassword('')
-      setAcceptedTerms(false)
+      // Account created - now auto-login
+      showToast('¡Cuenta creada! Iniciando sesión...', 'success')
+      
+      // Auto-login after registration
+      const loginResponse = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      })
+
+      if (loginResponse.ok) {
+        // Redirect to dashboard
+        setTimeout(() => {
+          router.replace('/dashboard')
+        }, 500)
+      } else {
+        // If auto-login fails, switch to login mode
+        setMode('login')
+        setPassword('')
+        setConfirmPassword('')
+        setAcceptedTerms(false)
+        showToast('Cuenta creada. Por favor inicia sesión.', 'success')
+      }
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -137,6 +191,18 @@ export default function HomePage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  // Show loading while checking session
+  if (checkingSession) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+          <p className="text-white/50 text-sm">Verificando sesión...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

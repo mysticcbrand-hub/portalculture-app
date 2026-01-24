@@ -1,13 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/utils/supabase/client'
 
 export default function Cuestionario() {
   const router = useRouter()
-  const supabase = createClient()
-  const [checking, setChecking] = useState(false)
 
   useEffect(() => {
     // Load Typeform embed script
@@ -21,23 +18,9 @@ export default function Cuestionario() {
     }
   }, [])
 
-  // Check if user already has account
-  const handleCheckAccount = async () => {
-    setChecking(true)
-    try {
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (user) {
-        // User is logged in, redirect to dashboard
-        router.push('/dashboard')
-      } else {
-        // No user, redirect to app homepage
-        window.location.href = 'https://app-portalculture.vercel.app'
-      }
-    } catch (error) {
-      console.error('Error checking account:', error)
-      window.location.href = 'https://app-portalculture.vercel.app'
-    }
+  // Simple redirect to login page
+  const handleGoToLogin = () => {
+    router.push('/')
   }
 
   return (
@@ -87,13 +70,12 @@ export default function Cuestionario() {
 
       {/* Centered Content */}
       <div className="flex flex-col items-center justify-center min-h-screen p-4 md:p-8 gap-6">
-        {/* "Ya tengo cuenta" button - top */}
+        {/* "Ya tengo cuenta" button - goes to login page */}
         <button
-          onClick={handleCheckAccount}
-          disabled={checking}
-          className="liquid-glass-button text-sm md:text-base px-6 py-3 rounded-xl disabled:opacity-50"
+          onClick={handleGoToLogin}
+          className="liquid-glass-button text-sm md:text-base px-6 py-3 rounded-xl"
         >
-          {checking ? 'Verificando...' : 'Ya tengo cuenta'}
+          Ya tengo cuenta
         </button>
 
         {/* Title */}
