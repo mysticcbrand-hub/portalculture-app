@@ -516,3 +516,62 @@ body {
     display: none;
   }
 }
+
+/* ============================================
+   GLOBAL ANTI-BANDING BACKGROUND OVERLAY FOR PC
+   Fixes banding on Windows/PC displays
+   ============================================ */
+
+body {
+  position: relative;
+}
+
+/* Multi-layer gradient overlay - NO banding */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  
+  /* High-quality noise dithering */
+  background: 
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulance type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E"),
+    
+    /* Radial gradient with 8 stops for smooth transitions */
+    radial-gradient(
+      ellipse 100% 80% at 50% 50%,
+      rgba(10, 10, 10, 1) 0%,
+      rgba(8, 8, 8, 1) 15%,
+      rgba(5, 5, 5, 1) 30%,
+      rgba(3, 3, 3, 1) 45%,
+      rgba(2, 2, 2, 1) 60%,
+      rgba(1, 1, 1, 1) 75%,
+      rgba(0, 0, 0, 1) 90%,
+      rgba(0, 0, 0, 1) 100%
+    );
+  
+  background-size: 300px 300px, 100% 100%;
+  background-position: 0 0, center center;
+  opacity: 0.06;
+  mix-blend-mode: soft-light;
+}
+
+/* Vertical gradient for depth */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(5, 5, 5, 0.3) 20%,
+    rgba(8, 8, 8, 0.5) 40%,
+    rgba(10, 10, 10, 0.6) 60%,
+    rgba(8, 8, 8, 0.5) 80%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
