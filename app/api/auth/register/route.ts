@@ -23,20 +23,16 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Registrar usuario sin verificación de email
-    const { data, error } = await supabase.auth.signUp({
+    // Registrar usuario con admin API (sin verificación de email)
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          email_confirmed: true
-        }
-      }
+      email_confirm: true, // Confirmar email automáticamente
     })
 
     if (error) {
       // Manejar errores comunes
-      if (error.message.includes('already registered')) {
+      if (error.message.includes('already') || error.message.includes('exists')) {
         return NextResponse.json(
           { error: 'Este correo ya está registrado' },
           { status: 400 }
