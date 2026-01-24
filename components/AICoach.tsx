@@ -277,12 +277,12 @@ export default function AICoach() {
 
   return (
     <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[450px] md:h-[700px] z-50 flex flex-col">
-      {/* Glassmorphism container */}
-      <div className="flex-1 bg-black/80 backdrop-blur-xl border border-white/10 md:rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+      {/* Liquid Glass container */}
+      <div className="flex-1 liquid-glass md:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
-        <div className="relative border-b border-white/10 p-4">
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-blue-500/10" />
-          <div className="relative flex items-center justify-between">
+        <div className="relative border-b border-white/20 p-4">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20" />
+          <div className="relative flex items-center justify-between z-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center overflow-hidden">
                 <img 
@@ -345,8 +345,8 @@ export default function AICoach() {
               <div
                 className={`max-w-[80%] rounded-2xl p-4 ${
                   msg.role === 'user'
-                    ? 'bg-gradient-to-r from-purple-500 to-blue-500 text-white'
-                    : 'bg-white/5 text-white border border-white/10'
+                    ? 'liquid-glass-bubble user'
+                    : 'liquid-glass-bubble assistant'
                 }`}
               >
                 <div className="text-sm prose prose-invert prose-sm max-w-none">
@@ -381,11 +381,11 @@ export default function AICoach() {
 
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+              <div className="liquid-glass-bubble assistant p-4">
                 <div className="flex gap-2">
-                  <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-white/50 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                 </div>
               </div>
             </div>
@@ -394,25 +394,25 @@ export default function AICoach() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input */}
-        <div className="border-t border-white/10 p-4">
-          <div className="flex gap-2">
+        {/* Input - Liquid Glass */}
+        <div className="border-t border-white/20 p-4 backdrop-blur-xl bg-black/30">
+          <div className="flex gap-3">
             <textarea
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Escribe tu mensaje..."
-              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/30 focus:outline-none focus:border-white/20 resize-none"
+              className="flex-1 liquid-glass-input resize-none"
               rows={1}
               disabled={isLoading}
             />
             <button
               onClick={handleSend}
               disabled={isLoading || !input.trim()}
-              className="bg-gradient-to-r from-purple-500 to-blue-500 text-white px-6 rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+              className="liquid-glass-primary px-6 py-3 rounded-xl font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {isLoading ? '...' : '→'}
+              <span className="relative z-10">{isLoading ? '...' : '→'}</span>
             </button>
           </div>
         </div>
