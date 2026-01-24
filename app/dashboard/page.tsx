@@ -54,10 +54,10 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Premium smooth background - Multi-layer anti-banding */}
+      {/* TEST BACKGROUND - VERY VISIBLE */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        {/* Base solid black */}
-        <div className="absolute inset-0 bg-black" />
+        {/* BRIGHT RED TO TEST IF CHANGES DEPLOY */}
+        <div className="absolute inset-0 bg-gradient-to-br from-red-900 via-purple-900 to-blue-900" />
         
         {/* Ambient depth - ultra smooth with 10+ stops */}
         <div 
