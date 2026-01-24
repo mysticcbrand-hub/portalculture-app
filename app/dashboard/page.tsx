@@ -54,78 +54,38 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Anti-Banding Mesh Gradient Background - Black & White */}
+      {/* Hero-style Background - B&W Version */}
       <div className="fixed inset-0 bg-black -z-10">
-        {/* Noise texture layer for anti-banding */}
+        {/* Primary gradient glow - white/gray */}
         <div 
-          className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '200px 200px',
+            background: `radial-gradient(
+              ellipse 80% 60% at 50% 45%,
+              rgba(255, 255, 255, 0.08) 0%,
+              rgba(200, 200, 200, 0.04) 30%,
+              transparent 70%
+            )`,
           }}
         />
         
-        <div className="absolute inset-0">
-          {/* Blob 1 - White/Gray with dithering */}
-          <div 
-            className="absolute w-[900px] h-[900px] rounded-full opacity-[0.08]"
-            style={{
-              background: 'radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.35) 0%, rgba(200, 200, 200, 0.20) 25%, rgba(150, 150, 150, 0.10) 50%, rgba(100, 100, 100, 0.05) 70%, transparent 85%)',
-              top: '5%',
-              left: '10%',
-              animation: 'meshFloat1 28s ease-in-out infinite',
-              filter: 'blur(120px) contrast(1.1)',
-              willChange: 'transform',
-            }}
-          />
-          
-          {/* Blob 2 - Mid Gray with smooth falloff */}
-          <div 
-            className="absolute w-[800px] h-[800px] rounded-full opacity-[0.06]"
-            style={{
-              background: 'radial-gradient(circle at 60% 40%, rgba(180, 180, 180, 0.30) 0%, rgba(130, 130, 130, 0.18) 30%, rgba(90, 90, 90, 0.08) 60%, transparent 80%)',
-              bottom: '10%',
-              right: '12%',
-              animation: 'meshFloat2 25s ease-in-out infinite',
-              filter: 'blur(110px) contrast(1.05)',
-              willChange: 'transform',
-            }}
-          />
-          
-          {/* Blob 3 - Soft white accent */}
-          <div 
-            className="absolute w-[700px] h-[700px] rounded-full opacity-[0.05]"
-            style={{
-              background: 'radial-gradient(circle at 50% 50%, rgba(220, 220, 220, 0.28) 0%, rgba(170, 170, 170, 0.15) 35%, rgba(120, 120, 120, 0.06) 65%, transparent 85%)',
-              top: '35%',
-              right: '25%',
-              animation: 'meshFloat3 23s ease-in-out infinite',
-              filter: 'blur(100px)',
-              willChange: 'transform',
-            }}
-          />
-          
-          {/* Blob 4 - Dark contrast for depth */}
-          <div 
-            className="absolute w-[600px] h-[600px] rounded-full opacity-[0.12]"
-            style={{
-              background: 'radial-gradient(circle at 70% 30%, rgba(40, 40, 40, 0.25) 0%, rgba(30, 30, 30, 0.12) 40%, transparent 75%)',
-              bottom: '25%',
-              left: '15%',
-              animation: 'meshFloat4 26s ease-in-out infinite',
-              filter: 'blur(90px)',
-              willChange: 'transform',
-            }}
-          />
-        </div>
-        
-        {/* Gradient overlays for smooth transitions - anti-banding */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/20 to-black/80" 
+        {/* Secondary subtle accent - lighter gray */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: 'linear-gradient(180deg, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.4) 20%, rgba(0,0,0,0.2) 40%, rgba(0,0,0,0.15) 50%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.5) 80%, rgba(0,0,0,0.8) 100%)'
+            background: 'radial-gradient(ellipse 60% 40% at 70% 20%, rgba(180, 180, 180, 0.04) 0%, transparent 50%)',
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/40 via-transparent to-black/40" />
+        
+        {/* Noise texture - subtle anti-banding */}
+        <div 
+          className="absolute inset-0 pointer-events-none z-[5]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            opacity: 0.04,
+            mixBlendMode: 'overlay',
+          }}
+        />
       </div>
 
       {/* Header - Liquid Glass */}
@@ -149,28 +109,6 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      <style jsx>{`
-        @keyframes meshFloat1 {
-          0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(50px, -70px) scale(1.12) rotate(5deg); }
-          66% { transform: translate(-30px, 60px) scale(0.95) rotate(-5deg); }
-        }
-        @keyframes meshFloat2 {
-          0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(-60px, 55px) scale(1.08) rotate(-7deg); }
-          66% { transform: translate(45px, -50px) scale(0.97) rotate(7deg); }
-        }
-        @keyframes meshFloat3 {
-          0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(40px, 50px) scale(1.1) rotate(6deg); }
-          66% { transform: translate(-50px, -45px) scale(0.93) rotate(-6deg); }
-        }
-        @keyframes meshFloat4 {
-          0%, 100% { transform: translate(0, 0) scale(1) rotate(0deg); }
-          33% { transform: translate(-45px, -65px) scale(1.15) rotate(-8deg); }
-          66% { transform: translate(55px, 50px) scale(0.90) rotate(8deg); }
-        }
-      `}</style>
 
       {/* Main content */}
       <main className="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 overflow-x-hidden">
