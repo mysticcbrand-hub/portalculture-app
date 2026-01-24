@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { hapticImpact, hapticNotification, hapticSelection } from '@/lib/haptics'
 
 export default function HomePage() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
@@ -52,10 +51,8 @@ export default function HomePage() {
       }
 
       // Redirect to access selection
-      hapticNotification('success')
       router.push('/seleccionar-acceso')
     } catch (err: any) {
-      hapticNotification('error')
       setError(err.message)
     } finally {
       setLoading(false)
@@ -101,14 +98,12 @@ export default function HomePage() {
       }
 
       // Show success toast and switch to login
-      hapticNotification('success')
       showToast('Cuenta creada. Ya puedes iniciar sesión.', 'success')
       setMode('login')
       setPassword('')
       setConfirmPassword('')
       setAcceptedTerms(false)
     } catch (err: any) {
-      hapticNotification('error')
       setError(err.message)
     } finally {
       setLoading(false)
