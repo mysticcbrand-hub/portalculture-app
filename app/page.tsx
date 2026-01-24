@@ -81,14 +81,14 @@ export default function HomePage() {
       // Successful login - redirect based on user
       showToast('¡Bienvenido de nuevo!', 'success')
       
-      // Small delay to show toast, then redirect
+      // Direct redirect with window.location (more reliable)
       setTimeout(() => {
         if (email === 'mysticcbrand@gmail.com') {
-          router.replace('/admin/waitlist')
+          window.location.href = '/admin/waitlist'
         } else {
-          router.replace('/dashboard')
+          window.location.href = '/dashboard'
         }
-      }, 500)
+      }, 300)
     } catch (err: any) {
       setError(err.message)
     } finally {
@@ -147,8 +147,8 @@ export default function HomePage() {
       if (loginResponse.ok) {
         // Redirect to dashboard
         setTimeout(() => {
-          router.replace('/dashboard')
-        }, 500)
+          window.location.href = '/dashboard'
+        }, 300)
       } else {
         // If auto-login fails, switch to login mode
         setMode('login')
