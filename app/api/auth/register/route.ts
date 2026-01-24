@@ -23,11 +23,11 @@ export async function POST(request: Request) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Registrar usuario con admin API (sin verificación de email)
+    // Registrar usuario con admin API
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: true, // Confirmar email automáticamente
+      email_confirm: true,
     })
 
     if (error) {
@@ -42,6 +42,13 @@ export async function POST(request: Request) {
         { error: error.message },
         { status: 400 }
       )
+    }
+
+    // Si el usuario se creó pero el email no está confirmado, actualizarlo
+    if (data.user && !data.user.email_confirmed_at) {
+      await supabase.auth.admin.updateUserById(data.user.id, {
+        email_confirm: true
+      })
     }
 
     // Cuenta creada - el usuario puede iniciar sesión inmediatamente
