@@ -54,8 +54,31 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Pure black background - NO gradients */}
-      <div className="fixed inset-0 bg-black -z-10" />
+      {/* Apple-style pure black background with subtle depth */}
+      <div className="fixed inset-0 bg-black -z-10">
+        {/* Ultra-subtle depth gradient for premium feel */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `radial-gradient(
+              ellipse 90% 70% at 50% 40%,
+              rgba(20, 20, 20, 0.4) 0%,
+              rgba(10, 10, 10, 0.2) 40%,
+              transparent 70%
+            )`,
+          }}
+        />
+        
+        {/* Fine grain for LCD/OLED consistency */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            opacity: 0.03,
+            mixBlendMode: 'soft-light',
+          }}
+        />
+      </div>
 
       {/* Header - Liquid Glass */}
       <header className="liquid-glass border-b border-white/10 sticky top-0 z-50 rounded-none">
