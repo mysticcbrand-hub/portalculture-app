@@ -1,78 +1,73 @@
 import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import axios from 'axios'
 
 export async function POST(request: Request) {
   try {
     const { email, password } = await request.json()
 
     console.log('🔍 Login attempt for:', email)
-    console.log('🔍 Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-    console.log('🔍 API Key length:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.length)
 
-    // Usar axios en lugar de fetch (no tiene problemas con headers largos)
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/token?grant_type=password`,
-      { email, password },
+    const cookieStore = await cookies()
+
+    // Create Supabase server client with proper cookie handling
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        headers: {
-          'Content-Type': 'application/json',
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch (e) {
+              // Ignore errors in server components
+            }
+          },
+          remove(name: string, options: any) {
+            try {
+              cookieStore.set({ name, value: '', ...options })
+            } catch (e) {
+              // Ignore errors in server components
+            }
+          },
         },
-        validateStatus: () => true // Aceptar cualquier status
       }
     )
 
-    console.log('🔍 Response status:', response.status)
-    console.log('🔍 Response data:', response.data)
+    // Sign in with Supabase Auth
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-    if (response.status !== 200) {
-      console.error('🔴 Login failed:', JSON.stringify(response.data))
+    if (error) {
+      console.error('❌ Login failed:', error.message)
       
-      // Mensajes de error más claros
+      // Clear error messages
       let errorMessage = 'Error al iniciar sesión'
-      if (response.data.error === 'invalid_grant') {
+      if (error.message.includes('Invalid login credentials')) {
         errorMessage = 'Credenciales incorrectas'
-      } else if (response.data.error_description) {
-        errorMessage = response.data.error_description
-      } else if (response.data.msg) {
-        errorMessage = response.data.msg
-      } else if (response.data.message) {
-        errorMessage = response.data.message
+      } else if (error.message.includes('Email not confirmed')) {
+        errorMessage = 'Email no confirmado'
+      } else {
+        errorMessage = error.message
       }
       
       return NextResponse.json(
         { error: errorMessage },
-        { status: 400 }
+        { status: 401 }
       )
     }
 
-    const data = response.data
+    console.log('✅ Login successful for:', email)
 
-    // Guardar tokens en cookies
-    const cookieStore = await cookies()
-    
-    if (data.access_token) {
-      cookieStore.set('sb-access-token', data.access_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: data.expires_in || 3600
-      })
-    }
-
-    if (data.refresh_token) {
-      cookieStore.set('sb-refresh-token', data.refresh_token, {
-        path: '/',
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 60 * 60 * 24 * 7
-      })
-    }
-
-    return NextResponse.json({ success: true, user: data.user })
+    return NextResponse.json({ 
+      success: true, 
+      user: data.user 
+    })
   } catch (error: any) {
     console.error('Login error:', error)
     return NextResponse.json(
