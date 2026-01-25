@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 import AICoach from '@/components/AICoach'
+import MeshGradient from '@/components/MeshGradient'
 
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
@@ -54,8 +55,8 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Clean black background */}
-      <div className="fixed inset-0 -z-10 bg-black" />
+      {/* Premium Mesh Gradient Background */}
+      <MeshGradient variant="default" />
 
       {/* Header - Liquid Glass */}
       <header className="liquid-glass border-b border-white/10 sticky top-0 z-50 rounded-none">
