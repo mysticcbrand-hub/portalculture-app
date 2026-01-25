@@ -152,10 +152,45 @@ export async function POST(request: Request) {
         })
     }
 
+    // =============================================
+    // 6. AÑADIR A MAILERLITE (GRUPO PORTAL CULTURE)
+    // =============================================
+    
+    try {
+      const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY
+      const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID
+
+      if (MAILERLITE_API_KEY && MAILERLITE_GROUP_ID) {
+        const mailerliteResponse = await fetch('https://connect.mailerlite.com/api/subscribers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            email: normalizedEmail,
+            groups: [MAILERLITE_GROUP_ID],
+            status: 'active'
+          })
+        })
+
+        if (mailerliteResponse.ok) {
+          console.log('✅ User added to Mailerlite group:', normalizedEmail)
+        } else {
+          const mlError = await mailerliteResponse.json()
+          console.warn('⚠️ Mailerlite warning:', mlError.message || 'Could not add to mailing list')
+        }
+      }
+    } catch (mlError) {
+      // No bloqueamos el registro si falla Mailerlite
+      console.warn('⚠️ Mailerlite error (non-blocking):', mlError)
+    }
+
     console.log('✅ User registered successfully:', normalizedEmail)
 
     // =============================================
-    // 6. RESPONDER
+    // 7. RESPONDER
     // =============================================
 
     return NextResponse.json({ 

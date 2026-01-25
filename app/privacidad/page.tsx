@@ -144,12 +144,17 @@ export default function PrivacidadPage() {
                     <li>Vercel (hosting)</li>
                     <li>Whop (procesamiento de pagos)</li>
                     <li>Discord (comunidad)</li>
-                    <li>Mailerlite (comunicaciones por email)</li>
+                    <li>Mailerlite (gestión de suscriptores - ver sección específica)</li>
                   </ul>
                 </li>
                 <li><strong className="text-white/70">Autoridades:</strong> Cuando sea requerido por ley o para proteger nuestros derechos.</li>
               </ul>
               <p>Todos nuestros proveedores están sujetos a acuerdos de protección de datos y solo procesan información según nuestras instrucciones.</p>
+              
+              <div className="mt-6 p-4 bg-white/[0.02] border border-white/[0.06] rounded-xl">
+                <p className="font-medium text-white/70 mb-2">📧 Sobre Mailerlite</p>
+                <p className="text-sm">Al registrarte en Portal Culture, tu dirección de correo electrónico se añade automáticamente a nuestra lista de suscriptores en Mailerlite (cuenta: holaaanxo@gmail.com). Esto nos permite enviarte información relevante sobre tu cuenta y la plataforma. Mailerlite cumple con el RGPD y puedes darte de baja en cualquier momento usando el enlace de cancelación de suscripción incluido en cada email.</p>
+              </div>
             </div>
           </section>
 
