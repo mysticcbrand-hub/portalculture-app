@@ -31,13 +31,33 @@ export default function PendienteAprobacion() {
         return
       }
 
-      const { data: profile } = await supabase
+      // Try to get profile
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('access_status')
         .eq('id', user.id)
-        .single()
+        .maybeSingle()
 
-      if (profile?.access_status === 'approved' || profile?.access_status === 'paid') {
+      if (error) {
+        console.error('Profile query error:', error)
+        setChecking(false)
+        return
+      }
+
+      // If no profile exists, create one
+      if (!profile) {
+        await supabase
+          .from('profiles')
+          .insert({
+            id: user.id,
+            email: user.email,
+            access_status: 'pending'
+          })
+        setChecking(false)
+        return
+      }
+
+      if (profile.access_status === 'approved' || profile.access_status === 'paid') {
         router.push('/dashboard')
       } else {
         // Still pending
