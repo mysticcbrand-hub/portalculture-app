@@ -113,19 +113,18 @@ export async function POST(request: Request) {
       }
     )
 
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    // Use admin API to create user with auto-confirmed email
+    const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
       email: normalizedEmail,
       password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app-portalculture.vercel.app'}/seleccionar-acceso`,
-      }
+      email_confirm: true, // Auto-confirm email
     })
 
     if (signUpError) {
       console.error('❌ SignUp error:', signUpError.message)
       
       // Handle specific errors
-      if (signUpError.message.includes('already registered')) {
+      if (signUpError.message.includes('already') || signUpError.message.includes('exists')) {
         return NextResponse.json(
           { error: 'Ya existe una cuenta con este email. Intenta iniciar sesión.' },
           { status: 400 }
@@ -158,16 +157,11 @@ export async function POST(request: Request) {
     // =============================================
     // 6. RESPONDER
     // =============================================
-    
-    // Check if email confirmation is required
-    const needsEmailConfirmation = !signUpData.session
 
     return NextResponse.json({ 
       success: true,
-      needsEmailConfirmation,
-      message: needsEmailConfirmation 
-        ? 'Cuenta creada. Revisa tu email para confirmar tu cuenta.'
-        : '¡Cuenta creada correctamente!'
+      needsEmailConfirmation: false, // Email auto-confirmed with admin API
+      message: '¡Cuenta creada correctamente!'
     })
 
   } catch (error: any) {
