@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { NotificationProvider } from "@/components/AppleNotification";
 
 export const metadata: Metadata = {
   title: "Portal Culture - Dashboard",
@@ -21,8 +22,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className="antialiased">
-        {children}
+      <body className="antialiased bg-black">
+        <NotificationProvider>
+          {children}
+        </NotificationProvider>
       </body>
     </html>
   );
