@@ -59,12 +59,11 @@ export default function TerminosPage() {
             <div className="space-y-3 text-white/50 pl-11">
               <p>Para usar Portal Culture, debes:</p>
               <ul className="list-disc pl-5 space-y-2">
-                <li>Tener al menos 16 años de edad.</li>
                 <li>Proporcionar información veraz y actualizada durante el registro.</li>
                 <li>Mantener la confidencialidad de tu cuenta y contraseña.</li>
                 <li>Ser admitido a través de nuestro proceso de selección (lista de espera) o mediante pago directo.</li>
               </ul>
-              <p>Nos reservamos el derecho de rechazar o revocar el acceso a cualquier usuario sin necesidad de justificación.</p>
+              <p>Nos reservamos el derecho de rechazar o revocar el acceso a cualquier usuario sin necesidad de justificación, de conformidad con la Ley 34/2002, de 11 de julio, de Servicios de la Sociedad de la Información (LSSI).</p>
             </div>
           </section>
 
@@ -190,7 +189,8 @@ export default function TerminosPage() {
               Ley Aplicable y Jurisdicción
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
-              <p>Estos términos se rigen por las leyes de España. Cualquier disputa será sometida a la jurisdicción exclusiva de los tribunales de España.</p>
+              <p>Estos términos se rigen por la legislación española, en particular por el Real Decreto Legislativo 1/2007 (Ley General para la Defensa de los Consumidores y Usuarios), la Ley 34/2002 (LSSI) y el Código Civil español.</p>
+              <p>Cualquier disputa será sometida a la jurisdicción exclusiva de los tribunales de España, sin perjuicio de los derechos que pudieran corresponder al usuario según la normativa de protección de consumidores de su país de residencia.</p>
             </div>
           </section>
 

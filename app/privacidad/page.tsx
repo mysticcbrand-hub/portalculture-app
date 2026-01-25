@@ -60,7 +60,7 @@ export default function PrivacidadPage() {
                 <ul className="list-disc pl-5 space-y-1">
                   <li>Nombre o apodo</li>
                   <li>Dirección de correo electrónico</li>
-                  <li>Número de teléfono (opcional, para comunicaciones)</li>
+                  <li>Número de teléfono (opcional, exclusivamente para contacto directo en caso necesario)</li>
                   <li>Contraseña (almacenada de forma encriptada)</li>
                 </ul>
               </div>
@@ -100,12 +100,12 @@ export default function PrivacidadPage() {
               Finalidad del Tratamiento
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
-              <p>Utilizamos tus datos para:</p>
+              <p>De conformidad con el artículo 13 del Reglamento General de Protección de Datos (RGPD), utilizamos tus datos para:</p>
               <ul className="list-disc pl-5 space-y-2">
                 <li><strong className="text-white/70">Gestionar tu cuenta:</strong> Crear y mantener tu perfil de usuario, autenticación y acceso a la Plataforma.</li>
                 <li><strong className="text-white/70">Proceso de admisión:</strong> Evaluar las solicitudes de acceso a través de la lista de espera.</li>
                 <li><strong className="text-white/70">Prestación de servicios:</strong> Darte acceso a los cursos, comunidad y herramientas.</li>
-                <li><strong className="text-white/70">Comunicaciones:</strong> Enviarte notificaciones sobre tu cuenta, actualizaciones y novedades importantes.</li>
+                <li><strong className="text-white/70">Contacto:</strong> Utilizar tu número de teléfono exclusivamente para contacto directo en caso de ser necesario para la gestión de tu cuenta.</li>
                 <li><strong className="text-white/70">Mejora del servicio:</strong> Analizar el uso de la Plataforma para mejorar la experiencia.</li>
                 <li><strong className="text-white/70">Seguridad:</strong> Proteger la Plataforma y a los usuarios de actividades fraudulentas.</li>
               </ul>
@@ -119,12 +119,12 @@ export default function PrivacidadPage() {
               Base Legal
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
-              <p>El tratamiento de tus datos se basa en:</p>
+              <p>Según el artículo 6 del RGPD (Reglamento UE 2016/679), el tratamiento de tus datos se basa en:</p>
               <ul className="list-disc pl-5 space-y-2">
-                <li><strong className="text-white/70">Ejecución de contrato:</strong> Para prestarte los servicios solicitados.</li>
-                <li><strong className="text-white/70">Consentimiento:</strong> Para el envío de comunicaciones de marketing (que puedes retirar en cualquier momento).</li>
-                <li><strong className="text-white/70">Interés legítimo:</strong> Para mejorar nuestros servicios y garantizar la seguridad.</li>
-                <li><strong className="text-white/70">Obligación legal:</strong> Cuando sea necesario cumplir con la legislación aplicable.</li>
+                <li><strong className="text-white/70">Ejecución de contrato (Art. 6.1.b RGPD):</strong> Para prestarte los servicios solicitados.</li>
+                <li><strong className="text-white/70">Consentimiento (Art. 6.1.a RGPD):</strong> Para tratamientos específicos que requieran tu autorización expresa.</li>
+                <li><strong className="text-white/70">Interés legítimo (Art. 6.1.f RGPD):</strong> Para mejorar nuestros servicios y garantizar la seguridad.</li>
+                <li><strong className="text-white/70">Obligación legal (Art. 6.1.c RGPD):</strong> Cuando sea necesario cumplir con la legislación aplicable.</li>
               </ul>
             </div>
           </section>
@@ -193,7 +193,7 @@ export default function PrivacidadPage() {
               Tus Derechos
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
-              <p>Bajo el RGPD, tienes derecho a:</p>
+              <p>De acuerdo con los artículos 15 a 22 del RGPD y la Ley Orgánica 3/2018 de Protección de Datos (LOPDGDD), tienes derecho a:</p>
               <ul className="list-disc pl-5 space-y-2">
                 <li><strong className="text-white/70">Acceso:</strong> Solicitar una copia de tus datos personales.</li>
                 <li><strong className="text-white/70">Rectificación:</strong> Corregir datos inexactos o incompletos.</li>
@@ -249,17 +249,6 @@ export default function PrivacidadPage() {
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">11</span>
-              Menores de Edad
-            </h2>
-            <div className="space-y-3 text-white/50 pl-11">
-              <p>Portal Culture está dirigido a mayores de 16 años. No recopilamos intencionadamente datos de menores de esta edad. Si eres padre o tutor y crees que tu hijo nos ha proporcionado información personal, contacta con nosotros para proceder a su eliminación.</p>
-            </div>
-          </section>
-
-          {/* Section 12 */}
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">12</span>
               Cambios en esta Política
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
@@ -268,10 +257,10 @@ export default function PrivacidadPage() {
             </div>
           </section>
 
-          {/* Section 13 */}
+          {/* Section 12 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">13</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">12</span>
               Contacto
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
