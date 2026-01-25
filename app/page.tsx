@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import MeshGradient from '@/components/MeshGradient'
 
 // Main component wrapped in Suspense for useSearchParams
 export default function HomePage() {
@@ -246,56 +247,9 @@ function HomePageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden bg-black">
-      {/* Animated Mesh Gradient Background - Monochrome */}
-      <div className="absolute inset-0 overflow-hidden">
-        {/* Blob 1 - White/Light */}
-        <div 
-          className="absolute w-[600px] h-[600px] rounded-full opacity-[0.04]"
-          style={{
-            background: 'radial-gradient(circle, #ffffff 0%, #e5e5e5 30%, #a3a3a3 50%, transparent 70%)',
-            top: '-15%',
-            right: '-10%',
-            animation: 'float1 18s ease-in-out infinite',
-            filter: 'blur(80px)',
-          }}
-        />
-        
-        {/* Blob 2 - Gray */}
-        <div 
-          className="absolute w-[500px] h-[500px] rounded-full opacity-[0.05]"
-          style={{
-            background: 'radial-gradient(circle, #d4d4d4 0%, #a3a3a3 30%, #737373 50%, transparent 70%)',
-            bottom: '-10%',
-            left: '-5%',
-            animation: 'float2 20s ease-in-out infinite',
-            filter: 'blur(70px)',
-          }}
-        />
-        
-        {/* Blob 3 - Dark Gray */}
-        <div 
-          className="absolute w-[400px] h-[400px] rounded-full opacity-[0.06]"
-          style={{
-            background: 'radial-gradient(circle, #a3a3a3 0%, #737373 30%, #525252 50%, transparent 70%)',
-            top: '40%',
-            left: '20%',
-            animation: 'float3 22s ease-in-out infinite',
-            filter: 'blur(60px)',
-          }}
-        />
-        
-        {/* Noise overlay for anti-banding */}
-        <div 
-          className="absolute inset-0 opacity-[0.015] mix-blend-overlay"
-          style={{
-            backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.8\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\'/%3E%3C/svg%3E")',
-          }}
-        />
-        
-        {/* Depth gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/50" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Premium Mesh Gradient Background */}
+      <MeshGradient variant="default" />
 
       {/* Toast notification */}
       {toast && (
