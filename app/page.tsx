@@ -166,28 +166,36 @@ function HomePageContent() {
         throw new Error(data.error || 'Error al crear la cuenta')
       }
 
-      // Account created - now auto-login
-      showToast('¡Cuenta creada! Iniciando sesión...', 'success')
-      
-      // Auto-login after registration
-      const loginResponse = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      })
-
-      if (loginResponse.ok) {
-        // Redirect to dashboard
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 300)
-      } else {
-        // If auto-login fails, switch to login mode
+      // Check if email confirmation is needed
+      if (data.needsEmailConfirmation) {
+        // Show message to check email
+        showToast('✅ Cuenta creada. Revisa tu email para confirmar.', 'success')
         setMode('login')
         setPassword('')
         setConfirmPassword('')
         setAcceptedTerms(false)
-        showToast('Cuenta creada. Por favor inicia sesión.', 'success')
+        setError(null)
+      } else {
+        // No confirmation needed - auto-login
+        showToast('¡Cuenta creada! Iniciando sesión...', 'success')
+        
+        const loginResponse = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        })
+
+        if (loginResponse.ok) {
+          setTimeout(() => {
+            window.location.href = '/dashboard'
+          }, 300)
+        } else {
+          setMode('login')
+          setPassword('')
+          setConfirmPassword('')
+          setAcceptedTerms(false)
+          showToast('Cuenta creada. Por favor inicia sesión.', 'success')
+        }
       }
     } catch (err: any) {
       setError(err.message)
