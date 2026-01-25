@@ -17,24 +17,66 @@ interface FormData {
   porqueEntrar: string
 }
 
-// Country codes with flags
+// Country codes with flags and phone format patterns
 const countryCodes = [
-  { code: '+34', country: 'ES', flag: '🇪🇸' },
-  { code: '+1', country: 'US', flag: '🇺🇸' },
-  { code: '+52', country: 'MX', flag: '🇲🇽' },
-  { code: '+54', country: 'AR', flag: '🇦🇷' },
-  { code: '+57', country: 'CO', flag: '🇨🇴' },
-  { code: '+56', country: 'CL', flag: '🇨🇱' },
-  { code: '+51', country: 'PE', flag: '🇵🇪' },
-  { code: '+58', country: 'VE', flag: '🇻🇪' },
-  { code: '+593', country: 'EC', flag: '🇪🇨' },
-  { code: '+44', country: 'UK', flag: '🇬🇧' },
-  { code: '+33', country: 'FR', flag: '🇫🇷' },
-  { code: '+49', country: 'DE', flag: '🇩🇪' },
-  { code: '+39', country: 'IT', flag: '🇮🇹' },
-  { code: '+351', country: 'PT', flag: '🇵🇹' },
-  { code: '+55', country: 'BR', flag: '🇧🇷' },
+  { code: '+34', country: 'ES', flag: '🇪🇸', format: 'XXX XX XX XX', maxLength: 9 },
+  { code: '+1', country: 'US', flag: '🇺🇸', format: '(XXX) XXX-XXXX', maxLength: 10 },
+  { code: '+52', country: 'MX', flag: '🇲🇽', format: 'XX XXXX XXXX', maxLength: 10 },
+  { code: '+54', country: 'AR', flag: '🇦🇷', format: 'XX XXXX-XXXX', maxLength: 10 },
+  { code: '+57', country: 'CO', flag: '🇨🇴', format: 'XXX XXX XXXX', maxLength: 10 },
+  { code: '+56', country: 'CL', flag: '🇨🇱', format: 'X XXXX XXXX', maxLength: 9 },
+  { code: '+51', country: 'PE', flag: '🇵🇪', format: 'XXX XXX XXX', maxLength: 9 },
+  { code: '+58', country: 'VE', flag: '🇻🇪', format: 'XXX-XXX-XXXX', maxLength: 10 },
+  { code: '+593', country: 'EC', flag: '🇪🇨', format: 'XX XXX XXXX', maxLength: 9 },
+  { code: '+44', country: 'UK', flag: '🇬🇧', format: 'XXXX XXXXXX', maxLength: 10 },
+  { code: '+33', country: 'FR', flag: '🇫🇷', format: 'X XX XX XX XX', maxLength: 9 },
+  { code: '+49', country: 'DE', flag: '🇩🇪', format: 'XXXX XXXXXXX', maxLength: 11 },
+  { code: '+39', country: 'IT', flag: '🇮🇹', format: 'XXX XXX XXXX', maxLength: 10 },
+  { code: '+351', country: 'PT', flag: '🇵🇹', format: 'XXX XXX XXX', maxLength: 9 },
+  { code: '+55', country: 'BR', flag: '🇧🇷', format: '(XX) XXXXX-XXXX', maxLength: 11 },
 ]
+
+// Format phone number based on country pattern
+const formatPhoneNumber = (value: string, countryCode: string): string => {
+  // Remove all non-numeric characters
+  const numbers = value.replace(/\D/g, '')
+  
+  // Find the country format
+  const country = countryCodes.find(c => c.code === countryCode)
+  if (!country) return numbers
+  
+  const format = country.format
+  let result = ''
+  let numberIndex = 0
+  
+  // Apply the format pattern
+  for (let i = 0; i < format.length && numberIndex < numbers.length; i++) {
+    if (format[i] === 'X') {
+      result += numbers[numberIndex]
+      numberIndex++
+    } else {
+      // Add the separator (space, dash, parenthesis, etc.)
+      result += format[i]
+      // Check if we need to skip to next X
+      if (format[i + 1] !== 'X' && format[i + 1] !== undefined) {
+        continue
+      }
+    }
+  }
+  
+  return result
+}
+
+// Get raw phone number without formatting
+const getRawPhoneNumber = (formatted: string): string => {
+  return formatted.replace(/\D/g, '')
+}
+
+// Get placeholder based on country format
+const getPhonePlaceholder = (countryCode: string): string => {
+  const country = countryCodes.find(c => c.code === countryCode)
+  return country?.format.replace(/X/g, '0') || '600 000 000'
+}
 
 // Age options for dropdown
 const edadOptions = [
@@ -150,7 +192,10 @@ export default function Cuestionario() {
     switch (step) {
       case 1:
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
-        return formData.nombre.trim() && emailValid && formData.telefono.trim().length >= 6
+        const rawPhone = getRawPhoneNumber(formData.telefono)
+        const country = countryCodes.find(c => c.code === formData.codigoPais)
+        const minPhoneLength = country ? Math.floor(country.maxLength * 0.7) : 6 // At least 70% of expected length
+        return formData.nombre.trim() && emailValid && rawPhone.length >= minPhoneLength
       case 2:
         return formData.edad !== ''
       case 3:
@@ -166,9 +211,10 @@ export default function Cuestionario() {
     }
   }
 
-  // Format phone number with country code
+  // Format phone number with country code (sends raw number)
   const getFullPhone = () => {
-    return `${formData.codigoPais} ${formData.telefono}`
+    const rawPhone = getRawPhoneNumber(formData.telefono)
+    return `${formData.codigoPais} ${rawPhone}`
   }
 
   // Submit form
@@ -460,17 +506,22 @@ export default function Cuestionario() {
                       )}
                     </div>
                     
-                    {/* Phone number input */}
+                    {/* Phone number input with auto-formatting */}
                     <input
                       type="tel"
                       value={formData.telefono}
                       onChange={(e) => {
-                        // Only allow numbers and format nicely
-                        const value = e.target.value.replace(/[^0-9]/g, '')
-                        updateField('telefono', value)
+                        const country = countryCodes.find(c => c.code === formData.codigoPais)
+                        const rawValue = e.target.value.replace(/\D/g, '')
+                        // Limit to max length for the country
+                        const maxLen = country?.maxLength || 10
+                        const limitedValue = rawValue.slice(0, maxLen)
+                        // Format the number
+                        const formatted = formatPhoneNumber(limitedValue, formData.codigoPais)
+                        updateField('telefono', formatted)
                       }}
-                      placeholder="600 000 000"
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15"
+                      placeholder={getPhonePlaceholder(formData.codigoPais)}
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 tracking-wide"
                     />
                   </div>
                 </div>
