@@ -3,21 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 
 export async function POST(request: Request) {
   try {
-    const { name, email, phone, metadata } = await request.json()
+    const { user_id, name, email, phone, metadata } = await request.json()
 
     // Validations
-    if (!name || !email || !phone) {
+    if (!user_id || !name || !email || !phone) {
       return NextResponse.json(
-        { error: 'Nombre, email y teléfono son requeridos' },
-        { status: 400 }
-      )
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
-      return NextResponse.json(
-        { error: 'Formato de email inválido' },
+        { error: 'Todos los campos son requeridos' },
         { status: 400 }
       )
     }
@@ -30,37 +21,25 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    // Check if email already exists in waitlist
+    // Check if user already has a waitlist entry
     const { data: existing } = await supabase
       .from('waitlist')
       .select('id, status')
-      .eq('email', normalizedEmail)
+      .eq('user_id', user_id)
       .maybeSingle()
 
     if (existing) {
-      // User already submitted
-      if (existing.status === 'approved') {
-        return NextResponse.json(
-          { error: 'Ya has sido aprobado. Puedes crear tu cuenta en la página principal.' },
-          { status: 400 }
-        )
-      } else if (existing.status === 'registered') {
-        return NextResponse.json(
-          { error: 'Ya tienes una cuenta. Inicia sesión en la página principal.' },
-          { status: 400 }
-        )
-      } else {
-        return NextResponse.json(
-          { error: 'Ya has enviado una solicitud. Revisaremos tu perfil pronto.' },
-          { status: 400 }
-        )
-      }
+      return NextResponse.json(
+        { error: 'Ya has enviado una solicitud. Revisaremos tu perfil pronto.' },
+        { status: 400 }
+      )
     }
 
-    // Insert new waitlist entry
+    // Insert new waitlist entry linked to user
     const { data, error } = await supabase
       .from('waitlist')
       .insert({
+        user_id: user_id,
         name: name.trim(),
         email: normalizedEmail,
         phone: phone.trim(),
@@ -79,7 +58,7 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('✅ Waitlist entry created:', normalizedEmail)
+    console.log('✅ Waitlist entry created for user:', user_id)
 
     return NextResponse.json({ 
       success: true,

@@ -55,18 +55,38 @@ export default function Cuestionario() {
 
   const totalSteps = 6
 
-  // Check if user is authenticated - redirect if already has account
+  // Check if user is authenticated and their status
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         
-        if (user) {
-          // User already has account - redirect to dashboard
+        if (!user) {
+          // Not logged in - redirect to login
+          router.replace('/')
+          return
+        }
+
+        // Check user's access status
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('access_status')
+          .eq('id', user.id)
+          .single()
+
+        const status = profile?.access_status
+
+        if (status === 'approved' || status === 'paid') {
+          // Already has access - go to dashboard
           router.replace('/dashboard')
+          return
+        } else if (status === 'pending') {
+          // Already submitted - go to pending page
+          router.replace('/pendiente-aprobacion')
           return
         }
         
+        // Status is 'none' or null - can fill questionnaire
         setCheckingAuth(false)
       } catch (error) {
         console.error('Auth check error:', error)
@@ -123,12 +143,21 @@ export default function Cuestionario() {
     setIsSubmitting(true)
     
     try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        router.replace('/')
+        return
+      }
+
+      // Submit to waitlist API
       const response = await fetch('/api/waitlist/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          user_id: user.id,
           name: formData.nombre,
-          email: formData.email.toLowerCase().trim(),
+          email: user.email, // Use auth email
           phone: formData.telefono,
           metadata: {
             edad: formData.edad,
@@ -146,7 +175,21 @@ export default function Cuestionario() {
         throw new Error(data.error || 'Error al enviar')
       }
 
+      // Update user's profile to pending
+      await supabase
+        .from('profiles')
+        .update({ 
+          access_status: 'pending',
+          full_name: formData.nombre
+        })
+        .eq('id', user.id)
+
       setIsComplete(true)
+
+      // Redirect to pending page after animation
+      setTimeout(() => {
+        router.push('/pendiente-aprobacion')
+      }, 2500)
     } catch (error: any) {
       console.error('Submit error:', error)
       alert(error.message || 'Error al enviar. Intenta de nuevo.')

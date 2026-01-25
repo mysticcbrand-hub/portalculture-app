@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     }
 
     // =============================================
-    // 2. VERIFICAR WAITLIST (con service role)
+    // 2. SETUP SUPABASE ADMIN
     // =============================================
     
     const supabaseAdmin = createClient(
@@ -64,31 +64,6 @@ export async function POST(request: Request) {
     )
 
     const normalizedEmail = email.toLowerCase().trim()
-
-    const { data: waitlistEntry, error: waitlistError } = await supabaseAdmin
-      .from('waitlist')
-      .select('id, email, name, status')
-      .eq('email', normalizedEmail)
-      .eq('status', 'approved')
-      .maybeSingle()
-
-    if (waitlistError) {
-      console.error('❌ Waitlist query error:', waitlistError)
-      return NextResponse.json(
-        { error: 'Error verificando tu solicitud. Intenta de nuevo.' },
-        { status: 500 }
-      )
-    }
-
-    if (!waitlistEntry) {
-      console.log('❌ Email not approved in waitlist:', normalizedEmail)
-      return NextResponse.json(
-        { error: 'Tu email no ha sido aprobado. Completa el cuestionario en /cuestionario y espera la aprobación.' },
-        { status: 403 }
-      )
-    }
-
-    console.log('✅ Email verified in waitlist:', normalizedEmail)
 
     // =============================================
     // 3. VERIFICAR SI YA EXISTE CUENTA
@@ -142,11 +117,7 @@ export async function POST(request: Request) {
       email: normalizedEmail,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app-portalculture.vercel.app'}/dashboard`,
-        data: {
-          name: waitlistEntry.name || '',
-          waitlist_id: waitlistEntry.id
-        }
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app-portalculture.vercel.app'}/seleccionar-acceso`,
       }
     })
 
@@ -168,16 +139,19 @@ export async function POST(request: Request) {
     }
 
     // =============================================
-    // 5. ACTUALIZAR WAITLIST (marcar como registered)
+    // 5. CREAR PROFILE CON access_status 'none'
     // =============================================
     
-    await supabaseAdmin
-      .from('waitlist')
-      .update({ 
-        status: 'registered',
-        registered_at: new Date().toISOString()
-      })
-      .eq('id', waitlistEntry.id)
+    if (signUpData.user) {
+      await supabaseAdmin
+        .from('profiles')
+        .upsert({
+          id: signUpData.user.id,
+          email: normalizedEmail,
+          access_status: 'none',
+          created_at: new Date().toISOString()
+        })
+    }
 
     console.log('✅ User registered successfully:', normalizedEmail)
 

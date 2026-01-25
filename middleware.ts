@@ -56,26 +56,66 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isAuthPage = request.nextUrl.pathname === '/'
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') || 
-                           request.nextUrl.pathname.startsWith('/admin')
-  const isAdminRoute = request.nextUrl.pathname.startsWith('/admin')
+  const pathname = request.nextUrl.pathname
+  const isAuthPage = pathname === '/'
+  const isDashboard = pathname.startsWith('/dashboard')
+  const isAdminRoute = pathname.startsWith('/admin')
+  const isSeleccionarAcceso = pathname === '/seleccionar-acceso'
+  const isCuestionario = pathname === '/cuestionario'
+  const isPendingPage = pathname === '/pendiente-aprobacion'
 
   // CASE 1: Not logged in trying to access protected routes → redirect to login
-  if (!user && isProtectedRoute) {
-    const redirectUrl = new URL('/', request.url)
-    return NextResponse.redirect(redirectUrl)
+  if (!user && (isDashboard || isAdminRoute || isSeleccionarAcceso || isCuestionario)) {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   // CASE 2: Admin routes - only mysticcbrand@gmail.com allowed
   if (user && isAdminRoute) {
     if (user.email !== 'mysticcbrand@gmail.com') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
     }
   }
 
-  // CASE 3: Logged in user on auth page → redirect to appropriate dashboard
-  // (This is now handled in the page itself for smoother UX)
+  // CASE 3: Logged in user trying to access dashboard - check if approved
+  if (user && isDashboard) {
+    // Check user's access status in profiles table
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('access_status')
+      .eq('id', user.id)
+      .single()
+
+    const accessStatus = profile?.access_status || 'none'
+
+    // Only approved or paid users can access dashboard
+    if (accessStatus !== 'approved' && accessStatus !== 'paid') {
+      // Redirect to appropriate page based on status
+      if (accessStatus === 'pending') {
+        return NextResponse.redirect(new URL('/pendiente-aprobacion', request.url))
+      }
+      return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
+    }
+  }
+
+  // CASE 4: Logged in user on login page → redirect to seleccionar-acceso
+  if (user && isAuthPage) {
+    // Check if already has access
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('access_status')
+      .eq('id', user.id)
+      .single()
+
+    const accessStatus = profile?.access_status || 'none'
+
+    if (accessStatus === 'approved' || accessStatus === 'paid') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    } else if (accessStatus === 'pending') {
+      return NextResponse.redirect(new URL('/pendiente-aprobacion', request.url))
+    } else {
+      return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
+    }
+  }
 
   return response
 }

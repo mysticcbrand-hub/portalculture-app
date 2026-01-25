@@ -6,8 +6,10 @@ import { useRouter } from 'next/navigation'
 
 interface WaitlistEntry {
   id: string
+  user_id: string | null
   email: string
   name: string
+  phone: string | null
   status: 'pending' | 'approved' | 'rejected'
   submitted_at: string
   approved_at: string | null
@@ -67,8 +69,8 @@ export default function AdminWaitlistPage() {
     setProcessing(entry.id)
     
     try {
-      // 1. Update status in Supabase
-      const { error: updateError } = await supabase
+      // 1. Update waitlist status
+      const { error: waitlistError } = await supabase
         .from('waitlist')
         .update({ 
           status: 'approved',
@@ -76,21 +78,32 @@ export default function AdminWaitlistPage() {
         })
         .eq('id', entry.id)
 
-      if (updateError) throw updateError
+      if (waitlistError) throw waitlistError
 
-      // 2. Send invite email with link to create account
-      const inviteResponse = await fetch('/api/send-invite', {
+      // 2. Update user's profile access_status to 'approved'
+      if (entry.user_id) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({ access_status: 'approved' })
+          .eq('id', entry.user_id)
+
+        if (profileError) {
+          console.error('Error updating profile:', profileError)
+        }
+      }
+
+      // 3. Send notification email
+      await fetch('/api/send-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: entry.email,
-          name: entry.name
+          name: entry.name,
+          type: 'approved' // User already has account, just notify them
         })
       })
 
-      const inviteResult = await inviteResponse.json()
-
-      // 3. Also add to Mailerlite for email list
+      // 4. Add to Mailerlite
       await fetch('/api/mailerlite/add-subscriber', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,12 +113,10 @@ export default function AdminWaitlistPage() {
         })
       })
 
-      // 4. Reload entries
+      // 5. Reload entries
       await loadEntries()
       
-      // Show success with invite link (so admin can copy if needed)
-      const inviteLink = `https://app-portalculture.vercel.app?email=${encodeURIComponent(entry.email)}&approved=true`
-      alert(`✅ ${entry.name} ha sido aprobado!\n\nLink de invitación:\n${inviteLink}\n\n(El usuario también recibirá un email)`)
+      alert(`✅ ${entry.name} ha sido aprobado!\n\nYa puede acceder al dashboard.`)
     } catch (error: any) {
       console.error('Error approving entry:', error)
       alert(`❌ Error: ${error.message}`)
