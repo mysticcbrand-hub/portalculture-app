@@ -78,6 +78,11 @@ export async function middleware(request: NextRequest) {
 
   // CASE 3: Logged in user trying to access dashboard - check if approved
   if (user && isDashboard) {
+    // Admin always has access
+    if (user.email === 'mysticcbrand@gmail.com') {
+      return response
+    }
+
     // Check user's access status in profiles table
     const { data: profiles } = await supabase
       .from('profiles')
@@ -97,8 +102,13 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // CASE 4: Logged in user on login page → redirect to seleccionar-acceso
+  // CASE 4: Logged in user on login page → redirect to appropriate page
   if (user && isAuthPage) {
+    // Admin always goes to waitlist
+    if (user.email === 'mysticcbrand@gmail.com') {
+      return NextResponse.redirect(new URL('/admin/waitlist', request.url))
+    }
+
     // Check if already has access
     const { data: profiles } = await supabase
       .from('profiles')
