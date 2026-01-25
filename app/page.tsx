@@ -5,17 +5,26 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import MeshGradient from '@/components/MeshGradient'
 
+// Premium Loading Component
+function PremiumLoader() {
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-black">
+      <div className="flex flex-col items-center gap-6">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full border-2 border-white/5" />
+          <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent border-t-white/60 animate-spin" />
+          <div className="absolute inset-2 w-8 h-8 rounded-full border border-transparent border-t-white/30 animate-spin" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }} />
+        </div>
+        <p className="text-white/40 text-sm font-light tracking-wide">Cargando...</p>
+      </div>
+    </div>
+  )
+}
+
 // Main component wrapped in Suspense for useSearchParams
 export default function HomePage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-white/50 text-sm">Cargando...</p>
-        </div>
-      </div>
-    }>
+    <Suspense fallback={<PremiumLoader />}>
       <HomePageContent />
     </Suspense>
   )
@@ -236,77 +245,82 @@ function HomePageContent() {
 
   // Show loading while checking session
   if (checkingSession) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="flex flex-col items-center gap-4">
-          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-          <p className="text-white/50 text-sm">Verificando sesión...</p>
-        </div>
-      </div>
-    )
+    return <PremiumLoader />
   }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
       {/* Premium Mesh Gradient Background */}
-      <MeshGradient variant="default" />
+      <MeshGradient variant="aurora" intensity="medium" />
 
-      {/* Toast notification */}
+      {/* Toast notification - Premium style */}
       {toast && (
         <div 
           className={`
             fixed top-6 left-1/2 -translate-x-1/2 z-50
-            px-5 py-3 rounded-xl
-            backdrop-blur-xl border
-            transition-all duration-500 ease-out
-            animate-slide-down
+            px-5 py-3.5 rounded-2xl
+            backdrop-blur-2xl border
+            shadow-2xl shadow-black/20
+            animate-fade-in-down
             ${toast.type === 'success' 
-              ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
               : 'bg-red-500/10 border-red-500/20 text-red-400'
             }
           `}
         >
-          <div className="flex items-center gap-2 text-sm font-medium">
-            {toast.type === 'success' ? (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              </svg>
-            ) : (
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            )}
-            {toast.message}
+          <div className="flex items-center gap-3 text-sm font-medium">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              toast.type === 'success' ? 'bg-emerald-500/20' : 'bg-red-500/20'
+            }`}>
+              {toast.type === 'success' ? (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              )}
+            </div>
+            <span className="text-white/90">{toast.message}</span>
           </div>
         </div>
       )}
 
-      <div className="relative z-10 w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold tracking-tight"
-            style={{
-              background: 'linear-gradient(135deg, #ffffff 0%, #a3a3a3 50%, #ffffff 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text',
-            }}
-          >
-            PORTAL CULTURE
-          </h1>
-          <p className="text-white/40 text-xs mt-1 tracking-wide">Desbloquea tu potencial</p>
+      <div className="relative z-10 w-full max-w-[380px] animate-fade-in-up">
+        {/* Logo with premium glow effect */}
+        <div className="text-center mb-10">
+          <div className="relative inline-block">
+            {/* Subtle glow behind logo */}
+            <div className="absolute -inset-8 bg-white/5 blur-3xl rounded-full opacity-50" />
+            <h1 className="relative text-3xl font-bold tracking-tight"
+              style={{
+                background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 40%, #ffffff 60%, rgba(255,255,255,0.8) 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              PORTAL CULTURE
+            </h1>
+          </div>
+          <p className="text-white/30 text-sm mt-2 tracking-widest uppercase font-light">Desbloquea tu potencial</p>
         </div>
 
         {/* Forgot Password Modal */}
         {showForgotPassword ? (
-          <div className="relative group">
-            {/* Card glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-white/[0.08] via-white/[0.05] to-white/[0.08] rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+          <div className="relative group animate-scale-in">
+            {/* Premium card glow effect */}
+            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute -inset-4 bg-gradient-radial from-white/5 via-transparent to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             
-            <div className="relative bg-black/40 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
+            <div className="relative bg-black/60 backdrop-blur-3xl border border-white/[0.08] rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]">
+              {/* Top highlight line */}
+              <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              
               <button
                 onClick={() => setShowForgotPassword(false)}
-                className="text-white/50 hover:text-white mb-4 text-sm flex items-center gap-1 transition-colors"
+                className="text-white/40 hover:text-white/80 mb-6 text-sm flex items-center gap-2 transition-all duration-300 hover:-translate-x-1"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -314,91 +328,121 @@ function HomePageContent() {
                 Volver
               </button>
               
-              <h2 className="text-lg font-medium text-white mb-2">Restablecer contraseña</h2>
-              <p className="text-sm text-white/50 mb-6">Te enviaremos un enlace para restablecer tu contraseña</p>
+              <h2 className="text-xl font-semibold text-white mb-2">Restablecer contraseña</h2>
+              <p className="text-sm text-white/40 mb-8">Te enviaremos un enlace para restablecer tu contraseña</p>
               
-              <form onSubmit={handleForgotPassword} className="space-y-4">
+              <form onSubmit={handleForgotPassword} className="space-y-5">
                 <div className="relative group/input">
                   <input
                     type="email"
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
+                    className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
                     placeholder="tu@email.com"
                     required
                   />
-                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
+                  {/* Focus glow */}
+                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/10 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
                 </div>
                 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+                  className="relative w-full py-4 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] active:scale-[0.98]"
                 >
-                  {loading ? 'Enviando...' : 'Enviar enlace'}
+                  <span className="relative z-10">{loading ? 'Enviando...' : 'Enviar enlace'}</span>
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 bg-shimmer opacity-0 group-hover/btn:opacity-100 group-hover/btn:animate-shimmer" />
                 </button>
               </form>
             </div>
           </div>
         ) : (
           /* Main Auth Card */
-          <div className="relative group">
-            {/* Card glow effect */}
-            <div className="absolute -inset-1 bg-gradient-to-r from-white/[0.08] via-white/[0.05] to-white/[0.08] rounded-3xl blur-xl opacity-50 group-hover:opacity-75 transition-opacity duration-500" />
+          <div className="relative group animate-scale-in">
+            {/* Premium multi-layer glow effect */}
+            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/15 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            <div className="absolute -inset-4 bg-gradient-radial from-white/5 via-transparent to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
             
             <div 
               className={`
-                relative bg-black/40 backdrop-blur-2xl border border-white/[0.08] rounded-2xl p-6 shadow-[0_8px_32px_rgba(0,0,0,0.4)]
-                transition-all duration-500 ease-out
-                ${mode === 'register' ? 'pb-8' : ''}
+                relative bg-black/60 backdrop-blur-3xl border border-white/[0.06] rounded-3xl p-8 
+                shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]
+                transition-all duration-500 ease-premium
+                ${mode === 'register' ? 'pb-10' : ''}
               `}
             >
-              {/* Subtle inner glow */}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/[0.05] via-transparent to-transparent pointer-events-none" />
+              {/* Top highlight line */}
+              <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              
+              {/* Subtle corner accents */}
+              <div className="absolute top-4 left-4 w-8 h-8 border-l border-t border-white/10 rounded-tl-lg" />
+              <div className="absolute top-4 right-4 w-8 h-8 border-r border-t border-white/10 rounded-tr-lg" />
               
               {/* Login Form */}
               {mode === 'login' && (
-                <form onSubmit={handleLogin} className="relative space-y-4">
+                <form onSubmit={handleLogin} className="relative space-y-5">
+                  {/* Email Input */}
                   <div className="relative group/input">
+                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Correo electrónico</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
-                      placeholder="Correo electrónico"
+                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                      placeholder="tu@email.com"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 h-12 rounded-2xl bg-gradient-to-b from-white/0 to-white/[0.02] opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   </div>
 
+                  {/* Password Input */}
                   <div className="relative group/input">
+                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Contraseña</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
-                      placeholder="Contraseña"
+                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                      placeholder="••••••••"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
+                    <div className="absolute bottom-0 left-0 right-0 h-12 rounded-2xl bg-gradient-to-b from-white/0 to-white/[0.02] opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
                   </div>
 
                   {error && (
-                    <p className="text-red-400 text-xs px-1">{error}</p>
+                    <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                      <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-red-400 text-xs">{error}</p>
+                    </div>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading}
-                    className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
+                    className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(255,255,255,0.2)] active:scale-[0.98]"
                   >
-                    {loading ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {loading ? (
+                        <>
+                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Iniciando sesión...
+                        </>
+                      ) : 'Iniciar sesión'}
+                    </span>
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                   </button>
 
                   <button
                     type="button"
                     onClick={() => setShowForgotPassword(true)}
-                    className="w-full text-center text-xs text-white/40 hover:text-white/60 transition-colors cursor-pointer"
+                    className="w-full text-center text-xs text-white/30 hover:text-white/60 transition-all duration-300 cursor-pointer py-2"
                   >
                     ¿Olvidaste tu contraseña?
                   </button>
@@ -407,99 +451,162 @@ function HomePageContent() {
 
               {/* Register Form */}
               {mode === 'register' && (
-                <form onSubmit={handleRegister} className="relative space-y-4">
+                <form onSubmit={handleRegister} className="relative space-y-5">
+                  {/* Email Input */}
                   <div className="relative group/input">
+                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Correo electrónico</label>
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
-                      placeholder="Correo electrónico"
+                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                      placeholder="tu@email.com"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                   </div>
 
+                  {/* Password Input */}
                   <div className="relative group/input">
+                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Contraseña</label>
                     <input
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-4 py-3.5 bg-white/[0.03] border border-white/[0.08] rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all duration-300"
-                      placeholder="Contraseña"
+                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                      placeholder="••••••••"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                     
-                    {/* Password requirements */}
-                    <div className="mt-3 space-y-1.5 px-1">
-                      <div className={`flex items-center gap-2 text-xs transition-colors duration-300 ${passwordRequirements.length ? 'text-emerald-400' : 'text-white/30'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${passwordRequirements.length ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                    {/* Premium Password requirements */}
+                    <div className="mt-4 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] space-y-2.5">
+                      <p className="text-white/30 text-[10px] uppercase tracking-wider font-medium mb-3">Requisitos</p>
+                      <div className={`flex items-center gap-3 text-xs transition-all duration-500 ${passwordRequirements.length ? 'text-emerald-400' : 'text-white/25'}`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ${passwordRequirements.length ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                          {passwordRequirements.length ? (
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          ) : (
+                            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          )}
+                        </div>
                         Mínimo 8 caracteres
                       </div>
-                      <div className={`flex items-center gap-2 text-xs transition-colors duration-300 ${passwordRequirements.case ? 'text-emerald-400' : 'text-white/30'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${passwordRequirements.case ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                      <div className={`flex items-center gap-3 text-xs transition-all duration-500 ${passwordRequirements.case ? 'text-emerald-400' : 'text-white/25'}`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ${passwordRequirements.case ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                          {passwordRequirements.case ? (
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          ) : (
+                            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          )}
+                        </div>
                         1 mayúscula y 1 minúscula
                       </div>
-                      <div className={`flex items-center gap-2 text-xs transition-colors duration-300 ${passwordRequirements.special ? 'text-emerald-400' : 'text-white/30'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${passwordRequirements.special ? 'bg-emerald-400' : 'bg-white/20'}`} />
+                      <div className={`flex items-center gap-3 text-xs transition-all duration-500 ${passwordRequirements.special ? 'text-emerald-400' : 'text-white/25'}`}>
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ${passwordRequirements.special ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
+                          {passwordRequirements.special ? (
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                          ) : (
+                            <div className="w-1.5 h-1.5 rounded-full bg-current opacity-50" />
+                          )}
+                        </div>
                         1 carácter especial (!@#$%...)
                       </div>
                     </div>
                   </div>
 
+                  {/* Confirm Password */}
                   <div className="relative group/input">
+                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Repetir contraseña</label>
                     <input
                       type="password"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full px-4 py-3.5 bg-white/[0.03] border rounded-xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:bg-white/[0.05] transition-all duration-300 ${
-                        confirmPassword && !passwordsMatch ? 'border-red-500/40' : 'border-white/[0.08] focus:border-white/20'
+                      className={`w-full px-5 py-4 bg-white/[0.03] border rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:bg-white/[0.06] transition-all duration-500 ease-premium ${
+                        confirmPassword && !passwordsMatch ? 'border-red-500/30 focus:border-red-500/50' : 'border-white/[0.06] focus:border-white/20'
                       }`}
-                      placeholder="Repetir contraseña"
+                      placeholder="••••••••"
                       required
                     />
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-white/0 via-white/0 to-white/0 group-focus-within/input:from-white/[0.08] group-focus-within/input:via-white/[0.06] group-focus-within/input:to-white/[0.08] transition-all duration-300 pointer-events-none" />
                     {confirmPassword && !passwordsMatch && (
-                      <p className="text-red-400 text-xs mt-2 px-1">Las contraseñas no coinciden</p>
+                      <div className="flex items-center gap-2 mt-2 ml-1">
+                        <svg className="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                        <p className="text-red-400 text-xs">Las contraseñas no coinciden</p>
+                      </div>
+                    )}
+                    {confirmPassword && passwordsMatch && (
+                      <div className="flex items-center gap-2 mt-2 ml-1">
+                        <svg className="w-3.5 h-3.5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                        </svg>
+                        <p className="text-emerald-400 text-xs">Las contraseñas coinciden</p>
+                      </div>
                     )}
                   </div>
 
-                  {/* Terms checkbox */}
-                  <label className="flex items-start gap-3 cursor-pointer group/check px-1">
+                  {/* Premium Terms checkbox */}
+                  <label className="flex items-start gap-4 cursor-pointer group/check p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-300">
                     <div className="relative mt-0.5">
                       <input
                         type="checkbox"
                         checked={acceptedTerms}
                         onChange={(e) => setAcceptedTerms(e.target.checked)}
-                        className="w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                        className="sr-only"
                       />
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 ${
+                        acceptedTerms 
+                          ? 'bg-white border-white' 
+                          : 'bg-transparent border-white/20 group-hover/check:border-white/40'
+                      }`}>
+                        {acceptedTerms && (
+                          <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
                     </div>
                     <span className="text-xs text-white/40 leading-relaxed group-hover/check:text-white/60 transition-colors">
                       Acepto los{' '}
-                      <a href="/terminos" className="text-white/60 underline hover:text-white transition-colors">términos de uso</a>
+                      <a href="/terminos" className="text-white/70 underline decoration-white/30 hover:text-white hover:decoration-white/60 transition-all">términos de uso</a>
                       {' '}y las{' '}
-                      <a href="/privacidad" className="text-white/60 underline hover:text-white transition-colors">políticas del club</a>
+                      <a href="/privacidad" className="text-white/70 underline decoration-white/30 hover:text-white hover:decoration-white/60 transition-all">políticas del club</a>
                     </span>
                   </label>
 
                   {error && (
-                    <p className="text-red-400 text-xs px-1">{error}</p>
+                    <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+                      <svg className="w-4 h-4 text-red-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-red-400 text-xs">{error}</p>
+                    </div>
                   )}
 
                   <button
                     type="submit"
                     disabled={loading || !isPasswordValid || !passwordsMatch || !acceptedTerms}
-                    className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl hover:bg-white/90 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.15)] active:scale-[0.98] transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+                    className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(255,255,255,0.2)] active:scale-[0.98]"
                   >
-                    {loading ? 'Creando cuenta...' : 'Crear cuenta'}
+                    <span className="relative z-10 flex items-center justify-center gap-2">
+                      {loading ? (
+                        <>
+                          <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                          </svg>
+                          Creando cuenta...
+                        </>
+                      ) : 'Crear cuenta'}
+                    </span>
+                    {/* Shimmer effect */}
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
                   </button>
                 </form>
               )}
 
               {/* Toggle mode */}
-              <div className="relative mt-6 pt-4 border-t border-white/[0.05] text-center">
-                <p className="text-xs text-white/40">
+              <div className="relative mt-8 pt-6 border-t border-white/[0.04] text-center">
+                <p className="text-sm text-white/30">
                   {mode === 'login' ? '¿Aún no tienes cuenta?' : '¿Ya tienes cuenta?'}
                   <button
                     onClick={() => {
@@ -508,7 +615,7 @@ function HomePageContent() {
                       setPassword('')
                       setConfirmPassword('')
                     }}
-                    className="ml-1 text-white/60 hover:text-white transition-colors cursor-pointer"
+                    className="ml-2 text-white/70 hover:text-white transition-all duration-300 cursor-pointer font-medium hover:underline underline-offset-4 decoration-white/30"
                   >
                     {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
                   </button>
@@ -518,44 +625,28 @@ function HomePageContent() {
           </div>
         )}
 
-        <p className="text-center text-[10px] text-white/20 mt-6">
-          © 2026 Portal Culture
-        </p>
+        {/* Premium footer */}
+        <div className="text-center mt-10 space-y-3">
+          <div className="flex items-center justify-center gap-6 text-white/20">
+            <div className="flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-wider">Seguro</span>
+            </div>
+            <div className="w-px h-3 bg-white/10" />
+            <div className="flex items-center gap-1.5">
+              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <span className="text-[10px] uppercase tracking-wider">Privado</span>
+            </div>
+          </div>
+          <p className="text-[10px] text-white/15 tracking-wider">
+            © 2026 Portal Culture · Todos los derechos reservados
+          </p>
+        </div>
       </div>
-
-      <style jsx>{`
-        @keyframes slide-down {
-          from {
-            opacity: 0;
-            transform: translateX(-50%) translateY(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(-50%) translateY(0);
-          }
-        }
-        .animate-slide-down {
-          animation: slide-down 0.3s ease-out;
-        }
-        
-        @keyframes float1 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.05); }
-          66% { transform: translate(-20px, 30px) scale(0.95); }
-        }
-        
-        @keyframes float2 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(-40px, 40px) scale(1.08); }
-          66% { transform: translate(25px, -30px) scale(0.92); }
-        }
-        
-        @keyframes float3 {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(50px, 20px) scale(1.1); }
-          66% { transform: translate(-30px, -40px) scale(0.9); }
-        }
-      `}</style>
     </div>
   )
 }
