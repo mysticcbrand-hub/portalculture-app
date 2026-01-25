@@ -1,10 +1,26 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, Suspense } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
+// Main component wrapped in Suspense for useSearchParams
 export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+          <p className="text-white/50 text-sm">Cargando...</p>
+        </div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
+  )
+}
+
+function HomePageContent() {
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -12,16 +28,32 @@ export default function HomePage() {
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
+  const [isApprovedInvite, setIsApprovedInvite] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
-  // Check for existing session on mount
+  // Check for invite link parameters and existing session
   useEffect(() => {
-    const checkSession = async () => {
+    const checkSessionAndInvite = async () => {
+      // Check for invite link params
+      const inviteEmail = searchParams.get('email')
+      const approved = searchParams.get('approved')
+      
+      if (inviteEmail && approved === 'true') {
+        // User came from invite link - pre-fill email and switch to register
+        setEmail(decodeURIComponent(inviteEmail))
+        setMode('register')
+        setIsApprovedInvite(true)
+        setCheckingSession(false)
+        return
+      }
+
+      // Check for existing session
       try {
         const { data: { user } } = await supabase.auth.getUser()
         
@@ -41,8 +73,8 @@ export default function HomePage() {
       }
     }
 
-    checkSession()
-  }, [router, supabase.auth])
+    checkSessionAndInvite()
+  }, [router, supabase.auth, searchParams])
 
   // Password validation
   const passwordRequirements = {

@@ -17,44 +17,63 @@ export async function POST(request: Request) {
       )
     }
 
-    // Usar service role key para crear usuarios
+    // Usar service role key para crear usuarios y verificar waitlist
     const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     )
 
-    // Registrar usuario con admin API
+    // =============================================
+    // VERIFICAR QUE EL EMAIL ESTÁ APROBADO EN WAITLIST
+    // =============================================
+    const { data: waitlistEntry, error: waitlistError } = await supabase
+      .from('waitlist')
+      .select('*')
+      .eq('email', email.toLowerCase())
+      .eq('status', 'approved')
+      .single()
+
+    if (waitlistError || !waitlistEntry) {
+      console.log('❌ Email not approved in waitlist:', email)
+      return NextResponse.json(
+        { error: 'Tu email no ha sido aprobado todavía. Completa el cuestionario y espera la aprobación.' },
+        { status: 403 }
+      )
+    }
+
+    console.log('✅ Email approved in waitlist:', email)
+
+    // =============================================
+    // CREAR USUARIO EN SUPABASE AUTH
+    // =============================================
     const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      email_confirm: true,
+      email_confirm: true, // Auto-confirm email since they're approved
     })
 
     if (error) {
-      // Manejar errores comunes
-      if (error.message.includes('already') || error.message.includes('exists')) {
+      // Si el usuario ya existe
+      if (error.message.includes('already been registered') || error.message.includes('already exists')) {
         return NextResponse.json(
-          { error: 'Este correo ya está registrado' },
+          { error: 'Este email ya tiene una cuenta. Intenta iniciar sesión.' },
           { status: 400 }
         )
       }
+      
+      console.error('Error creating user:', error)
       return NextResponse.json(
         { error: error.message },
         { status: 400 }
       )
     }
 
-    // Si el usuario se creó pero el email no está confirmado, actualizarlo
-    if (data.user && !data.user.email_confirmed_at) {
-      await supabase.auth.admin.updateUserById(data.user.id, {
-        email_confirm: true
-      })
-    }
+    console.log('✅ User created successfully:', email)
 
     // Cuenta creada - el usuario puede iniciar sesión inmediatamente
     return NextResponse.json({ 
       success: true, 
-      message: 'Cuenta creada correctamente.'
+      message: 'Cuenta creada correctamente. ¡Bienvenido a Portal Culture!'
     })
   } catch (error: any) {
     console.error('Register error:', error)

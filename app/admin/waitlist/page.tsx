@@ -78,8 +78,8 @@ export default function AdminWaitlistPage() {
 
       if (updateError) throw updateError
 
-      // 2. Send to Mailerlite
-      const response = await fetch('/api/mailerlite/add-subscriber', {
+      // 2. Send invite email with link to create account
+      const inviteResponse = await fetch('/api/send-invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -88,16 +88,24 @@ export default function AdminWaitlistPage() {
         })
       })
 
-      const result = await response.json()
+      const inviteResult = await inviteResponse.json()
 
-      if (!response.ok) {
-        throw new Error(result.error || 'Error adding to Mailerlite')
-      }
+      // 3. Also add to Mailerlite for email list
+      await fetch('/api/mailerlite/add-subscriber', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: entry.email,
+          name: entry.name
+        })
+      })
 
-      // 3. Reload entries
+      // 4. Reload entries
       await loadEntries()
       
-      alert(`✅ ${entry.name} ha sido aprobado y añadido a Mailerlite`)
+      // Show success with invite link (so admin can copy if needed)
+      const inviteLink = `https://app-portalculture.vercel.app?email=${encodeURIComponent(entry.email)}&approved=true`
+      alert(`✅ ${entry.name} ha sido aprobado!\n\nLink de invitación:\n${inviteLink}\n\n(El usuario también recibirá un email)`)
     } catch (error: any) {
       console.error('Error approving entry:', error)
       alert(`❌ Error: ${error.message}`)
