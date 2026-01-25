@@ -8,6 +8,7 @@ import { createClient } from '@/utils/supabase/client'
 interface FormData {
   nombre: string
   email: string
+  codigoPais: string
   telefono: string
   edad: string
   vidaActual: number
@@ -16,8 +17,33 @@ interface FormData {
   porqueEntrar: string
 }
 
-// Age options
-const edadOptions = ['16-18', '19-21', '22-25', '26-30', '31+']
+// Country codes with flags
+const countryCodes = [
+  { code: '+34', country: 'ES', flag: '🇪🇸' },
+  { code: '+1', country: 'US', flag: '🇺🇸' },
+  { code: '+52', country: 'MX', flag: '🇲🇽' },
+  { code: '+54', country: 'AR', flag: '🇦🇷' },
+  { code: '+57', country: 'CO', flag: '🇨🇴' },
+  { code: '+56', country: 'CL', flag: '🇨🇱' },
+  { code: '+51', country: 'PE', flag: '🇵🇪' },
+  { code: '+58', country: 'VE', flag: '🇻🇪' },
+  { code: '+593', country: 'EC', flag: '🇪🇨' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+33', country: 'FR', flag: '🇫🇷' },
+  { code: '+49', country: 'DE', flag: '🇩🇪' },
+  { code: '+39', country: 'IT', flag: '🇮🇹' },
+  { code: '+351', country: 'PT', flag: '🇵🇹' },
+  { code: '+55', country: 'BR', flag: '🇧🇷' },
+]
+
+// Age options for dropdown
+const edadOptions = [
+  { value: '16-18', label: '16 - 18 años' },
+  { value: '19-21', label: '19 - 21 años' },
+  { value: '22-25', label: '22 - 25 años' },
+  { value: '26-30', label: '26 - 30 años' },
+  { value: '31+', label: '31 años o más' },
+]
 
 // Description options
 const descripcionOptions = [
@@ -45,6 +71,7 @@ export default function Cuestionario() {
   const [formData, setFormData] = useState<FormData>({
     nombre: '',
     email: '',
+    codigoPais: '+34',
     telefono: '',
     edad: '',
     vidaActual: 5,
@@ -52,6 +79,8 @@ export default function Cuestionario() {
     frenos: [],
     porqueEntrar: '',
   })
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
+  const [showAgeDropdown, setShowAgeDropdown] = useState(false)
 
   const totalSteps = 6
 
@@ -120,7 +149,8 @@ export default function Cuestionario() {
   const canProceed = () => {
     switch (step) {
       case 1:
-        return formData.nombre.trim() && formData.email.trim() && formData.telefono.trim()
+        const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
+        return formData.nombre.trim() && emailValid && formData.telefono.trim().length >= 6
       case 2:
         return formData.edad !== ''
       case 3:
@@ -134,6 +164,11 @@ export default function Cuestionario() {
       default:
         return false
     }
+  }
+
+  // Format phone number with country code
+  const getFullPhone = () => {
+    return `${formData.codigoPais} ${formData.telefono}`
   }
 
   // Submit form
@@ -158,7 +193,7 @@ export default function Cuestionario() {
           user_id: user.id,
           name: formData.nombre,
           email: user.email, // Use auth email
-          phone: formData.telefono,
+          phone: getFullPhone(),
           metadata: {
             edad: formData.edad,
             vidaActual: formData.vidaActual,
@@ -358,20 +393,20 @@ export default function Cuestionario() {
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Dónde te contacto
+                  ¿Dónde te contactamos?
                 </h2>
                 <p className="text-white/40 text-sm">Información básica para poder comunicarnos</p>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-white/60 text-sm mb-2">Cómo quieres que te llamemos</label>
+                  <label className="block text-white/60 text-sm mb-2">¿Cómo quieres que te llamemos?</label>
                   <input
                     type="text"
                     value={formData.nombre}
                     onChange={(e) => updateField('nombre', e.target.value)}
                     placeholder="Tu nombre"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15"
                   />
                 </div>
                 <div>
@@ -381,78 +416,192 @@ export default function Cuestionario() {
                     value={formData.email}
                     onChange={(e) => updateField('email', e.target.value)}
                     placeholder="tu@email.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15"
                   />
                 </div>
                 <div>
                   <label className="block text-white/60 text-sm mb-2">Número de teléfono</label>
-                  <input
-                    type="tel"
-                    value={formData.telefono}
-                    onChange={(e) => updateField('telefono', e.target.value)}
-                    placeholder="+34 600 000 000"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-colors"
-                  />
+                  <div className="flex gap-2">
+                    {/* Country code selector */}
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                        className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-3 py-3.5 text-white hover:border-white/20 transition-all duration-200 min-w-[100px]"
+                      >
+                        <span className="text-lg">{countryCodes.find(c => c.code === formData.codigoPais)?.flag}</span>
+                        <span className="text-sm">{formData.codigoPais}</span>
+                        <svg className={`w-4 h-4 text-white/40 transition-transform duration-200 ${showCountryDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                        </svg>
+                      </button>
+                      
+                      {/* Dropdown */}
+                      {showCountryDropdown && (
+                        <div className="absolute top-full left-0 mt-2 w-48 bg-black/95 backdrop-blur-xl border border-white/15 rounded-xl overflow-hidden z-50 shadow-xl animate-fadeIn">
+                          <div className="max-h-60 overflow-y-auto">
+                            {countryCodes.map((country) => (
+                              <button
+                                key={country.code}
+                                type="button"
+                                onClick={() => {
+                                  updateField('codigoPais', country.code)
+                                  setShowCountryDropdown(false)
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-white/10 transition-colors ${formData.codigoPais === country.code ? 'bg-white/10' : ''}`}
+                              >
+                                <span className="text-lg">{country.flag}</span>
+                                <span className="text-white/80 text-sm">{country.code}</span>
+                                <span className="text-white/40 text-xs">{country.country}</span>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Phone number input */}
+                    <input
+                      type="tel"
+                      value={formData.telefono}
+                      onChange={(e) => {
+                        // Only allow numbers and format nicely
+                        const value = e.target.value.replace(/[^0-9]/g, '')
+                        updateField('telefono', value)
+                      }}
+                      placeholder="600 000 000"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Step 2: Age */}
+          {/* Step 2: Age - Dropdown */}
           {step === 2 && (
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Cuántos años tienes
+                  ¿Cuántos años tienes?
                 </h2>
               </div>
 
-              <div className="space-y-3">
-                {edadOptions.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => updateField('edad', option)}
-                    className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-200 ${
-                      formData.edad === option
-                        ? 'bg-white/15 border-white/30 text-white'
-                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/8 hover:border-white/15'
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowAgeDropdown(!showAgeDropdown)}
+                  className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all duration-300 ${
+                    formData.edad 
+                      ? 'bg-white/10 border-white/25 text-white' 
+                      : 'bg-white/5 border-white/10 text-white/40'
+                  } hover:border-white/20`}
+                >
+                  <span>{formData.edad ? edadOptions.find(o => o.value === formData.edad)?.label : 'Selecciona tu edad'}</span>
+                  <svg className={`w-5 h-5 text-white/40 transition-transform duration-300 ${showAgeDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Dropdown menu */}
+                {showAgeDropdown && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/15 rounded-xl overflow-hidden z-50 shadow-2xl animate-fadeIn">
+                    {edadOptions.map((option, index) => (
+                      <button
+                        key={option.value}
+                        type="button"
+                        onClick={() => {
+                          updateField('edad', option.value)
+                          setShowAgeDropdown(false)
+                        }}
+                        className={`w-full text-left px-5 py-4 transition-all duration-200 ${
+                          formData.edad === option.value 
+                            ? 'bg-white/15 text-white' 
+                            : 'text-white/70 hover:bg-white/10 hover:text-white'
+                        } ${index !== edadOptions.length - 1 ? 'border-b border-white/5' : ''}`}
+                        style={{ animationDelay: `${index * 30}ms` }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
 
-          {/* Step 3: Life Rating */}
+          {/* Step 3: Life Rating - Premium Slider */}
           {step === 3 && (
             <div className="animate-fadeIn space-y-8">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Del 1 al 10, cómo describirías tu vida actual
+                  ¿Del 1 al 10, cómo describirías tu vida actual?
                 </h2>
                 <p className="text-white/40 text-sm">Se honesto. De aquí solo va hacia arriba</p>
               </div>
 
-              <div className="space-y-6">
+              <div className="space-y-8">
+                {/* Big number display with animation */}
                 <div className="text-center">
-                  <span className="text-6xl font-light text-white">{formData.vidaActual}</span>
+                  <span 
+                    className="text-7xl md:text-8xl font-light text-white inline-block transition-transform duration-200"
+                    style={{ 
+                      transform: `scale(${1 + (formData.vidaActual - 5) * 0.02})`,
+                      textShadow: formData.vidaActual >= 7 ? '0 0 40px rgba(255,255,255,0.2)' : 'none'
+                    }}
+                  >
+                    {formData.vidaActual}
+                  </span>
                 </div>
                 
-                <div className="relative">
+                {/* Custom slider track */}
+                <div className="relative py-4">
+                  <div className="relative h-2 bg-white/10 rounded-full overflow-hidden">
+                    {/* Filled portion */}
+                    <div 
+                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-white/30 to-white/60 rounded-full transition-all duration-200"
+                      style={{ width: `${((formData.vidaActual - 1) / 9) * 100}%` }}
+                    />
+                  </div>
+                  
+                  {/* Invisible range input for interaction */}
                   <input
                     type="range"
                     min="1"
                     max="10"
                     value={formData.vidaActual}
                     onChange={(e) => updateField('vidaActual', parseInt(e.target.value))}
-                    className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer slider-thumb"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                   />
-                  <div className="flex justify-between mt-2 text-xs text-white/30">
-                    <span>1</span>
-                    <span>10</span>
+                  
+                  {/* Draggable thumb */}
+                  <div 
+                    className="absolute top-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full shadow-lg shadow-black/30 pointer-events-none transition-all duration-100"
+                    style={{ 
+                      left: `calc(${((formData.vidaActual - 1) / 9) * 100}% - 12px)`,
+                      transform: 'translateY(-50%) scale(1)',
+                    }}
+                  >
+                    <div className="absolute inset-1 bg-white rounded-full" />
                   </div>
+                </div>
+                
+                {/* Scale markers */}
+                <div className="flex justify-between px-1">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => updateField('vidaActual', num)}
+                      className={`w-8 h-8 rounded-full text-xs font-medium transition-all duration-200 ${
+                        formData.vidaActual === num 
+                          ? 'bg-white text-black scale-110' 
+                          : 'bg-white/5 text-white/40 hover:bg-white/10 hover:text-white/60'
+                      }`}
+                    >
+                      {num}
+                    </button>
+                  ))}
                 </div>
               </div>
             </div>
@@ -463,7 +612,7 @@ export default function Cuestionario() {
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Cuál de estas opciones te describe mejor
+                  ¿Cuál de estas opciones te describe mejor?
                 </h2>
               </div>
 
@@ -497,7 +646,7 @@ export default function Cuestionario() {
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Cuál de estas cosas te está frenando
+                  ¿Cuál de estas cosas te está frenando?
                 </h2>
                 <p className="text-white/40 text-sm">Puedes escoger hasta 2</p>
               </div>
@@ -542,7 +691,7 @@ export default function Cuestionario() {
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Por qué te deberíamos dejar entrar
+                  ¿Por qué te deberíamos dejar entrar?
                 </h2>
                 <p className="text-white/40 text-sm">Descríbete y destaca lo mejor de ti</p>
               </div>
