@@ -58,36 +58,6 @@ export async function POST(request: Request) {
     if (error) {
       console.error('❌ Waitlist insert error:', error)
       console.error('Error details:', JSON.stringify(error, null, 2))
-
-      // If column doesn't exist, retry without optional fields
-      if (error.code === '42703') {
-        const fallbackData = {
-          name: name.trim(),
-          email: normalizedEmail,
-          status: 'pending',
-          metadata: metadata || {},
-          submitted_at: new Date().toISOString()
-        }
-
-        const { error: fallbackError } = await supabase
-          .from('waitlist')
-          .insert(fallbackData)
-          .select()
-          .single()
-
-        if (!fallbackError) {
-          return NextResponse.json({ 
-            success: true,
-            message: 'Solicitud enviada correctamente'
-          })
-        }
-
-        console.error('❌ Fallback insert error:', fallbackError)
-        return NextResponse.json(
-          { error: 'Error al guardar la solicitud. Contacta al admin.' },
-          { status: 500 }
-        )
-      }
       
       return NextResponse.json(
         { error: 'Error al guardar la solicitud. Intenta de nuevo.' },
