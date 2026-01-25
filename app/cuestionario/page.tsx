@@ -97,13 +97,13 @@ export default function Cuestionario() {
         }
 
         // Check user's access status
-        const { data: profile } = await supabase
+        const { data: profiles } = await supabase
           .from('profiles')
           .select('access_status')
           .eq('id', user.id)
-          .single()
+          .limit(1)
 
-        const status = profile?.access_status
+        const status = profiles?.[0]?.access_status
 
         if (status === 'approved' || status === 'paid') {
           // Already has access - go to dashboard

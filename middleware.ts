@@ -79,13 +79,13 @@ export async function middleware(request: NextRequest) {
   // CASE 3: Logged in user trying to access dashboard - check if approved
   if (user && isDashboard) {
     // Check user's access status in profiles table
-    const { data: profile } = await supabase
+    const { data: profiles } = await supabase
       .from('profiles')
       .select('access_status')
       .eq('id', user.id)
-      .single()
+      .limit(1)
 
-    const accessStatus = profile?.access_status || 'none'
+    const accessStatus = profiles?.[0]?.access_status || 'none'
 
     // Only approved or paid users can access dashboard
     if (accessStatus !== 'approved' && accessStatus !== 'paid') {
@@ -100,13 +100,13 @@ export async function middleware(request: NextRequest) {
   // CASE 4: Logged in user on login page → redirect to seleccionar-acceso
   if (user && isAuthPage) {
     // Check if already has access
-    const { data: profile } = await supabase
+    const { data: profiles } = await supabase
       .from('profiles')
       .select('access_status')
       .eq('id', user.id)
-      .single()
+      .limit(1)
 
-    const accessStatus = profile?.access_status || 'none'
+    const accessStatus = profiles?.[0]?.access_status || 'none'
 
     if (accessStatus === 'approved' || accessStatus === 'paid') {
       return NextResponse.redirect(new URL('/dashboard', request.url))

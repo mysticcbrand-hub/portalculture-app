@@ -32,17 +32,19 @@ export default function PendienteAprobacion() {
       }
 
       // Try to get profile
-      const { data: profile, error } = await supabase
+      const { data: profiles, error } = await supabase
         .from('profiles')
         .select('access_status')
         .eq('id', user.id)
-        .maybeSingle()
+        .limit(1)
 
       if (error) {
         console.error('Profile query error:', error)
         setChecking(false)
         return
       }
+
+      const profile = profiles?.[0]
 
       // If no profile exists, create one
       if (!profile) {
