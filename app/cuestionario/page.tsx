@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/utils/supabase/client'
 
 // Types
 interface FormData {
@@ -36,6 +37,8 @@ const frenosOptions = [
 
 export default function Cuestionario() {
   const router = useRouter()
+  const supabase = createClient()
+  const [checkingAuth, setCheckingAuth] = useState(true)
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isComplete, setIsComplete] = useState(false)
@@ -51,6 +54,28 @@ export default function Cuestionario() {
   })
 
   const totalSteps = 6
+
+  // Check if user is authenticated - redirect if already has account
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        
+        if (user) {
+          // User already has account - redirect to dashboard
+          router.replace('/dashboard')
+          return
+        }
+        
+        setCheckingAuth(false)
+      } catch (error) {
+        console.error('Auth check error:', error)
+        setCheckingAuth(false)
+      }
+    }
+
+    checkAuth()
+  }, [router, supabase.auth])
 
   // Handle input changes
   const updateField = (field: keyof FormData, value: any) => {
@@ -144,6 +169,18 @@ export default function Cuestionario() {
     if (step > 1) {
       setStep(prev => prev - 1)
     }
+  }
+
+  // Loading screen while checking auth
+  if (checkingAuth) {
+    return (
+      <main className="min-h-screen bg-black flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+          <p className="text-white/50 text-sm">Verificando...</p>
+        </div>
+      </main>
+    )
   }
 
   // Completion screen
