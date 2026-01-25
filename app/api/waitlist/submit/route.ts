@@ -35,23 +35,39 @@ export async function POST(request: Request) {
       )
     }
 
-    // Insert new waitlist entry linked to user
+    // Build insert object - only include fields that exist
+    const insertData: Record<string, any> = {
+      name: name.trim(),
+      email: normalizedEmail,
+      status: 'pending',
+      metadata: metadata || {},
+      submitted_at: new Date().toISOString()
+    }
+
+    // Add optional fields if provided
+    if (user_id) insertData.user_id = user_id
+    if (phone) insertData.phone = phone.trim()
+
+    // Insert new waitlist entry
     const { data, error } = await supabase
       .from('waitlist')
-      .insert({
-        user_id: user_id,
-        name: name.trim(),
-        email: normalizedEmail,
-        phone: phone.trim(),
-        status: 'pending',
-        metadata: metadata || {},
-        submitted_at: new Date().toISOString()
-      })
+      .insert(insertData)
       .select()
       .single()
 
     if (error) {
       console.error('❌ Waitlist insert error:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      
+      // More specific error handling
+      if (error.code === '42703') {
+        // Column doesn't exist - need to run SQL migration
+        return NextResponse.json(
+          { error: 'Base de datos necesita actualización. Contacta al admin.' },
+          { status: 500 }
+        )
+      }
+      
       return NextResponse.json(
         { error: 'Error al guardar la solicitud. Intenta de nuevo.' },
         { status: 500 }
