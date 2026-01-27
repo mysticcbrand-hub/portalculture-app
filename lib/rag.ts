@@ -38,6 +38,12 @@ export async function searchKnowledge(
     // Generate embedding for the query
     const queryEmbedding = await generateEmbedding(query);
     
+    // If embeddings not available, skip RAG
+    if (!queryEmbedding) {
+      console.log('Embeddings not available, skipping RAG search');
+      return [];
+    }
+    
     // Call Supabase function for vector similarity search
     const { data, error } = await supabase.rpc('match_knowledge', {
       query_embedding: queryEmbedding,

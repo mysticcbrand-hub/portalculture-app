@@ -196,31 +196,39 @@ export async function* parseSSEStream(stream: ReadableStream): AsyncGenerator<st
 
 /**
  * Generate embeddings for RAG
+ * Returns null if embeddings are not available (graceful fallback)
  */
-export async function generateEmbedding(text: string): Promise<number[]> {
+export async function generateEmbedding(text: string): Promise<number[] | null> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   
   if (!apiKey) {
-    throw new Error('OPENROUTER_API_KEY not found in environment variables');
+    console.warn('OPENROUTER_API_KEY not found, skipping embeddings');
+    return null;
   }
 
-  const response = await fetch('https://openrouter.ai/api/v1/embeddings', {
-    method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model: 'openai/text-embedding-3-small',
-      input: text.slice(0, 8000), // Limit input size
-    }),
-  });
+  try {
+    const response = await fetch('https://openrouter.ai/api/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'openai/text-embedding-3-small',
+        input: text.slice(0, 8000), // Limit input size
+      }),
+    });
 
-  if (!response.ok) {
-    const error = await response.text();
-    throw new Error(`OpenRouter Embeddings API error: ${response.status} - ${error}`);
+    if (!response.ok) {
+      const error = await response.text();
+      console.warn(`Embeddings API error (${response.status}), skipping RAG:`, error);
+      return null;
+    }
+
+    const data = await response.json();
+    return data.data[0].embedding;
+  } catch (error) {
+    console.warn('Embeddings generation failed, skipping RAG:', error);
+    return null;
   }
-
-  const data = await response.json();
-  return data.data[0].embedding;
 }

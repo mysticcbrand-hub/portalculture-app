@@ -50,11 +50,11 @@ export default function DashboardPage() {
   }
 
   const courses = [
-    { id: 1, emoji: '🧠', name: 'Templo de Atenas', description: 'Sabiduría y conocimiento', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 2, emoji: '💪', name: 'Templo de Ares', description: 'Fuerza y disciplina', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 3, emoji: '🗣️', name: 'Templo de Apolo', description: 'Comunicación y carisma', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 4, emoji: '⚡', name: 'Templo de Zeus', description: 'Liderazgo y poder', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
-    { id: 5, emoji: '🧲', name: 'Templo de Adonis', description: 'Atractivo y presencia', link: 'https://whop.com/joined/portalculture/cursos-portal-academy-rDBxyPFiZ166QM/app/' },
+    { id: 1, emoji: '🧠', name: 'Templo de Atenas', description: 'Sabiduría y conocimiento', link: 'https://whop.com/joined/portalculture/ebook-templo-de-atenas-VKPVER2AaIAavN/app/' },
+    { id: 2, emoji: '💪', name: 'Templo de Ares', description: 'Fuerza y disciplina', link: 'https://whop.com/joined/portalculture/ebook-templo-de-ares-jSgXtORjwh1M0A/app/' },
+    { id: 3, emoji: '🗣️', name: 'Templo de Apolo', description: 'Comunicación y carisma', link: 'https://whop.com/joined/portalculture/ebook-templo-de-apolo-yuqFs2iAOwQRFN/app/' },
+    { id: 4, emoji: '⚡', name: 'Templo de Zeus', description: 'Liderazgo y poder', link: 'https://whop.com/joined/portalculture/ebook-templo-de-zeus-aAmozpsLlv08Py/app/' },
+    { id: 5, emoji: '🧲', name: 'Templo de Adonis', description: 'Atractivo y presencia', link: 'https://whop.com/joined/portalculture/ebook-templo-de-adonis-MhivtaJx0e34P9/app/' },
   ]
 
   return (
