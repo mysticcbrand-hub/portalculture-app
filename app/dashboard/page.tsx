@@ -62,24 +62,31 @@ export default function DashboardPage() {
       {/* Premium Mesh Gradient Background */}
       <MeshGradient variant="default" intensity="low" />
 
-      {/* Premium Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-2xl bg-black/60 border-b border-white/[0.04]">
+      {/* Premium Header - Glassmorphism */}
+      <header 
+        className="sticky top-0 z-50 border-b border-white/[0.06]"
+        style={{
+          background: 'rgba(0, 0, 0, 0.7)',
+          backdropFilter: 'blur(20px) saturate(180%)',
+          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        }}
+      >
+        {/* Top highlight line */}
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+        
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative">
-              <div className="absolute -inset-1 bg-white/10 rounded-xl blur-sm" />
-              <img src="/favicon.ico" alt="Portal Culture" className="relative w-9 h-9 md:w-10 md:h-10" />
-            </div>
+            <img src="/favicon.ico" alt="Portal Culture" className="w-9 h-9 md:w-10 md:h-10" />
             <span className="text-lg md:text-xl font-bold text-white tracking-tight">Portal Culture</span>
           </div>
           <div className="flex items-center gap-3 md:gap-4">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/[0.03] rounded-full border border-white/[0.06]">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-white/[0.04] rounded-full border border-white/[0.08]">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
               <span className="text-xs text-white/40 truncate max-w-[150px]">{user?.email}</span>
             </div>
             <button
               onClick={handleSignOut}
-              className="px-4 py-2.5 text-xs font-medium text-white/60 hover:text-white bg-white/[0.03] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12] rounded-xl transition-all duration-300"
+              className="px-4 py-2.5 text-xs font-medium text-white/60 hover:text-white bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] hover:border-white/[0.15] rounded-xl transition-all duration-300"
             >
               Salir
             </button>
