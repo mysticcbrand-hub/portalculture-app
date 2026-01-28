@@ -79,17 +79,18 @@ const getPhonePlaceholder = (countryCode: string): string => {
 }
 
 // Age options for dropdown
-const edadOptions = [
-  { value: '10-14', label: '10 - 14 años', emoji: '🎮' },
-  { value: '15-17', label: '15 - 17 años', emoji: '📚' },
-  { value: '18-21', label: '18 - 21 años', emoji: '🎓' },
-  { value: '22-25', label: '22 - 25 años', emoji: '💼' },
-  { value: '26-30', label: '26 - 30 años', emoji: '🚀' },
-  { value: '31-35', label: '31 - 35 años', emoji: '⚡' },
-  { value: '36-40', label: '36 - 40 años', emoji: '🎯' },
-  { value: '41-45', label: '41 - 45 años', emoji: '💪' },
-  { value: '46-50', label: '46 - 50 años', emoji: '🏆' },
-]
+// Generate age emojis based on ranges
+const getAgeEmoji = (age: number): string => {
+  if (age <= 14) return '🎮'
+  if (age <= 17) return '📚'
+  if (age <= 21) return '🎓'
+  if (age <= 25) return '💼'
+  if (age <= 30) return '🚀'
+  if (age <= 35) return '⚡'
+  if (age <= 40) return '🎯'
+  if (age <= 45) return '💪'
+  return '🏆'
+}
 
 // Description options
 const descripcionOptions = [
@@ -119,14 +120,14 @@ export default function Cuestionario() {
     email: '',
     codigoPais: '+34',
     telefono: '',
-    edad: '',
+    edad: '25', // Initialize with default age
     vidaActual: 5,
     descripcion: '',
     frenos: [],
     porqueEntrar: '',
   })
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
-  const [showAgeDropdown, setShowAgeDropdown] = useState(false)
+  const [ageValue, setAgeValue] = useState<number>(25) // Default to 25
 
   const totalSteps = 6
 
@@ -533,68 +534,139 @@ export default function Cuestionario() {
             </div>
           )}
 
-          {/* Step 2: Age - Dropdown */}
+          {/* Step 2: Age - Creative Slider */}
           {step === 2 && (
-            <div className="animate-fadeIn space-y-6">
-              <div>
+            <div className="animate-fadeIn space-y-8">
+              <div className="text-center">
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
                   ¿Cuántos años tienes?
                 </h2>
+                <p className="text-white/40 text-sm">Desliza o toca para seleccionar</p>
               </div>
 
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowAgeDropdown(!showAgeDropdown)}
-                  className={`w-full flex items-center justify-between px-5 py-4 rounded-xl border transition-all duration-300 ${
-                    formData.edad 
-                      ? 'bg-white/10 border-white/25 text-white' 
-                      : 'bg-white/5 border-white/10 text-white/40'
-                  } hover:border-white/20`}
-                >
-                  <span className="flex items-center gap-3">
-                    {formData.edad && (
-                      <span className="text-2xl">{edadOptions.find(o => o.value === formData.edad)?.emoji}</span>
-                    )}
-                    <span>{formData.edad ? edadOptions.find(o => o.value === formData.edad)?.label : 'Selecciona tu edad'}</span>
-                  </span>
-                  <svg className={`w-5 h-5 text-white/40 transition-transform duration-300 ${showAgeDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                {/* Dropdown menu */}
-                {showAgeDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/15 rounded-xl overflow-hidden z-50 shadow-2xl animate-fadeIn max-h-[320px] overflow-y-auto">
-                    {edadOptions.map((option, index) => (
-                      <button
-                        key={option.value}
-                        type="button"
-                        onClick={() => {
-                          updateField('edad', option.value)
-                          setShowAgeDropdown(false)
-                        }}
-                        className={`w-full text-left px-5 py-4 transition-all duration-200 flex items-center gap-4 group ${
-                          formData.edad === option.value 
-                            ? 'bg-white/15 text-white' 
-                            : 'text-white/70 hover:bg-white/10 hover:text-white'
-                        } ${index !== edadOptions.length - 1 ? 'border-b border-white/5' : ''}`}
-                        style={{ animationDelay: `${index * 30}ms` }}
-                      >
-                        <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
-                          {option.emoji}
-                        </span>
-                        <span className="flex-1">{option.label}</span>
-                        {formData.edad === option.value && (
-                          <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        )}
-                      </button>
-                    ))}
+              {/* Large centered display */}
+              <div className="flex flex-col items-center gap-6">
+                {/* Age display with emoji */}
+                <div className="relative">
+                  <div className="text-8xl md:text-9xl font-bold text-white flex items-center gap-4">
+                    <span className="text-6xl md:text-7xl animate-bounce-subtle">
+                      {getAgeEmoji(ageValue)}
+                    </span>
+                    <span 
+                      className="bg-gradient-to-br from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent"
+                      style={{
+                        filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))',
+                      }}
+                    >
+                      {ageValue}
+                    </span>
                   </div>
-                )}
+                  <p className="text-center text-white/60 text-lg mt-2">años</p>
+                </div>
+
+                {/* Custom slider */}
+                <div className="w-full max-w-md space-y-4">
+                  {/* Slider track */}
+                  <div className="relative h-3 bg-white/5 rounded-full overflow-hidden">
+                    {/* Progress fill */}
+                    <div 
+                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 transition-all duration-300 rounded-full"
+                      style={{ 
+                        width: `${((ageValue - 10) / 40) * 100}%`,
+                        boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)',
+                      }}
+                    />
+                  </div>
+
+                  {/* Actual input slider */}
+                  <input
+                    type="range"
+                    min="10"
+                    max="50"
+                    value={ageValue}
+                    onChange={(e) => {
+                      const newAge = parseInt(e.target.value)
+                      setAgeValue(newAge)
+                      updateField('edad', newAge.toString())
+                    }}
+                    className="w-full h-2 appearance-none cursor-pointer slider-thumb"
+                    style={{
+                      background: 'transparent',
+                      marginTop: '-20px',
+                    }}
+                  />
+
+                  {/* Min/Max labels */}
+                  <div className="flex justify-between text-sm text-white/40 px-1">
+                    <span>10 años</span>
+                    <span>50 años</span>
+                  </div>
+                </div>
+
+                {/* Quick select buttons */}
+                <div className="flex flex-wrap gap-2 justify-center max-w-md">
+                  {[15, 20, 25, 30, 35, 40, 45].map((age) => (
+                    <button
+                      key={age}
+                      type="button"
+                      onClick={() => {
+                        setAgeValue(age)
+                        updateField('edad', age.toString())
+                      }}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 ${
+                        ageValue === age
+                          ? 'bg-purple-500/20 text-purple-300 border border-purple-400/50'
+                          : 'bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white/70'
+                      }`}
+                    >
+                      {age}
+                    </button>
+                  ))}
+                </div>
               </div>
+
+              <style jsx>{`
+                .slider-thumb::-webkit-slider-thumb {
+                  appearance: none;
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 50%;
+                  background: linear-gradient(135deg, #a855f7, #ec4899);
+                  cursor: pointer;
+                  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 4px 12px rgba(168, 85, 247, 0.4);
+                  transition: all 0.2s ease;
+                }
+                
+                .slider-thumb::-webkit-slider-thumb:hover {
+                  transform: scale(1.15);
+                  box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.3), 0 6px 16px rgba(168, 85, 247, 0.5);
+                }
+
+                .slider-thumb::-moz-range-thumb {
+                  width: 28px;
+                  height: 28px;
+                  border-radius: 50%;
+                  background: linear-gradient(135deg, #a855f7, #ec4899);
+                  cursor: pointer;
+                  border: none;
+                  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 4px 12px rgba(168, 85, 247, 0.4);
+                  transition: all 0.2s ease;
+                }
+
+                .slider-thumb::-moz-range-thumb:hover {
+                  transform: scale(1.15);
+                  box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.3), 0 6px 16px rgba(168, 85, 247, 0.5);
+                }
+
+                @keyframes bounce-subtle {
+                  0%, 100% { transform: translateY(0); }
+                  50% { transform: translateY(-8px); }
+                }
+
+                .animate-bounce-subtle {
+                  animation: bounce-subtle 2s ease-in-out infinite;
+                }
+              `}</style>
             </div>
           )}
 
