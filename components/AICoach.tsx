@@ -5,7 +5,8 @@
  * Premium Liquid Glass UI for NOVA AI Coach
  */
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import Image from 'next/image';
 import { createClient } from '@/utils/supabase/client';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -43,14 +44,7 @@ export default function AICoach() {
   }, [messages]);
 
   // Load chat history and usage on open
-  useEffect(() => {
-    if (isOpen) {
-      loadHistory();
-      loadUsage();
-    }
-  }, [isOpen]);
-
-  const loadHistory = async () => {
+  const loadHistory = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -74,9 +68,9 @@ export default function AICoach() {
     } catch (error) {
       console.error('Failed to load history:', error);
     }
-  };
+  }, [supabase]);
 
-  const loadUsage = async () => {
+  const loadUsage = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -94,7 +88,14 @@ export default function AICoach() {
     } catch (error) {
       console.error('Failed to load usage:', error);
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    if (isOpen) {
+      loadHistory();
+      loadUsage();
+    }
+  }, [isOpen, loadHistory, loadUsage]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -264,9 +265,11 @@ export default function AICoach() {
           <div className="relative flex items-center justify-between z-10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/ai.png" 
-                  alt="NOVA AI" 
+                <Image
+                  src="/ai.png"
+                  alt="NOVA AI"
+                  width={40}
+                  height={40}
                   className="w-full h-full object-cover"
                 />
               </div>

@@ -132,6 +132,10 @@ function extractKeywords(text: string): string[] {
  */
 export async function isKnowledgeBaseReady(): Promise<boolean> {
   try {
+    if (!supabase) {
+      return false;
+    }
+
     const { count, error } = await supabase
       .from('knowledge_base')
       .select('*', { count: 'exact', head: true });
