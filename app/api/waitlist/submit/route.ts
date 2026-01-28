@@ -29,12 +29,16 @@ export async function POST(request: Request) {
 
     const normalizedEmail = email.toLowerCase().trim()
 
-    // Check if user already has a waitlist entry
-    const { data: existing } = await supabase
+    // Check if user already has a waitlist entry (by email)
+    const { data: existing, error: existingError } = await supabase
       .from('waitlist')
       .select('id, status')
-      .eq('user_id', user_id)
+      .eq('email', normalizedEmail)
       .maybeSingle()
+
+    if (existingError) {
+      console.error('❌ Waitlist lookup error:', existingError)
+    }
 
     if (existing) {
       return NextResponse.json(
@@ -68,7 +72,11 @@ export async function POST(request: Request) {
       console.error('Error details:', JSON.stringify(error, null, 2))
       
       return NextResponse.json(
-        { error: 'Error al guardar la solicitud. Intenta de nuevo.' },
+        { 
+          error: 'Error al guardar la solicitud. Intenta de nuevo.',
+          detail: error.message || error.details || 'Unknown error',
+          code: error.code || null,
+        },
         { status: 500 }
       )
     }
@@ -83,7 +91,10 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('❌ Waitlist submit error:', error)
     return NextResponse.json(
-      { error: 'Error interno del servidor' },
+      { 
+        error: 'Error interno del servidor',
+        detail: error?.message || 'Unknown error'
+      },
       { status: 500 }
     )
   }

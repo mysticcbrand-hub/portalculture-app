@@ -258,7 +258,7 @@ export default function Cuestionario() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.error || 'Error al enviar')
+        throw new Error(data.detail || data.error || 'Error al enviar')
       }
 
       // Update user's profile to pending
