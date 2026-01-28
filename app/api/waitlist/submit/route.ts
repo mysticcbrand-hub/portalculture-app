@@ -14,10 +14,18 @@ export async function POST(request: Request) {
     }
 
     // Create Supabase client with service role
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    )
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
+
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Missing Supabase env vars');
+      return NextResponse.json(
+        { error: 'Configuración del servidor incompleta' },
+        { status: 500 }
+      );
+    }
+
+    const supabase = createClient(supabaseUrl, supabaseKey);
 
     const normalizedEmail = email.toLowerCase().trim()
 

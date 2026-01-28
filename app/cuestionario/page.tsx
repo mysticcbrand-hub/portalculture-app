@@ -80,11 +80,15 @@ const getPhonePlaceholder = (countryCode: string): string => {
 
 // Age options for dropdown
 const edadOptions = [
-  { value: '16-18', label: '16 - 18 años' },
-  { value: '19-21', label: '19 - 21 años' },
-  { value: '22-25', label: '22 - 25 años' },
-  { value: '26-30', label: '26 - 30 años' },
-  { value: '31+', label: '31 años o más' },
+  { value: '10-14', label: '10 - 14 años', emoji: '🎮' },
+  { value: '15-17', label: '15 - 17 años', emoji: '📚' },
+  { value: '18-21', label: '18 - 21 años', emoji: '🎓' },
+  { value: '22-25', label: '22 - 25 años', emoji: '💼' },
+  { value: '26-30', label: '26 - 30 años', emoji: '🚀' },
+  { value: '31-35', label: '31 - 35 años', emoji: '⚡' },
+  { value: '36-40', label: '36 - 40 años', emoji: '🎯' },
+  { value: '41-45', label: '41 - 45 años', emoji: '💪' },
+  { value: '46-50', label: '46 - 50 años', emoji: '🏆' },
 ]
 
 // Description options
@@ -548,7 +552,12 @@ export default function Cuestionario() {
                       : 'bg-white/5 border-white/10 text-white/40'
                   } hover:border-white/20`}
                 >
-                  <span>{formData.edad ? edadOptions.find(o => o.value === formData.edad)?.label : 'Selecciona tu edad'}</span>
+                  <span className="flex items-center gap-3">
+                    {formData.edad && (
+                      <span className="text-2xl">{edadOptions.find(o => o.value === formData.edad)?.emoji}</span>
+                    )}
+                    <span>{formData.edad ? edadOptions.find(o => o.value === formData.edad)?.label : 'Selecciona tu edad'}</span>
+                  </span>
                   <svg className={`w-5 h-5 text-white/40 transition-transform duration-300 ${showAgeDropdown ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -556,7 +565,7 @@ export default function Cuestionario() {
 
                 {/* Dropdown menu */}
                 {showAgeDropdown && (
-                  <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/15 rounded-xl overflow-hidden z-50 shadow-2xl animate-fadeIn">
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-black/95 backdrop-blur-xl border border-white/15 rounded-xl overflow-hidden z-50 shadow-2xl animate-fadeIn max-h-[320px] overflow-y-auto">
                     {edadOptions.map((option, index) => (
                       <button
                         key={option.value}
@@ -565,14 +574,22 @@ export default function Cuestionario() {
                           updateField('edad', option.value)
                           setShowAgeDropdown(false)
                         }}
-                        className={`w-full text-left px-5 py-4 transition-all duration-200 ${
+                        className={`w-full text-left px-5 py-4 transition-all duration-200 flex items-center gap-4 group ${
                           formData.edad === option.value 
                             ? 'bg-white/15 text-white' 
                             : 'text-white/70 hover:bg-white/10 hover:text-white'
                         } ${index !== edadOptions.length - 1 ? 'border-b border-white/5' : ''}`}
                         style={{ animationDelay: `${index * 30}ms` }}
                       >
-                        {option.label}
+                        <span className="text-2xl transition-transform duration-300 group-hover:scale-110">
+                          {option.emoji}
+                        </span>
+                        <span className="flex-1">{option.label}</span>
+                        {formData.edad === option.value && (
+                          <svg className="w-5 h-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        )}
                       </button>
                     ))}
                   </div>
