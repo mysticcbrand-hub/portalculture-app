@@ -56,13 +56,17 @@ export async function POST(request: NextRequest) {
     
     // Check rate limit
     const today = new Date().toISOString().split('T')[0];
-    const { data: usage } = await supabase
+    const { data: usage, error: usageError } = await supabase
       .from('chat_usage')
       .select('message_count')
       .eq('user_id', user.id)
       .eq('date', today)
       .single();
     
+    if (usageError && usageError.code !== 'PGRST116') {
+      console.error('Chat usage query error:', usageError);
+    }
+
     if (usage && usage.message_count >= DAILY_MESSAGE_LIMIT) {
       return NextResponse.json(
         { 
@@ -74,14 +78,18 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Save user message
-    await supabase
+    // Save user message (non-blocking)
+    const { error: insertUserError } = await supabase
       .from('chat_messages')
       .insert({
         user_id: user.id,
         role: 'user',
         content: message,
       });
+
+    if (insertUserError) {
+      console.error('Chat message insert error:', insertUserError);
+    }
     
     // Get relevant context from knowledge base
     const contextChunks = await getDiverseContext(message, 3);
@@ -112,7 +120,8 @@ export async function POST(request: NextRequest) {
           }
           
           // Save assistant response and update usage
-          await Promise.all([
+          const tokensUsed = Math.ceil(fullResponse.length / 4);
+          const [insertAssistantResult, usageResult] = await Promise.all([
             supabase
               .from('chat_messages')
               .insert({
@@ -120,15 +129,23 @@ export async function POST(request: NextRequest) {
                 role: 'assistant',
                 content: fullResponse,
                 context_used: contextChunks.map(c => c.id),
-                tokens_used: Math.ceil(fullResponse.length / 4), // Rough estimate
+                tokens_used: tokensUsed, // Rough estimate
               }),
             
             supabase.rpc('increment_chat_usage', {
               p_user_id: user.id,
               p_message_count: 1,
-              p_tokens_used: Math.ceil(fullResponse.length / 4),
+              p_tokens_used: tokensUsed,
             }),
           ]);
+
+          if (insertAssistantResult.error) {
+            console.error('Assistant message insert error:', insertAssistantResult.error);
+          }
+
+          if (usageResult.error) {
+            console.error('Chat usage increment error:', usageResult.error);
+          }
           
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
           controller.close();
@@ -148,10 +165,13 @@ export async function POST(request: NextRequest) {
       },
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('Chat API error:', error);
     return NextResponse.json(
-      { error: 'Internal server error' },
+      {
+        error: 'Internal server error',
+        detail: error?.message || 'Unknown error',
+      },
       { status: 500 }
     );
   }
