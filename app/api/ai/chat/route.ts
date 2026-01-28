@@ -9,14 +9,21 @@ import { chatCompletionStream, parseSSEStream } from '@/lib/openrouter';
 import { getDiverseContext } from '@/lib/rag';
 import { buildChatMessages } from '@/lib/prompts';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 // Rate limiting
 const DAILY_MESSAGE_LIMIT = 20;
 
 export async function POST(request: NextRequest) {
   try {
+    if (!supabaseUrl || !supabaseKey) {
+      return NextResponse.json(
+        { error: 'Server misconfiguration: missing Supabase env vars' },
+        { status: 500 }
+      );
+    }
+
     const { message, conversationHistory = [] } = await request.json();
     
     if (!message || typeof message !== 'string') {

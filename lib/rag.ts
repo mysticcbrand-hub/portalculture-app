@@ -6,10 +6,10 @@
 import { createClient } from '@supabase/supabase-js';
 import { generateEmbedding } from './openrouter';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
 export interface KnowledgeChunk {
   id: string;
@@ -35,6 +35,11 @@ export async function searchKnowledge(
   } = options;
 
   try {
+    if (!supabase) {
+      console.warn('Supabase env vars missing, skipping RAG search');
+      return [];
+    }
+
     // Generate embedding for the query
     const queryEmbedding = await generateEmbedding(query);
     
