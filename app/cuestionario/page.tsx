@@ -589,7 +589,7 @@ export default function Cuestionario() {
                       setAgeValue(newAge)
                       updateField('edad', newAge.toString())
                     }}
-                    className="w-full h-2 appearance-none cursor-pointer slider-thumb"
+                    className="w-full h-2 appearance-none cursor-pointer age-slider"
                     style={{
                       background: 'transparent',
                       marginTop: '-20px',
@@ -625,48 +625,6 @@ export default function Cuestionario() {
                 </div>
               </div>
 
-              <style jsx>{`
-                .slider-thumb::-webkit-slider-thumb {
-                  appearance: none;
-                  width: 28px;
-                  height: 28px;
-                  border-radius: 50%;
-                  background: linear-gradient(135deg, #a855f7, #ec4899);
-                  cursor: pointer;
-                  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 4px 12px rgba(168, 85, 247, 0.4);
-                  transition: all 0.2s ease;
-                }
-                
-                .slider-thumb::-webkit-slider-thumb:hover {
-                  transform: scale(1.15);
-                  box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.3), 0 6px 16px rgba(168, 85, 247, 0.5);
-                }
-
-                .slider-thumb::-moz-range-thumb {
-                  width: 28px;
-                  height: 28px;
-                  border-radius: 50%;
-                  background: linear-gradient(135deg, #a855f7, #ec4899);
-                  cursor: pointer;
-                  border: none;
-                  box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.2), 0 4px 12px rgba(168, 85, 247, 0.4);
-                  transition: all 0.2s ease;
-                }
-
-                .slider-thumb::-moz-range-thumb:hover {
-                  transform: scale(1.15);
-                  box-shadow: 0 0 0 6px rgba(168, 85, 247, 0.3), 0 6px 16px rgba(168, 85, 247, 0.5);
-                }
-
-                @keyframes bounce-subtle {
-                  0%, 100% { transform: translateY(0); }
-                  50% { transform: translateY(-8px); }
-                }
-
-                .animate-bounce-subtle {
-                  animation: bounce-subtle 2s ease-in-out infinite;
-                }
-              `}</style>
             </div>
           )}
 
