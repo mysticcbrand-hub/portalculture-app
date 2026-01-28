@@ -136,11 +136,11 @@ export default function AICoach() {
       });
 
       if (!response.ok) {
+        const errorPayload = await response.json().catch(() => null);
         if (response.status === 429) {
-          const error = await response.json();
-          throw new Error(error.message || 'Rate limit exceeded');
+          throw new Error(errorPayload?.message || 'Rate limit exceeded');
         }
-        throw new Error('Failed to get response');
+        throw new Error(errorPayload?.detail || errorPayload?.error || 'Failed to get response');
       }
 
       // Handle streaming response
