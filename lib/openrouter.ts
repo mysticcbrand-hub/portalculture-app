@@ -35,7 +35,7 @@ export async function chatCompletion(
   messages: ChatMessage[],
   options: ChatCompletionOptions = {}
 ): Promise<string> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   
   if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY not found in environment variables');
@@ -95,7 +95,7 @@ export async function chatCompletionStream(
   messages: ChatMessage[],
   options: ChatCompletionOptions = {}
 ): Promise<ReadableStream> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   
   if (!apiKey) {
     throw new Error('OPENROUTER_API_KEY not found in environment variables');
@@ -199,7 +199,7 @@ export async function* parseSSEStream(stream: ReadableStream): AsyncGenerator<st
  * Returns null if embeddings are not available (graceful fallback)
  */
 export async function generateEmbedding(text: string): Promise<number[] | null> {
-  const apiKey = process.env.OPENROUTER_API_KEY;
+  const apiKey = process.env.OPENROUTER_API_KEY?.trim();
   
   if (!apiKey) {
     console.warn('OPENROUTER_API_KEY not found, skipping embeddings');
