@@ -398,15 +398,33 @@ export default function Cuestionario() {
 
   return (
     <main className="min-h-screen bg-black flex flex-col relative overflow-hidden">
-      {/* Background gradient */}
+      {/* Background gradient - Debanded */}
       <div className="fixed inset-0 -z-10">
         <div className="absolute inset-0" style={{
-          background: `radial-gradient(ellipse 80% 60% at 50% 45%, rgba(255,255,255,0.08) 0%, rgba(200,200,200,0.04) 30%, transparent 70%)`
+          background: `
+            radial-gradient(
+              ellipse 75% 60% at 50% 40%,
+              rgba(168, 85, 247, 0.08) 0%,
+              rgba(147, 51, 234, 0.05) 20%,
+              rgba(126, 34, 206, 0.03) 40%,
+              rgba(107, 33, 168, 0.018) 60%,
+              transparent 80%
+            ),
+            radial-gradient(
+              ellipse 70% 65% at 50% 60%,
+              rgba(236, 72, 153, 0.06) 0%,
+              rgba(219, 39, 119, 0.04) 25%,
+              rgba(190, 24, 93, 0.025) 50%,
+              rgba(157, 23, 77, 0.015) 75%,
+              transparent 100%
+            )
+          `
         }} />
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-          opacity: 0.05,
-          mixBlendMode: 'soft-light',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '180px 180px',
+          opacity: 0.025,
+          mixBlendMode: 'overlay',
         }} />
       </div>
 

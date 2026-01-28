@@ -35,55 +35,125 @@ export default function MeshGradient({
   }
   const mult = intensityMap[intensity]
 
-  // Color configurations for each variant
+  // Color configurations for each variant - OPTIMIZED with debanding
   const variantConfig = {
     default: {
-      orbs: [
-        { color: 'rgba(255, 255, 255, 0.08)', size: 900, x: '20%', y: '15%', blur: 150 },
-        { color: 'rgba(200, 200, 220, 0.06)', size: 700, x: '75%', y: '60%', blur: 120 },
-        { color: 'rgba(180, 180, 200, 0.05)', size: 600, x: '40%', y: '80%', blur: 100 },
-      ],
-      ambient: 'rgba(255, 255, 255, 0.03)',
+      gradient: `
+        radial-gradient(
+          ellipse 80% 60% at 25% 20%,
+          rgba(139, 92, 246, 0.06) 0%,
+          rgba(124, 58, 237, 0.04) 20%,
+          rgba(109, 40, 217, 0.025) 40%,
+          rgba(91, 33, 182, 0.015) 60%,
+          transparent 80%
+        ),
+        radial-gradient(
+          ellipse 75% 65% at 70% 60%,
+          rgba(59, 130, 246, 0.05) 0%,
+          rgba(37, 99, 235, 0.03) 25%,
+          rgba(29, 78, 216, 0.018) 50%,
+          rgba(30, 64, 175, 0.01) 75%,
+          transparent 100%
+        )
+      `,
+      ambient: 'rgba(100, 100, 140, 0.02)',
     },
     subtle: {
-      orbs: [
-        { color: 'rgba(255, 255, 255, 0.05)', size: 1000, x: '50%', y: '40%', blur: 180 },
-        { color: 'rgba(230, 230, 240, 0.04)', size: 600, x: '80%', y: '20%', blur: 140 },
-      ],
-      ambient: 'rgba(255, 255, 255, 0.02)',
+      gradient: `
+        radial-gradient(
+          ellipse 90% 70% at 50% 40%,
+          rgba(168, 85, 247, 0.04) 0%,
+          rgba(147, 51, 234, 0.025) 25%,
+          rgba(126, 34, 206, 0.015) 50%,
+          transparent 75%
+        )
+      `,
+      ambient: 'rgba(140, 100, 180, 0.015)',
     },
     warm: {
-      orbs: [
-        { color: 'rgba(255, 200, 150, 0.08)', size: 800, x: '25%', y: '20%', blur: 140 },
-        { color: 'rgba(255, 180, 120, 0.06)', size: 650, x: '70%', y: '65%', blur: 120 },
-        { color: 'rgba(255, 220, 180, 0.05)', size: 550, x: '45%', y: '85%', blur: 100 },
-      ],
-      ambient: 'rgba(255, 230, 200, 0.02)',
+      gradient: `
+        radial-gradient(
+          ellipse 75% 60% at 30% 25%,
+          rgba(217, 119, 6, 0.06) 0%,
+          rgba(194, 65, 12, 0.04) 25%,
+          rgba(154, 52, 18, 0.025) 50%,
+          transparent 75%
+        ),
+        radial-gradient(
+          ellipse 70% 65% at 70% 70%,
+          rgba(251, 146, 60, 0.05) 0%,
+          rgba(249, 115, 22, 0.03) 30%,
+          rgba(234, 88, 12, 0.018) 60%,
+          transparent 85%
+        )
+      `,
+      ambient: 'rgba(200, 150, 100, 0.02)',
     },
     cool: {
-      orbs: [
-        { color: 'rgba(100, 150, 255, 0.08)', size: 850, x: '30%', y: '25%', blur: 150 },
-        { color: 'rgba(80, 120, 220, 0.06)', size: 700, x: '75%', y: '55%', blur: 130 },
-        { color: 'rgba(120, 180, 255, 0.05)', size: 550, x: '20%', y: '75%', blur: 110 },
-      ],
-      ambient: 'rgba(150, 180, 255, 0.02)',
+      gradient: `
+        radial-gradient(
+          ellipse 80% 70% at 35% 30%,
+          rgba(59, 130, 246, 0.07) 0%,
+          rgba(37, 99, 235, 0.045) 25%,
+          rgba(29, 78, 216, 0.028) 50%,
+          transparent 75%
+        ),
+        radial-gradient(
+          ellipse 75% 65% at 70% 65%,
+          rgba(96, 165, 250, 0.05) 0%,
+          rgba(59, 130, 246, 0.03) 30%,
+          rgba(37, 99, 235, 0.018) 60%,
+          transparent 85%
+        )
+      `,
+      ambient: 'rgba(100, 150, 200, 0.02)',
     },
     aurora: {
-      orbs: [
-        { color: 'rgba(100, 200, 180, 0.10)', size: 900, x: '15%', y: '10%', blur: 160 },
-        { color: 'rgba(80, 150, 220, 0.08)', size: 750, x: '80%', y: '40%', blur: 140 },
-        { color: 'rgba(150, 100, 200, 0.07)', size: 650, x: '50%', y: '75%', blur: 120 },
-        { color: 'rgba(200, 150, 255, 0.05)', size: 500, x: '25%', y: '55%', blur: 100 },
-      ],
+      gradient: `
+        radial-gradient(
+          ellipse 85% 75% at 20% 15%,
+          rgba(167, 243, 208, 0.08) 0%,
+          rgba(110, 231, 183, 0.05) 20%,
+          rgba(52, 211, 153, 0.03) 40%,
+          rgba(16, 185, 129, 0.018) 60%,
+          transparent 80%
+        ),
+        radial-gradient(
+          ellipse 80% 70% at 75% 50%,
+          rgba(147, 197, 253, 0.06) 0%,
+          rgba(96, 165, 250, 0.04) 25%,
+          rgba(59, 130, 246, 0.025) 50%,
+          transparent 75%
+        ),
+        radial-gradient(
+          ellipse 70% 60% at 50% 80%,
+          rgba(196, 181, 253, 0.05) 0%,
+          rgba(167, 139, 250, 0.03) 30%,
+          rgba(139, 92, 246, 0.018) 60%,
+          transparent 85%
+        )
+      `,
       ambient: 'rgba(150, 200, 220, 0.02)',
     },
     midnight: {
-      orbs: [
-        { color: 'rgba(30, 60, 120, 0.15)', size: 1000, x: '50%', y: '30%', blur: 180 },
-        { color: 'rgba(50, 80, 150, 0.10)', size: 700, x: '20%', y: '70%', blur: 150 },
-        { color: 'rgba(40, 70, 140, 0.08)', size: 600, x: '80%', y: '60%', blur: 130 },
-      ],
-      ambient: 'rgba(30, 50, 100, 0.03)',
+      gradient: `
+        radial-gradient(
+          ellipse 90% 80% at 50% 35%,
+          rgba(30, 58, 138, 0.12) 0%,
+          rgba(30, 64, 175, 0.08) 20%,
+          rgba(37, 99, 235, 0.05) 40%,
+          rgba(59, 130, 246, 0.03) 60%,
+          transparent 80%
+        ),
+        radial-gradient(
+          ellipse 75% 65% at 25% 70%,
+          rgba(30, 64, 175, 0.08) 0%,
+          rgba(29, 78, 216, 0.05) 30%,
+          rgba(37, 99, 235, 0.03) 60%,
+          transparent 85%
+        )
+      `,
+      ambient: 'rgba(30, 50, 100, 0.025)',
     },
   }
 
@@ -107,6 +177,16 @@ export default function MeshGradient({
         }}
       />
       
+      {/* Layered CSS gradients - no blur, pure debanding */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: config.gradient,
+          opacity: mounted ? mult : 0,
+          transition: 'opacity 1.2s ease-out',
+        }}
+      />
+
       {/* Ambient glow layer */}
       <div 
         className="absolute inset-0 pointer-events-none"
@@ -119,41 +199,13 @@ export default function MeshGradient({
         }}
       />
 
-      {/* Animated gradient orbs */}
-      {mounted && config.orbs.map((orb, index) => (
-        <div
-          key={index}
-          className={`absolute rounded-full pointer-events-none ${
-            animated ? `animate-mesh-float-${(index % 4) + 1}` : ''
-          }`}
-          style={{
-            width: orb.size * mult,
-            height: orb.size * mult,
-            left: orb.x,
-            top: orb.y,
-            transform: 'translate(-50%, -50%)',
-            background: `radial-gradient(
-              circle at center,
-              ${orb.color} 0%,
-              ${orb.color.replace(/[\d.]+\)$/, `${parseFloat(orb.color.match(/[\d.]+\)$/)?.[0] || '0.1') * 0.7})`)} 25%,
-              ${orb.color.replace(/[\d.]+\)$/, `${parseFloat(orb.color.match(/[\d.]+\)$/)?.[0] || '0.1') * 0.4})`)} 50%,
-              ${orb.color.replace(/[\d.]+\)$/, `${parseFloat(orb.color.match(/[\d.]+\)$/)?.[0] || '0.1') * 0.15})`)} 75%,
-              transparent 100%
-            )`,
-            filter: `blur(${orb.blur}px)`,
-            opacity: mounted ? 1 : 0,
-            transition: 'opacity 1s ease-out',
-          }}
-        />
-      ))}
-
-      {/* Premium noise texture for anti-banding (SVG-based) - increased opacity */}
+      {/* Premium noise texture for anti-banding - OPTIMIZED */}
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
-          backgroundSize: '150px 150px',
-          opacity: 0.04,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '180px 180px',
+          opacity: 0.02,
           mixBlendMode: 'overlay',
         }}
       />
