@@ -13,14 +13,14 @@ export default function PageTransition() {
     
     const timeout = setTimeout(() => {
       setIsTransitioning(false)
-    }, 400) // 400ms fade duration
+    }, 500) // 500ms fade duration
 
     return () => clearTimeout(timeout)
   }, [pathname])
 
   return (
     <div
-      className={`fixed inset-0 bg-black pointer-events-none z-[9999] transition-opacity duration-400 ${
+      className={`fixed inset-0 bg-black pointer-events-none z-[9999] transition-opacity duration-500 ${
         isTransitioning ? 'opacity-100' : 'opacity-0'
       }`}
       style={{
