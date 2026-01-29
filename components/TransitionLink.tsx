@@ -22,7 +22,7 @@ export default function TransitionLink({ href, children, className, external = f
       const overlay = document.createElement('div')
       overlay.className = 'fixed inset-0 bg-black z-[9999] pointer-events-none'
       overlay.style.opacity = '0'
-      overlay.style.transition = 'opacity 500ms cubic-bezier(0.16, 1, 0.3, 1)'
+      overlay.style.transition = 'opacity 700ms cubic-bezier(0.16, 1, 0.3, 1)'
       document.body.appendChild(overlay)
       
       // Force reflow
@@ -32,7 +32,7 @@ export default function TransitionLink({ href, children, className, external = f
       // Navigate after fade completes
       setTimeout(() => {
         window.location.href = href
-      }, 500)
+      }, 700)
     }
     // For internal links, Next.js Link handles navigation
   }
