@@ -311,8 +311,15 @@ function HomePageContent() {
         {showForgotPassword ? (
           <div className="relative group animate-scale-in">
             {/* Premium card glow effect */}
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            <div className="absolute -inset-4 bg-gradient-radial from-white/5 via-transparent to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            {/* Debanded glow layers */}
+            <div 
+              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 30%, transparent 60%)`,
+                filter: 'blur(16px)',
+              }}
+            />
+            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
             <div className="relative bg-black/60 backdrop-blur-3xl border border-white/[0.08] rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]">
               {/* Top highlight line */}
@@ -361,8 +368,15 @@ function HomePageContent() {
           /* Main Auth Card */
           <div className="relative group animate-scale-in">
             {/* Premium multi-layer glow effect */}
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/15 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
-            <div className="absolute -inset-4 bg-gradient-radial from-white/5 via-transparent to-transparent blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            {/* Debanded glow layers */}
+            <div 
+              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 30%, transparent 60%)`,
+                filter: 'blur(16px)',
+              }}
+            />
+            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/15 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
             <div 
               className={`

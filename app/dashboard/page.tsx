@@ -125,7 +125,23 @@ export default function DashboardPage() {
             className="relative group block"
           >
             {/* Glow effect */}
-            <div className="absolute -inset-[1px] bg-gradient-to-r from-indigo-500/20 via-purple-500/20 to-pink-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-700 blur-xl" />
+            {/* Multi-layer glow for anti-banding */}
+            <div 
+              className="absolute -inset-[1px] rounded-3xl opacity-0 group-hover:opacity-100 transition-all duration-700 pointer-events-none"
+              style={{
+                background: `
+                  radial-gradient(
+                    ellipse 120% 100% at 50% 50%,
+                    rgba(99, 102, 241, 0.15) 0%,
+                    rgba(139, 92, 246, 0.12) 20%,
+                    rgba(168, 85, 247, 0.08) 40%,
+                    rgba(219, 39, 119, 0.05) 60%,
+                    transparent 80%
+                  )
+                `,
+                filter: 'blur(20px)',
+              }}
+            />
             
             <div className="relative bg-black/40 backdrop-blur-2xl border border-white/[0.06] rounded-3xl p-6 md:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-500 group-hover:border-white/[0.12] group-hover:bg-black/50">
               {/* Top highlight */}
@@ -172,9 +188,17 @@ export default function DashboardPage() {
                 <div className="absolute -inset-[1px] bg-gradient-to-b from-white/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
                 
                 <div className="relative bg-black/30 backdrop-blur-xl border border-white/[0.04] rounded-2xl p-5 md:p-6 transition-all duration-500 group-hover:border-white/[0.12] group-hover:bg-black/40">
-                  {/* Emoji with glow */}
+                  {/* Emoji with subtle glow */}
                   <div className="relative inline-block mb-4">
-                    <div className="absolute inset-0 blur-xl opacity-30 group-hover:opacity-50 transition-opacity">{course.emoji}</div>
+                    <div 
+                      className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{
+                        filter: 'blur(24px) brightness(1.5)',
+                        transform: 'scale(1.1)',
+                      }}
+                    >
+                      {course.emoji}
+                    </div>
                     <div className="text-4xl relative">{course.emoji}</div>
                   </div>
                   
