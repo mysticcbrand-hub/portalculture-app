@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { NotificationProvider } from "@/components/AppleNotification";
+import PageTransition from "@/components/PageTransition";
 
 export const metadata: Metadata = {
   title: "Portal Culture - Dashboard",
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased bg-black">
+        <PageTransition />
         <NotificationProvider>
           {children}
         </NotificationProvider>
