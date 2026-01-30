@@ -64,9 +64,10 @@ export async function middleware(request: NextRequest) {
   const isCuestionario = pathname === '/cuestionario'
   const isPendingPage = pathname === '/pendiente-aprobacion'
   const isResetPassword = pathname === '/reset-password'
+  const isConfirmEmail = pathname === '/confirm-email'
 
   // CASE 1: Not logged in trying to access protected routes → redirect to login
-  if (!user && (isDashboard || isAdminRoute || isSeleccionarAcceso || isCuestionario) && !isResetPassword) {
+  if (!user && (isDashboard || isAdminRoute || isSeleccionarAcceso || isCuestionario) && !isResetPassword && !isConfirmEmail) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
