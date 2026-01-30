@@ -15,20 +15,45 @@ export default function SeleccionarAcceso() {
 
   return (
     <main className="relative min-h-screen flex items-center justify-center px-5 py-16 overflow-hidden">
-      {/* Clean gradient background */}
-      <div className="fixed inset-0 bg-[#030303]">
-        {/* Subtle top light */}
+      {/* Premium debanded gradient background */}
+      <div className="fixed inset-0 bg-black">
+        {/* Multi-layer radial gradients for anti-banding */}
         <div 
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px]"
+          className="absolute inset-0"
           style={{
-            background: 'radial-gradient(ellipse at top, rgba(255,255,255,0.03) 0%, transparent 60%)',
+            background: `
+              radial-gradient(
+                ellipse 70% 50% at 50% 20%,
+                rgba(168, 85, 247, 0.08) 0%,
+                rgba(147, 51, 234, 0.05) 20%,
+                rgba(126, 34, 206, 0.03) 40%,
+                rgba(107, 33, 168, 0.018) 60%,
+                transparent 80%
+              ),
+              radial-gradient(
+                ellipse 80% 60% at 30% 70%,
+                rgba(236, 72, 153, 0.06) 0%,
+                rgba(219, 39, 119, 0.04) 25%,
+                rgba(190, 24, 93, 0.025) 50%,
+                rgba(157, 23, 77, 0.015) 75%,
+                transparent 100%
+              ),
+              radial-gradient(
+                ellipse 75% 55% at 70% 60%,
+                rgba(59, 130, 246, 0.05) 0%,
+                rgba(37, 99, 235, 0.03) 30%,
+                rgba(29, 78, 216, 0.018) 60%,
+                transparent 85%
+              )
+            `,
           }}
         />
-        {/* Subtle bottom accent */}
+        {/* Noise dithering for ultra-smooth transitions */}
         <div 
-          className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px]"
+          className="absolute inset-0 opacity-[0.025] mix-blend-overlay"
           style={{
-            background: 'radial-gradient(ellipse at bottom, rgba(255,255,255,0.015) 0%, transparent 50%)',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundSize: '180px 180px',
           }}
         />
       </div>
