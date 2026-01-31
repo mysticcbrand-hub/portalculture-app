@@ -152,31 +152,26 @@ export default function AdminWaitlistPage() {
         }
       }
 
-      // 3. Send notification email
-      await fetch('/api/send-invite', {
+      // 3. Llamar a la nueva API que maneja Mailerlite
+      const mailerliteResponse = await fetch('/api/admin/approve-user', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: entry.email,
-          name: entry.name,
-          type: 'approved' // User already has account, just notify them
+          userId: entry.id
         })
       })
 
-      // 4. Add to Mailerlite
-      await fetch('/api/mailerlite/add-subscriber', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: entry.email,
-          name: entry.name
-        })
-      })
+      const mailerliteData = await mailerliteResponse.json()
 
-      // 5. Reload entries
+      if (!mailerliteResponse.ok) {
+        console.error('Warning: Mailerlite error:', mailerliteData)
+        // No fallar por esto, continuar
+      }
+
+      // 4. Reload entries
       await loadEntries()
       
-      alert(`✅ ${entry.name} ha sido aprobado!\n\nYa puede acceder al dashboard.`)
+      alert(`✅ ${entry.name} ha sido aprobado!\n\n✉️ Email de bienvenida enviado automáticamente por Mailerlite.\n\nYa puede acceder al dashboard.`)
     } catch (error: any) {
       console.error('Error approving entry:', error)
       alert(`❌ Error: ${error.message}`)
@@ -186,20 +181,33 @@ export default function AdminWaitlistPage() {
   }
 
   const handleReject = async (entry: WaitlistEntry) => {
-    if (!confirm(`¿Rechazar la solicitud de ${entry.name}?`)) return
+    const reason = prompt(`¿Por qué rechazas a ${entry.name}? (Opcional - solo para tus registros internos)`)
+    
+    if (reason === null) return // User cancelled
     
     setProcessing(entry.id)
     
     try {
-      const { error } = await supabase
-        .from('waitlist')
-        .update({ status: 'rejected' })
-        .eq('id', entry.id)
+      // Llamar a la nueva API que maneja todo el flujo (DB + Mailerlite)
+      const response = await fetch('/api/admin/reject-user', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: entry.id,
+          reason: reason || 'No especificado'
+        })
+      })
 
-      if (error) throw error
+      const data = await response.json()
 
+      if (!response.ok) {
+        throw new Error(data.error || 'Error al rechazar usuario')
+      }
+
+      // Recargar lista
       await loadEntries()
-      alert(`${entry.name} ha sido rechazado`)
+      
+      alert(`❌ ${entry.name} ha sido rechazado.\n\n✉️ Email automático enviado por Mailerlite explicando la decisión.`)
     } catch (error: any) {
       console.error('Error rejecting entry:', error)
       alert(`Error: ${error.message}`)
