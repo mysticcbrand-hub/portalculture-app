@@ -130,11 +130,14 @@ export default function SeleccionarAcceso() {
               </ul>
 
               {/* Button */}
-              <button
-                className="w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl transition-all duration-200 hover:bg-white/90"
+              <a
+                href="https://whop.com/portalculture/acceso-inmediato"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-3.5 bg-white text-black text-sm font-semibold rounded-xl transition-all duration-200 hover:bg-white/90 text-center"
               >
                 Acceder ahora →
-              </button>
+              </a>
             </div>
           </div>
 
