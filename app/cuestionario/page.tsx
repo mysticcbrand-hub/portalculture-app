@@ -134,8 +134,17 @@ export default function Cuestionario() {
   })
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const [ageValue, setAgeValue] = useState<number>(25) // Default to 25
+  const [showNotification, setShowNotification] = useState(true) // NUEVA: Notificación Apple
 
   const totalSteps = 9 // Aumentado de 6 a 9
+
+  // Auto-hide notification after 5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowNotification(false)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Check if user is authenticated and their status
   useEffect(() => {
@@ -474,34 +483,104 @@ export default function Cuestionario() {
 
   return (
     <main className="min-h-screen bg-black flex flex-col relative overflow-hidden">
-      {/* Background gradient - Debanded */}
+      {/* Background gradient mesh - Premium sin banding */}
       <div className="fixed inset-0 -z-10">
+        {/* Multi-layer gradient mesh */}
         <div className="absolute inset-0" style={{
           background: `
-            radial-gradient(
-              ellipse 75% 60% at 50% 40%,
-              rgba(168, 85, 247, 0.08) 0%,
-              rgba(147, 51, 234, 0.05) 20%,
-              rgba(126, 34, 206, 0.03) 40%,
-              rgba(107, 33, 168, 0.018) 60%,
-              transparent 80%
-            ),
-            radial-gradient(
-              ellipse 70% 65% at 50% 60%,
-              rgba(236, 72, 153, 0.06) 0%,
-              rgba(219, 39, 119, 0.04) 25%,
-              rgba(190, 24, 93, 0.025) 50%,
-              rgba(157, 23, 77, 0.015) 75%,
-              transparent 100%
-            )
+            radial-gradient(circle at 20% 30%, rgba(255, 200, 87, 0.12) 0%, transparent 35%),
+            radial-gradient(circle at 80% 20%, rgba(255, 150, 50, 0.10) 0%, transparent 40%),
+            radial-gradient(circle at 40% 70%, rgba(255, 180, 70, 0.08) 0%, transparent 45%),
+            radial-gradient(circle at 90% 80%, rgba(255, 140, 40, 0.09) 0%, transparent 38%),
+            radial-gradient(ellipse 120% 80% at 50% 50%, rgba(255, 165, 60, 0.06) 0%, rgba(255, 130, 50, 0.04) 25%, rgba(200, 100, 30, 0.02) 50%, transparent 75%),
+            #000000
           `
         }} />
+        
+        {/* Animated subtle glow orbs */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div 
+            className="absolute top-[20%] left-[15%] w-[500px] h-[500px] rounded-full opacity-[0.15]"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 200, 87, 0.4) 0%, transparent 70%)',
+              filter: 'blur(80px)',
+              animation: 'float 20s ease-in-out infinite',
+            }}
+          />
+          <div 
+            className="absolute top-[60%] right-[20%] w-[400px] h-[400px] rounded-full opacity-[0.12]"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 150, 50, 0.4) 0%, transparent 70%)',
+              filter: 'blur(70px)',
+              animation: 'float 25s ease-in-out infinite reverse',
+            }}
+          />
+          <div 
+            className="absolute top-[40%] left-[60%] w-[350px] h-[350px] rounded-full opacity-[0.10]"
+            style={{
+              background: 'radial-gradient(circle, rgba(255, 180, 70, 0.4) 0%, transparent 70%)',
+              filter: 'blur(90px)',
+              animation: 'float 30s ease-in-out infinite',
+              animationDelay: '-5s',
+            }}
+          />
+        </div>
+        
+        {/* Fine grain texture */}
         <div className="absolute inset-0" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '180px 180px',
-          opacity: 0.025,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E")`,
+          backgroundSize: '150px 150px',
+          opacity: 0.03,
           mixBlendMode: 'overlay',
         }} />
+      </div>
+
+      {/* Notificación estilo Apple - "< 5 minutos" */}
+      <div 
+        className={`fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out ${
+          showNotification ? 'translate-y-0 opacity-100' : '-translate-y-full opacity-0'
+        }`}
+      >
+        <div 
+          className="relative px-6 py-3.5 rounded-2xl shadow-2xl max-w-sm"
+          style={{
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.08) 100%)',
+            backdropFilter: 'blur(30px) saturate(180%)',
+            border: '1px solid rgba(255,255,255,0.25)',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(255, 200, 87, 0.2)',
+          }}
+        >
+          {/* Close button */}
+          <button
+            onClick={() => setShowNotification(false)}
+            className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-white/20 hover:bg-white/30 backdrop-blur-xl border border-white/30 flex items-center justify-center transition-all duration-200"
+          >
+            <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+          
+          <div className="flex items-center gap-3">
+            {/* Icon */}
+            <div 
+              className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{
+                background: 'linear-gradient(135deg, rgba(255, 200, 87, 0.3) 0%, rgba(255, 150, 50, 0.3) 100%)',
+                boxShadow: '0 0 20px rgba(255, 180, 70, 0.4)',
+              }}
+            >
+              <svg className="w-5 h-5 text-yellow-200" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            
+            {/* Text */}
+            <div className="flex-1">
+              <p className="text-white font-semibold text-sm">Menos de 5 minutos</p>
+              <p className="text-white/70 text-xs">Este cuestionario es rápido y sencillo</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Header with progress */}
@@ -551,7 +630,7 @@ export default function Cuestionario() {
                     value={formData.nombre}
                     onChange={(e) => updateField('nombre', e.target.value)}
                     placeholder="Tu nombre"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07]"
                   />
                 </div>
                 <div>
@@ -561,7 +640,7 @@ export default function Cuestionario() {
                     value={formData.email}
                     onChange={(e) => updateField('email', e.target.value)}
                     placeholder="tu@email.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15"
+                    className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07]"
                   />
                 </div>
                 <div>
@@ -620,7 +699,7 @@ export default function Cuestionario() {
                         updateField('telefono', formatted)
                       }}
                       placeholder={getPhonePlaceholder(formData.codigoPais)}
-                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 tracking-wide"
+                      className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07] tracking-wide"
                     />
                   </div>
                 </div>
@@ -642,14 +721,22 @@ export default function Cuestionario() {
               <div className="flex flex-col items-center gap-6">
                 {/* Age display with emoji */}
                 <div className="relative">
-                  <div className="text-8xl md:text-9xl font-bold text-white flex items-center gap-4">
+                  {/* Glow effect backdrop */}
+                  <div 
+                    className="absolute inset-0 -m-8 rounded-full opacity-40 blur-3xl transition-all duration-500"
+                    style={{
+                      background: `radial-gradient(circle, rgba(255, ${170 + ageValue}, 50, ${0.3 + (ageValue / 100)}) 0%, transparent 70%)`,
+                    }}
+                  />
+                  
+                  <div className="text-8xl md:text-9xl font-bold text-white flex items-center gap-4 relative">
                     <span className="text-6xl md:text-7xl animate-bounce-subtle">
                       {getAgeEmoji(ageValue)}
                     </span>
                     <span 
-                      className="bg-gradient-to-br from-purple-400 via-pink-400 to-purple-600 bg-clip-text text-transparent"
+                      className="bg-gradient-to-br from-yellow-300 via-orange-400 to-amber-500 bg-clip-text text-transparent transition-all duration-300"
                       style={{
-                        filter: 'drop-shadow(0 0 20px rgba(168, 85, 247, 0.3))',
+                        filter: `drop-shadow(0 0 ${15 + ageValue * 0.3}px rgba(255, 180, 70, ${0.4 + (ageValue / 100)}))`,
                       }}
                     >
                       {ageValue}
@@ -661,34 +748,54 @@ export default function Cuestionario() {
                 {/* Custom slider */}
                 <div className="w-full max-w-md space-y-4">
                   {/* Slider track */}
-                  <div className="relative h-3 bg-white/5 rounded-full overflow-hidden">
-                    {/* Progress fill */}
+                  <div className="relative">
                     <div 
-                      className="absolute left-0 top-0 h-full bg-gradient-to-r from-purple-500 via-pink-500 to-purple-600 transition-all duration-300 rounded-full"
-                      style={{ 
-                        width: `${((ageValue - 10) / 40) * 100}%`,
-                        boxShadow: '0 0 20px rgba(168, 85, 247, 0.5)',
+                      className="relative h-3 rounded-full overflow-hidden group"
+                      style={{
+                        background: 'rgba(255,255,255,0.05)',
+                        backdropFilter: 'blur(10px)',
+                        border: '1px solid rgba(255,255,255,0.08)',
                       }}
-                    />
-                  </div>
+                    >
+                      {/* Progress fill con hover glow */}
+                      <div 
+                        className="absolute left-0 top-0 h-full rounded-full transition-all duration-300"
+                        style={{ 
+                          width: `${((ageValue - 10) / 40) * 100}%`,
+                          background: 'linear-gradient(90deg, rgba(255, 200, 87, 0.9) 0%, rgba(255, 150, 50, 0.9) 50%, rgba(255, 120, 40, 0.9) 100%)',
+                          boxShadow: `0 0 25px rgba(255, 180, 70, ${0.4 + (ageValue / 80)}), 0 0 40px rgba(255, 140, 40, ${0.2 + (ageValue / 100)})`,
+                        }}
+                      />
+                    </div>
 
-                  {/* Actual input slider */}
-                  <input
-                    type="range"
-                    min="10"
-                    max="50"
-                    value={ageValue}
-                    onChange={(e) => {
-                      const newAge = parseInt(e.target.value)
-                      setAgeValue(newAge)
-                      updateField('edad', newAge.toString())
-                    }}
-                    className="w-full h-2 appearance-none cursor-pointer age-slider"
-                    style={{
-                      background: 'transparent',
-                      marginTop: '-20px',
-                    }}
-                  />
+                    {/* Actual input slider - invisible para interacción */}
+                    <input
+                      type="range"
+                      min="10"
+                      max="50"
+                      value={ageValue}
+                      onChange={(e) => {
+                        const newAge = parseInt(e.target.value)
+                        setAgeValue(newAge)
+                        updateField('edad', newAge.toString())
+                      }}
+                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    />
+                    
+                    {/* Thumb glassmorphism con hover effect */}
+                    <div 
+                      className="absolute top-1/2 -translate-y-1/2 w-7 h-7 rounded-full pointer-events-none transition-all duration-300"
+                      style={{
+                        left: `calc(${((ageValue - 10) / 40) * 100}% - 14px)`,
+                        background: 'linear-gradient(135deg, rgba(255, 220, 120, 0.95) 0%, rgba(255, 180, 80, 0.95) 100%)',
+                        backdropFilter: 'blur(10px)',
+                        border: '2px solid rgba(255, 200, 100, 0.4)',
+                        boxShadow: `0 4px 16px rgba(0,0,0,0.3), 0 0 30px rgba(255, 180, 70, ${0.5 + (ageValue / 60)})`,
+                      }}
+                    >
+                      <div className="absolute inset-1.5 bg-gradient-to-br from-yellow-200 to-orange-300 rounded-full" />
+                    </div>
+                  </div>
 
                   {/* Min/Max labels */}
                   <div className="flex justify-between text-sm text-white/40 px-1">
@@ -813,10 +920,10 @@ export default function Cuestionario() {
                   <button
                     key={option.id}
                     onClick={() => updateField('descripcion', option.id)}
-                    className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-200 flex items-start gap-4 ${
+                    className={`w-full text-left px-5 py-4 rounded-xl border transition-all duration-200 flex items-start gap-4 hover:scale-[1.01] active:scale-[0.99] ${
                       formData.descripcion === option.id
-                        ? 'bg-white/15 border-white/30 text-white'
-                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/8 hover:border-white/15'
+                        ? 'bg-white/15 border-white/30 text-white shadow-lg shadow-white/5'
+                        : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/[0.08] hover:border-white/20'
                     }`}
                   >
                     <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
@@ -849,7 +956,7 @@ export default function Cuestionario() {
                   onChange={(e) => updateField('intentosCambio', e.target.value)}
                   placeholder="Ej: Intenté ir al gym 3 veces por semana pero solo aguanté 2 semanas. También probé meditación..."
                   rows={6}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07] resize-none"
                 />
                 <p className="text-white/30 text-xs mt-2 text-right">
                   {formData.intentosCambio.length} caracteres
@@ -923,29 +1030,50 @@ export default function Cuestionario() {
                 {/* Display de horas con glassmorphism premium */}
                 <div className="relative">
                   <div 
-                    className="relative overflow-hidden rounded-3xl p-8 md:p-12"
+                    className="relative overflow-hidden rounded-3xl p-8 md:p-12 group hover:scale-[1.02] transition-all duration-500"
                     style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                      backdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255,255,255,0.18)',
-                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
+                      background: 'linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.06) 100%)',
+                      backdropFilter: 'blur(30px) saturate(180%)',
+                      border: '1px solid rgba(255, 200, 100, 0.25)',
+                      boxShadow: `0 8px 32px 0 rgba(0, 0, 0, 0.4), 0 4px 20px rgba(255, 180, 70, ${0.15 + (formData.horasSemanales / 40)})`,
                     }}
                   >
-                    {/* Glow effect */}
+                    {/* Animated glow effect que crece con las horas */}
                     <div 
-                      className="absolute inset-0 opacity-30"
+                      className="absolute inset-0 opacity-40 transition-all duration-500"
                       style={{
-                        background: `radial-gradient(circle at 50% 50%, rgba(168, 85, 247, ${0.1 + formData.horasSemanales * 0.05}), transparent 70%)`,
+                        background: `radial-gradient(circle at 50% 50%, rgba(255, ${180 + formData.horasSemanales * 3}, 50, ${0.15 + formData.horasSemanales * 0.02}), transparent 70%)`,
+                        filter: 'blur(40px)',
                       }}
                     />
+                    
+                    {/* Animated particles effect */}
+                    <div className="absolute inset-0 overflow-hidden opacity-20">
+                      <div 
+                        className="absolute top-1/4 left-1/4 w-32 h-32 rounded-full"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(255, 200, 87, 0.6) 0%, transparent 70%)',
+                          filter: 'blur(30px)',
+                          animation: 'float 8s ease-in-out infinite',
+                        }}
+                      />
+                      <div 
+                        className="absolute bottom-1/4 right-1/4 w-24 h-24 rounded-full"
+                        style={{
+                          background: 'radial-gradient(circle, rgba(255, 150, 50, 0.6) 0%, transparent 70%)',
+                          filter: 'blur(25px)',
+                          animation: 'float 10s ease-in-out infinite reverse',
+                        }}
+                      />
+                    </div>
                     
                     {/* Content */}
                     <div className="relative text-center space-y-4">
                       <div className="flex items-baseline justify-center gap-3">
                         <span 
-                          className="text-7xl md:text-8xl font-bold bg-gradient-to-br from-white via-purple-200 to-pink-200 bg-clip-text text-transparent transition-all duration-300"
+                          className="text-7xl md:text-8xl font-bold bg-gradient-to-br from-yellow-200 via-orange-300 to-amber-400 bg-clip-text text-transparent transition-all duration-500"
                           style={{
-                            filter: `drop-shadow(0 0 ${10 + formData.horasSemanales * 2}px rgba(168, 85, 247, 0.5))`,
+                            filter: `drop-shadow(0 0 ${20 + formData.horasSemanales * 2}px rgba(255, 180, 70, ${0.5 + (formData.horasSemanales / 30)}))`,
                           }}
                         >
                           {formData.horasSemanales}
@@ -964,20 +1092,20 @@ export default function Cuestionario() {
                   <div className="relative">
                     {/* Track */}
                     <div 
-                      className="relative h-4 rounded-full overflow-hidden"
+                      className="relative h-4 rounded-full overflow-hidden group"
                       style={{
                         background: 'rgba(255,255,255,0.05)',
                         backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255,255,255,0.1)',
+                        border: '1px solid rgba(255, 200, 100, 0.15)',
                       }}
                     >
-                      {/* Fill */}
+                      {/* Fill con efecto glow progresivo */}
                       <div 
-                        className="absolute left-0 top-0 h-full rounded-full transition-all duration-300"
+                        className="absolute left-0 top-0 h-full rounded-full transition-all duration-300 group-hover:brightness-110"
                         style={{
-                          width: `${(formData.horasSemanales / 30) * 100}%`,
-                          background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.8) 0%, rgba(236, 72, 153, 0.8) 100%)',
-                          boxShadow: `0 0 20px rgba(168, 85, 247, ${0.3 + formData.horasSemanales * 0.02})`,
+                          width: `${(formData.horasSemanales / 20) * 100}%`,
+                          background: 'linear-gradient(90deg, rgba(255, 200, 87, 0.95) 0%, rgba(255, 150, 50, 0.95) 50%, rgba(255, 120, 40, 0.95) 100%)',
+                          boxShadow: `0 0 30px rgba(255, 180, 70, ${0.4 + (formData.horasSemanales / 30)}), 0 0 50px rgba(255, 140, 40, ${0.2 + (formData.horasSemanales / 40)})`,
                         }}
                       />
                     </div>
@@ -986,42 +1114,55 @@ export default function Cuestionario() {
                     <input
                       type="range"
                       min="1"
-                      max="30"
+                      max="20"
                       value={formData.horasSemanales}
                       onChange={(e) => updateField('horasSemanales', parseInt(e.target.value))}
                       className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
                     />
                     
-                    {/* Thumb glassmorphism */}
+                    {/* Thumb glassmorphism mejorado */}
                     <div 
-                      className="absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full pointer-events-none transition-all duration-300"
+                      className="absolute top-1/2 -translate-y-1/2 w-9 h-9 rounded-full pointer-events-none transition-all duration-300 hover:scale-110"
                       style={{
-                        left: `calc(${(formData.horasSemanales / 30) * 100}% - 16px)`,
-                        background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        border: '2px solid rgba(255,255,255,0.3)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 0 20px rgba(168, 85, 247, 0.4)',
+                        left: `calc(${(formData.horasSemanales / 20) * 100}% - 18px)`,
+                        background: 'linear-gradient(135deg, rgba(255, 220, 120, 0.98) 0%, rgba(255, 180, 80, 0.98) 100%)',
+                        backdropFilter: 'blur(15px)',
+                        border: '2.5px solid rgba(255, 200, 100, 0.5)',
+                        boxShadow: `0 4px 20px rgba(0,0,0,0.4), 0 0 35px rgba(255, 180, 70, ${0.6 + (formData.horasSemanales / 30)})`,
                       }}
                     >
-                      <div className="absolute inset-2 bg-white rounded-full" />
+                      <div className="absolute inset-2 bg-gradient-to-br from-yellow-200 to-orange-300 rounded-full" />
+                      {/* Animated pulse ring */}
+                      <div 
+                        className="absolute inset-0 rounded-full animate-ping opacity-30"
+                        style={{
+                          background: 'rgba(255, 180, 70, 0.5)',
+                          animationDuration: '2s',
+                        }}
+                      />
                     </div>
                   </div>
 
                   {/* Helper markers */}
                   <div className="flex justify-between px-1 text-xs text-white/30">
                     <span>1h</span>
-                    <span>10h</span>
+                    <span>7h</span>
+                    <span>14h</span>
                     <span>20h</span>
-                    <span>30h+</span>
                   </div>
 
-                  {/* Dynamic feedback */}
+                  {/* Dynamic feedback mejorado */}
                   <div className="text-center">
-                    <p className="text-sm text-white/60">
+                    <p className="text-sm font-medium transition-all duration-300" style={{
+                      color: formData.horasSemanales < 5 ? 'rgba(239, 68, 68, 0.8)' : 
+                             formData.horasSemanales < 10 ? 'rgba(34, 197, 94, 0.8)' :
+                             formData.horasSemanales < 15 ? 'rgba(249, 115, 22, 0.9)' :
+                             'rgba(255, 200, 87, 1)',
+                    }}>
                       {formData.horasSemanales < 5 && '⚠️ Mínimo recomendado para ver resultados'}
                       {formData.horasSemanales >= 5 && formData.horasSemanales < 10 && '✓ Suficiente para empezar con buen ritmo'}
-                      {formData.horasSemanales >= 10 && formData.horasSemanales < 20 && '🔥 Excelente compromiso. Verás cambios rápidos'}
-                      {formData.horasSemanales >= 20 && '⚡ Nivel élite. Transformación garantizada'}
+                      {formData.horasSemanales >= 10 && formData.horasSemanales < 15 && '🔥 Excelente compromiso. Verás cambios rápidos'}
+                      {formData.horasSemanales >= 15 && '⚡ Nivel élite. Transformación garantizada'}
                     </p>
                   </div>
                 </div>
@@ -1045,7 +1186,7 @@ export default function Cuestionario() {
                   onChange={(e) => updateField('aportacion', e.target.value)}
                   placeholder="Ej: Llevo 2 años entrenando y puedo ayudar con rutinas. También soy bueno con finanzas personales..."
                   rows={6}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07] resize-none"
                 />
                 <p className="text-white/30 text-xs mt-2 text-right">
                   {formData.aportacion.length} caracteres
@@ -1070,7 +1211,7 @@ export default function Cuestionario() {
                   onChange={(e) => updateField('porqueEntrar', e.target.value)}
                   placeholder="Escribe aquí por qué deberíamos elegirte..."
                   rows={6}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 resize-none"
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none transition-all duration-200 hover:border-white/15 hover:bg-white/[0.07] resize-none"
                 />
                 <p className="text-white/30 text-xs mt-2 text-right">
                   {formData.porqueEntrar.length} caracteres (mín. 50)
@@ -1090,7 +1231,7 @@ export default function Cuestionario() {
             disabled={!canProceed() || isSubmitting}
             className={`w-full py-4 rounded-xl font-medium transition-all duration-200 ${
               canProceed() && !isSubmitting
-                ? 'bg-white text-black hover:bg-white/90'
+                ? 'bg-gradient-to-r from-yellow-200 via-orange-300 to-amber-400 text-black hover:shadow-xl hover:shadow-orange-400/20 hover:scale-[1.02] active:scale-[0.98]'
                 : 'bg-white/10 text-white/30 cursor-not-allowed'
             }`}
           >
@@ -1117,24 +1258,55 @@ export default function Cuestionario() {
           animation: fadeIn 0.3s ease-out forwards;
         }
         
-        /* Custom slider thumb */
-        .slider-thumb::-webkit-slider-thumb {
-          appearance: none;
-          width: 24px;
-          height: 24px;
-          background: white;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        @keyframes float {
+          0%, 100% {
+            transform: translate(0, 0) scale(1);
+          }
+          25% {
+            transform: translate(10px, -10px) scale(1.05);
+          }
+          50% {
+            transform: translate(-5px, 10px) scale(0.95);
+          }
+          75% {
+            transform: translate(-10px, -5px) scale(1.02);
+          }
         }
-        .slider-thumb::-moz-range-thumb {
-          width: 24px;
-          height: 24px;
-          background: white;
-          border-radius: 50%;
-          cursor: pointer;
-          border: none;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        
+        @keyframes bounce-subtle {
+          0%, 100% {
+            transform: translateY(0);
+          }
+          50% {
+            transform: translateY(-5px);
+          }
+        }
+        .animate-bounce-subtle {
+          animation: bounce-subtle 3s ease-in-out infinite;
+        }
+        
+        /* Hover effects para inputs */
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="tel"]:focus,
+        textarea:focus {
+          border-color: rgba(255, 200, 100, 0.3) !important;
+          box-shadow: 0 0 0 3px rgba(255, 180, 70, 0.1), 0 0 20px rgba(255, 180, 70, 0.15) !important;
+        }
+        
+        /* Smooth transitions para todos los elementos interactivos */
+        button, input, textarea {
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        button:active {
+          transform: scale(0.98);
+        }
+        
+        /* Glassmorphism hover effect */
+        .glass-hover:hover {
+          backdrop-filter: blur(40px) saturate(200%) !important;
+          border-color: rgba(255, 200, 100, 0.3) !important;
         }
       `}</style>
     </main>
