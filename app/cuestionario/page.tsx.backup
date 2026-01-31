@@ -205,7 +205,7 @@ export default function Cuestionario() {
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         const rawPhone = getRawPhoneNumber(formData.telefono)
         const country = countryCodes.find(c => c.code === formData.codigoPais)
-        const minPhoneLength = country ? Math.floor(country.maxLength * 0.7) : 6
+        const minPhoneLength = country ? Math.floor(country.maxLength * 0.7) : 6 // At least 70% of expected length
         return formData.nombre.trim() && emailValid && rawPhone.length >= minPhoneLength
       case 2:
         return formData.edad !== ''
@@ -214,15 +214,9 @@ export default function Cuestionario() {
       case 4:
         return formData.descripcion !== ''
       case 5:
-        return formData.intentosCambio.trim().length >= 20 // NUEVA validación
-      case 6:
         return formData.frenos.length > 0
-      case 7:
-        return true // Slider always has value (horasSemanales)
-      case 8:
-        return formData.aportacion.trim().length >= 20 // NUEVA validación
-      case 9:
-        return formData.porqueEntrar.trim().length >= 50 // ACTUALIZADA (era 20, ahora 50)
+      case 6:
+        return formData.porqueEntrar.trim().length >= 20
       default:
         return false
     }
@@ -262,9 +256,6 @@ export default function Cuestionario() {
             vidaActual: formData.vidaActual,
             descripcion: formData.descripcion,
             frenos: formData.frenos,
-            intentosCambio: formData.intentosCambio, // NUEVA
-            horasSemanales: formData.horasSemanales, // NUEVA
-            aportacion: formData.aportacion, // NUEVA
             porqueEntrar: formData.porqueEntrar,
           }
         })
@@ -327,41 +318,31 @@ export default function Cuestionario() {
     )
   }
 
-  // Completion screen - NUEVA PANTALLA con mensaje de Anxo
+  // Completion screen
   if (isComplete) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
-        {/* Background gradient premium */}
+        {/* Background */}
         <div className="fixed inset-0 -z-10">
           <div className="absolute inset-0" style={{
-            background: `
-              radial-gradient(ellipse 75% 60% at 50% 40%, rgba(168, 85, 247, 0.12) 0%, rgba(147, 51, 234, 0.08) 20%, transparent 60%),
-              radial-gradient(ellipse 70% 65% at 50% 60%, rgba(236, 72, 153, 0.08) 0%, rgba(219, 39, 119, 0.05) 25%, transparent 70%)
-            `
+            background: `radial-gradient(ellipse 80% 60% at 50% 45%, rgba(255,255,255,0.08) 0%, rgba(200,200,200,0.04) 30%, transparent 70%)`
           }} />
           <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '180px 180px',
-            opacity: 0.025,
-            mixBlendMode: 'overlay',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            opacity: 0.05,
+            mixBlendMode: 'soft-light',
           }} />
         </div>
 
-        <div className="max-w-2xl mx-auto text-center animate-fadeIn space-y-8">
-          {/* Animated checkmark premium */}
-          <div className="w-24 h-24 mx-auto mb-8 relative">
-            <div 
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                filter: 'blur(20px)',
-              }}
-            />
+        <div className="text-center animate-fadeIn">
+          {/* Animated checkmark */}
+          <div className="w-20 h-20 mx-auto mb-8 relative">
             <svg 
-              className="w-24 h-24 text-white relative z-10"
+              className="w-20 h-20 text-white animate-checkmark"
               viewBox="0 0 52 52"
             >
               <circle 
+                className="animate-circle"
                 cx="26" cy="26" r="24" 
                 fill="none" 
                 stroke="currentColor" 
@@ -390,67 +371,16 @@ export default function Cuestionario() {
             </svg>
           </div>
 
-          {/* Título premium */}
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-            Gracias por tu tiempo
-            <br />
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-              y honestidad
-            </span>
+          <h1 className="text-2xl md:text-3xl font-semibold text-white mb-3">
+            Solicitud enviada
           </h1>
+          <p className="text-white/50 text-sm md:text-base max-w-sm mx-auto mb-8">
+            Revisaremos tu perfil y te contactaremos pronto
+          </p>
 
-          {/* Mensaje de Anxo */}
-          <div 
-            className="relative max-w-xl mx-auto p-8 md:p-10 rounded-2xl text-left"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-            }}
-          >
-            <div className="space-y-4 text-white/80 leading-relaxed">
-              <p>
-                Revisaremos tu solicitud en los próximos días y te contactaremos por email.
-              </p>
-              
-              <div className="space-y-2">
-                <p className="font-semibold text-white">
-                  <span className="text-green-400">✓</span> Si entras:
-                </p>
-                <p className="pl-6">
-                  Te enviaremos los pasos siguientes.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <p className="font-semibold text-white">
-                  <span className="text-red-400">✗</span> Si no:
-                </p>
-                <p className="pl-6">
-                  Te explicaremos por qué y cuándo puedes volver a aplicar.
-                </p>
-              </div>
-
-              <div className="pt-4 mt-6 border-t border-white/10">
-                <p className="text-white/60 italic">
-                  Portal Culture no es para todos.
-                  <br />
-                  Y eso está bien.
-                </p>
-              </div>
-
-              {/* Firma */}
-              <div className="pt-4">
-                <p className="text-white font-semibold">— Anxo</p>
-              </div>
-            </div>
-          </div>
-
-          {/* CTA */}
           <button
             onClick={() => router.push('/')}
-            className="mt-8 px-6 py-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-white text-sm font-medium transition-all duration-200"
+            className="text-white/40 text-sm hover:text-white/60 transition-colors"
           >
             Volver al inicio
           </button>
@@ -903,177 +833,26 @@ export default function Cuestionario() {
             </div>
           )}
 
-          {/* Step 7: NUEVA - Horas semanales con slider glassmorphism */}
-          {step === 7 && (
-            <div className="animate-fadeIn space-y-8">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  ¿Cuántas horas a la semana puedes dedicar realmente a mejorar?
-                </h2>
-                <p className="text-white/40 text-sm leading-relaxed">
-                  Siendo 100% honesto: ¿cuántas horas A LA SEMANA puedes dedicar a:<br/>
-                  • Ver los cursos<br/>
-                  • Participar en llamadas<br/>
-                  • Aportar valor a la comunidad<br/>
-                  • Aplicar lo que aprendes
-                </p>
-              </div>
-
-              <div className="space-y-8">
-                {/* Display de horas con glassmorphism premium */}
-                <div className="relative">
-                  <div 
-                    className="relative overflow-hidden rounded-3xl p-8 md:p-12"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-                      backdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255,255,255,0.18)',
-                      boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-                    }}
-                  >
-                    {/* Glow effect */}
-                    <div 
-                      className="absolute inset-0 opacity-30"
-                      style={{
-                        background: `radial-gradient(circle at 50% 50%, rgba(168, 85, 247, ${0.1 + formData.horasSemanales * 0.05}), transparent 70%)`,
-                      }}
-                    />
-                    
-                    {/* Content */}
-                    <div className="relative text-center space-y-4">
-                      <div className="flex items-baseline justify-center gap-3">
-                        <span 
-                          className="text-7xl md:text-8xl font-bold bg-gradient-to-br from-white via-purple-200 to-pink-200 bg-clip-text text-transparent transition-all duration-300"
-                          style={{
-                            filter: `drop-shadow(0 0 ${10 + formData.horasSemanales * 2}px rgba(168, 85, 247, 0.5))`,
-                          }}
-                        >
-                          {formData.horasSemanales}
-                        </span>
-                        <span className="text-2xl md:text-3xl text-white/60 font-light">
-                          {formData.horasSemanales === 1 ? 'hora' : 'horas'}
-                        </span>
-                      </div>
-                      <p className="text-white/50 text-sm">por semana</p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Slider glassmorphism */}
-                <div className="space-y-4">
-                  <div className="relative">
-                    {/* Track */}
-                    <div 
-                      className="relative h-4 rounded-full overflow-hidden"
-                      style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        backdropFilter: 'blur(10px)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                      }}
-                    >
-                      {/* Fill */}
-                      <div 
-                        className="absolute left-0 top-0 h-full rounded-full transition-all duration-300"
-                        style={{
-                          width: `${(formData.horasSemanales / 30) * 100}%`,
-                          background: 'linear-gradient(90deg, rgba(168, 85, 247, 0.8) 0%, rgba(236, 72, 153, 0.8) 100%)',
-                          boxShadow: `0 0 20px rgba(168, 85, 247, ${0.3 + formData.horasSemanales * 0.02})`,
-                        }}
-                      />
-                    </div>
-
-                    {/* Input range */}
-                    <input
-                      type="range"
-                      min="1"
-                      max="30"
-                      value={formData.horasSemanales}
-                      onChange={(e) => updateField('horasSemanales', parseInt(e.target.value))}
-                      className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                    />
-                    
-                    {/* Thumb glassmorphism */}
-                    <div 
-                      className="absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded-full pointer-events-none transition-all duration-300"
-                      style={{
-                        left: `calc(${(formData.horasSemanales / 30) * 100}% - 16px)`,
-                        background: 'linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%)',
-                        backdropFilter: 'blur(10px)',
-                        border: '2px solid rgba(255,255,255,0.3)',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.3), 0 0 20px rgba(168, 85, 247, 0.4)',
-                      }}
-                    >
-                      <div className="absolute inset-2 bg-white rounded-full" />
-                    </div>
-                  </div>
-
-                  {/* Helper markers */}
-                  <div className="flex justify-between px-1 text-xs text-white/30">
-                    <span>1h</span>
-                    <span>10h</span>
-                    <span>20h</span>
-                    <span>30h+</span>
-                  </div>
-
-                  {/* Dynamic feedback */}
-                  <div className="text-center">
-                    <p className="text-sm text-white/60">
-                      {formData.horasSemanales < 5 && '⚠️ Mínimo recomendado para ver resultados'}
-                      {formData.horasSemanales >= 5 && formData.horasSemanales < 10 && '✓ Suficiente para empezar con buen ritmo'}
-                      {formData.horasSemanales >= 10 && formData.horasSemanales < 20 && '🔥 Excelente compromiso. Verás cambios rápidos'}
-                      {formData.horasSemanales >= 20 && '⚡ Nivel élite. Transformación garantizada'}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Step 8: NUEVA - Aportación */}
-          {step === 8 && (
-            <div className="animate-fadeIn space-y-6">
-              <div>
-                <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
-                  Si entras, ¿qué vas a aportar al resto?
-                </h2>
-                <p className="text-white/40 text-sm">Portal Culture funciona porque todos aportan. ¿Cuáles son las áreas que más dominas?</p>
-              </div>
-
-              <div>
-                <textarea
-                  value={formData.aportacion}
-                  onChange={(e) => updateField('aportacion', e.target.value)}
-                  placeholder="Ej: Llevo 2 años entrenando y puedo ayudar con rutinas. También soy bueno con finanzas personales..."
-                  rows={6}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 resize-none"
-                />
-                <p className="text-white/30 text-xs mt-2 text-right">
-                  {formData.aportacion.length} caracteres
-                </p>
-              </div>
-            </div>
-          )}
-
-          {/* Step 9: Why should we let you in - MEJORADA */}
-          {step === 9 && (
+          {/* Step 6: Why should we let you in */}
+          {step === 6 && (
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
                   ¿Por qué te deberíamos dejar entrar?
                 </h2>
-                <p className="text-white/40 text-sm">Última pregunta. Convéncenos de que mereces estar aquí.</p>
+                <p className="text-white/40 text-sm">Descríbete y destaca lo mejor de ti</p>
               </div>
 
               <div>
                 <textarea
                   value={formData.porqueEntrar}
                   onChange={(e) => updateField('porqueEntrar', e.target.value)}
-                  placeholder="Escribe aquí por qué deberíamos elegirte..."
-                  rows={6}
-                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-all duration-200 hover:border-white/15 resize-none"
+                  placeholder="Escribe aquí..."
+                  rows={5}
+                  className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 text-white placeholder:text-white/30 focus:outline-none focus:border-white/25 transition-colors resize-none"
                 />
                 <p className="text-white/30 text-xs mt-2 text-right">
-                  {formData.porqueEntrar.length} caracteres (mín. 50)
+                  {formData.porqueEntrar.length} / 20 mínimo
                 </p>
               </div>
             </div>
