@@ -16,6 +16,66 @@ interface WaitlistEntry {
   metadata: any
 }
 
+// Helper para mapear nombres de campos a etiquetas legibles
+const getFieldLabel = (fieldKey: string): string => {
+  const labels: Record<string, string> = {
+    edad: '🎂 Edad',
+    vidaActual: '📊 Calidad de vida actual (1-10)',
+    descripcion: '📝 Descripción personal',
+    frenos: '🚫 ¿Qué le frena?',
+    intentosCambio: '🔄 Intentos de cambio (últimos 6 meses)',
+    horasSemanales: '⏰ Horas semanales disponibles',
+    aportacion: '💡 ¿Qué va a aportar?',
+    porqueEntrar: '✨ ¿Por qué debería entrar?',
+  }
+  return labels[fieldKey] || fieldKey
+}
+
+// Helper para formatear valores
+const formatFieldValue = (key: string, value: any): string => {
+  if (value === null || value === undefined) return 'N/A'
+  
+  // Si es array (como frenos), unirlo
+  if (Array.isArray(value)) {
+    // Mapear IDs de frenos a texto legible
+    const frenosMap: Record<string, string> = {
+      A: 'No soy consistente',
+      B: 'Tengo mala salud mental',
+      C: 'No me gusta mi físico',
+      D: 'No encuentro gente con mi mindset',
+      E: 'No sé por dónde empezar',
+    }
+    return value.map(v => frenosMap[v] || v).join(', ')
+  }
+  
+  // Descripción
+  if (key === 'descripcion') {
+    const descripcionMap: Record<string, string> = {
+      A: 'Acabo de empezar en el desarrollo personal',
+      B: 'He intentado cambiar pero no lo consigo',
+      C: 'Ya llevo tiempo, y quiero rodearme de gente con mi mentalidad',
+    }
+    return descripcionMap[value] || value
+  }
+  
+  // Horas semanales
+  if (key === 'horasSemanales') {
+    return `${value} horas/semana`
+  }
+  
+  // Vida actual
+  if (key === 'vidaActual') {
+    return `${value}/10`
+  }
+  
+  // Edad
+  if (key === 'edad') {
+    return `${value} años`
+  }
+  
+  return String(value)
+}
+
 export default function AdminWaitlistPage() {
   const [loading, setLoading] = useState(true)
   const [entries, setEntries] = useState<WaitlistEntry[]>([])
@@ -271,11 +331,35 @@ export default function AdminWaitlistPage() {
                   )}
                 </div>
 
-                {/* Show metadata if available */}
+                {/* Show metadata if available - NUEVO CUESTIONARIO */}
+                {entry.metadata && !entry.metadata.answers && Object.keys(entry.metadata).length > 0 && (
+                  <details className="mt-4" open>
+                    <summary className="cursor-pointer text-sm text-gray-400 hover:text-white font-semibold mb-3">
+                      📋 Respuestas del cuestionario
+                    </summary>
+                    <div className="mt-3 p-5 bg-gradient-to-br from-white/[0.08] to-white/[0.03] rounded-xl border border-white/10 space-y-3">
+                      {Object.entries(entry.metadata)
+                        .filter(([key]) => !['typeform_response_id'].includes(key))
+                        .map(([key, value], idx) => (
+                          <div key={idx} className="flex flex-col gap-1 p-3 bg-black/20 rounded-lg hover:bg-black/30 transition-colors">
+                            <p className="text-sm font-semibold text-orange-300/90">
+                              {getFieldLabel(key)}
+                            </p>
+                            <p className="text-white/90 leading-relaxed">
+                              {formatFieldValue(key, value)}
+                            </p>
+                          </div>
+                        ))
+                      }
+                    </div>
+                  </details>
+                )}
+
+                {/* Show metadata if available - TYPEFORM VIEJO */}
                 {entry.metadata?.answers && Array.isArray(entry.metadata.answers) && entry.metadata.answers.length > 0 && (
                   <details className="mt-4">
                     <summary className="cursor-pointer text-sm text-gray-400 hover:text-white">
-                      Ver respuestas del cuestionario
+                      Ver respuestas del cuestionario (Typeform)
                     </summary>
                     <div className="mt-3 p-4 bg-white/5 rounded-xl space-y-2">
                       {entry.metadata.answers.map((answer: any, idx: number) => {
