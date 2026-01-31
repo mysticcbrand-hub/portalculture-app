@@ -10,7 +10,7 @@ export default function SeleccionarAcceso() {
   }
 
   const handleFastPass = () => {
-    window.open('https://whop.com/checkout/plan_2juGEWOZ7uBGM', '_blank')
+    window.open('https://whop.com/portalculture/acceso-inmediato', '_blank')
   }
 
   return (
