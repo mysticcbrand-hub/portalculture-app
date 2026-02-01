@@ -45,15 +45,42 @@ export async function POST(request: Request) {
     const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY
     const MAILERLITE_GROUP_APPROVED = process.env.MAILERLITE_GROUP_APPROVED
     
+    console.log('🔍 Debug Mailerlite Config:', {
+      hasApiKey: !!MAILERLITE_API_KEY,
+      apiKeyLength: MAILERLITE_API_KEY?.length,
+      hasGroupApproved: !!MAILERLITE_GROUP_APPROVED,
+      groupApprovedValue: MAILERLITE_GROUP_APPROVED,
+      email: waitlistUser.email
+    })
+    
     if (!MAILERLITE_API_KEY || !MAILERLITE_GROUP_APPROVED) {
-      console.error('Mailerlite credentials not configured')
+      console.error('❌ Mailerlite credentials not configured:', {
+        MAILERLITE_API_KEY: !!MAILERLITE_API_KEY,
+        MAILERLITE_GROUP_APPROVED: !!MAILERLITE_GROUP_APPROVED
+      })
       return NextResponse.json({ 
         success: true,
-        warning: 'Approved in DB but Mailerlite not configured' 
+        warning: 'Approved in DB but Mailerlite not configured',
+        debug: {
+          hasApiKey: !!MAILERLITE_API_KEY,
+          hasGroupApproved: !!MAILERLITE_GROUP_APPROVED
+        }
       })
     }
 
     // Añadir al grupo "approved" (automáticamente triggerea la automatización)
+    console.log('📤 Sending to Mailerlite API...')
+    
+    const requestBody = {
+      email: waitlistUser.email,
+      fields: {
+        name: waitlistUser.name || ''
+      },
+      groups: [MAILERLITE_GROUP_APPROVED]
+    }
+    
+    console.log('📦 Request body:', JSON.stringify(requestBody, null, 2))
+    
     const mailerliteResponse = await fetch('https://connect.mailerlite.com/api/subscribers', {
       method: 'POST',
       headers: {
@@ -61,23 +88,30 @@ export async function POST(request: Request) {
         'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
         'Accept': 'application/json'
       },
-      body: JSON.stringify({
-        email: waitlistUser.email,
-        fields: {
-          name: waitlistUser.name || ''
-        },
-        groups: [MAILERLITE_GROUP_APPROVED]
-      })
+      body: JSON.stringify(requestBody)
     })
 
     const mailerliteData = await mailerliteResponse.json()
+    
+    console.log('📨 Mailerlite Response:', {
+      status: mailerliteResponse.status,
+      ok: mailerliteResponse.ok,
+      data: mailerliteData
+    })
 
     if (!mailerliteResponse.ok) {
-      console.error('Mailerlite API error:', mailerliteData)
+      console.error('❌ Mailerlite API error:', {
+        status: mailerliteResponse.status,
+        statusText: mailerliteResponse.statusText,
+        data: mailerliteData
+      })
       return NextResponse.json({ 
         success: true,
         warning: 'Approved in DB but failed to add to Mailerlite group',
-        mailerliteError: mailerliteData
+        mailerliteError: {
+          status: mailerliteResponse.status,
+          data: mailerliteData
+        }
       })
     }
 
@@ -85,7 +119,11 @@ export async function POST(request: Request) {
     
     return NextResponse.json({ 
       success: true,
-      message: 'User approved successfully. Email will be sent automatically by Mailerlite.'
+      message: 'User approved successfully. Email will be sent automatically by Mailerlite.',
+      debug: {
+        mailerliteStatus: mailerliteResponse.status,
+        subscriberAdded: true
+      }
     })
     
   } catch (error: any) {
