@@ -251,6 +251,12 @@ export default function AdminWaitlistPage() {
               Dashboard
             </button>
             <button
+              onClick={() => router.push('/admin/post-compra')}
+              className="px-4 py-2 text-sm glass glass-hover rounded-xl"
+            >
+              Post Compra
+            </button>
+            <button
               onClick={handleSignOut}
               className="px-4 py-2 text-sm glass glass-hover rounded-xl"
             >
