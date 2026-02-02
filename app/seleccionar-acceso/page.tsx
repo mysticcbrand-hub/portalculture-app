@@ -1,12 +1,19 @@
 'use client'
 
 import { useState } from 'react'
+import { createClient } from '@/utils/supabase/client'
 
 export default function SeleccionarAcceso() {
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const supabase = createClient()
 
   const handleWaitlist = () => {
     window.location.href = '/cuestionario'
+  }
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut()
+    window.location.href = '/login'
   }
 
   const handleFastPass = () => {
@@ -17,6 +24,15 @@ export default function SeleccionarAcceso() {
     <main className="relative min-h-screen flex items-center justify-center px-5 py-16 overflow-hidden">
       {/* Premium debanded gradient background */}
       <div className="fixed inset-0 bg-black">
+        {/* Logout button */}
+        <div className="fixed top-6 right-6 z-50">
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 bg-white/10 hover:bg-white/20 border border-white/20 rounded-xl text-white/80 text-sm transition-all duration-200"
+          >
+            Cerrar sesión
+          </button>
+        </div>
         {/* Multi-layer radial gradients for anti-banding */}
         <div 
           className="absolute inset-0"

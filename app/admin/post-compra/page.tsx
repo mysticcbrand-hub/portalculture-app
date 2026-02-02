@@ -58,15 +58,37 @@ export default function AdminPostCompraPage() {
     try {
       const { data, error } = await supabase
         .from('post_compra_responses')
-        .select(`
-          *,
-          profiles!inner(email, full_name)
-        `)
+        .select('*')
         .order('created_at', { ascending: false })
 
       if (error) throw error
 
-      setResponses(data || [])
+      // Enriquecer con perfiles (query separado para evitar error de relación)
+      const responsesData = data || []
+      const userIds = responsesData.map(r => r.user_id).filter(Boolean)
+
+      let profilesById: Record<string, { email: string; full_name: string }> = {}
+      if (userIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, email, full_name')
+          .in('id', userIds)
+
+        profilesById = (profilesData || []).reduce((acc, profile) => {
+          acc[profile.id] = {
+            email: profile.email,
+            full_name: profile.full_name
+          }
+          return acc
+        }, {} as Record<string, { email: string; full_name: string }>)
+      }
+
+      const merged = responsesData.map(response => ({
+        ...response,
+        profiles: profilesById[response.user_id] || undefined
+      }))
+
+      setResponses(merged)
     } catch (error: any) {
       console.error('Error loading responses:', error)
       alert('Error al cargar respuestas: ' + error.message)
