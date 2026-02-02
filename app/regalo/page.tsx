@@ -336,6 +336,13 @@ export default function RegaloPage() {
           />
         </div>
         
+        {/* Deband layer */}
+        <div className="absolute inset-0" style={{
+          background: 'linear-gradient(135deg, rgba(255, 200, 87, 0.04) 0%, rgba(255, 150, 50, 0.02) 50%, rgba(255, 180, 70, 0.03) 100%)',
+          mixBlendMode: 'soft-light',
+          opacity: 0.5,
+        }} />
+
         {/* Fine grain texture */}
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.4'/%3E%3C/svg%3E")`,
@@ -505,7 +512,7 @@ export default function RegaloPage() {
                     {formData.valorMensual === 0 && '💭 ¿Gratis? Interesante...'}
                     {formData.valorMensual > 0 && formData.valorMensual < 20 && '💰 Valoración inicial'}
                     {formData.valorMensual >= 20 && formData.valorMensual < 50 && '✨ Buena valoración'}
-                    {formData.valorMensual >= 50 && '🔥 ¡WOW! Alto valor percibido'}
+                    {formData.valorMensual >= 50 && '🔥 Alto valor percibido'}
                   </p>
                 </div>
               </div>
@@ -644,7 +651,7 @@ export default function RegaloPage() {
                       {formData.probabilidad6Meses <= 3 && '😔 Necesitamos mejorar'}
                       {formData.probabilidad6Meses > 3 && formData.probabilidad6Meses < 6 && '🤔 Hay dudas'}
                       {formData.probabilidad6Meses >= 6 && formData.probabilidad6Meses < 8 && '😊 Buena retención'}
-                      {formData.probabilidad6Meses >= 8 && '🔥 ¡Comprometido al 100%!'}
+                      {formData.probabilidad6Meses >= 8 && '🔥 Comprometido al 100%'}
                     </p>
                   </div>
                 </div>
