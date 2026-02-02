@@ -119,7 +119,7 @@ export default function DashboardPage() {
         {/* Discord Card - Premium */}
         <div className="mb-10 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <a
-            href="https://whop.com/checkout/plan_2kXdGgagLpw4A"
+            href="https://whop.com/portalculture/elaccesogratisparaportalculture/"
             target="_blank"
             rel="noopener noreferrer"
             className="relative group block"
