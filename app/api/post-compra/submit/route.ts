@@ -49,13 +49,32 @@ export async function POST(request: Request) {
       .single()
 
     if (error) {
-      console.error('Error inserting post-compra response:', error)
+      console.error('Error inserting post-compra response:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint,
+      })
       
       // Si ya existe una respuesta (unique constraint)
       if (error.code === '23505') {
         return NextResponse.json({ 
           error: 'Ya has completado este cuestionario anteriormente' 
         }, { status: 409 })
+      }
+
+      // Tabla no existe
+      if (error.code === '42P01') {
+        return NextResponse.json({
+          error: 'Tabla post_compra_responses no existe. Ejecuta el SQL en Supabase.'
+        }, { status: 500 })
+      }
+
+      // RLS / permisos
+      if (error.code === '42501') {
+        return NextResponse.json({
+          error: 'Permisos insuficientes en post_compra_responses. Revisa las políticas RLS.'
+        }, { status: 500 })
       }
       
       throw error
