@@ -154,7 +154,7 @@ export default function DashboardPage() {
               }}
             />
             
-            <div className="relative bg-black/40 backdrop-blur-2xl border border-white/[0.06] rounded-3xl p-6 md:p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4)] transition-all duration-500 group-hover:border-white/[0.12] group-hover:bg-black/50">
+            <div className="relative bg-white/[0.04] backdrop-blur-2xl backdrop-saturate-150 border border-white/[0.10] rounded-3xl p-6 md:p-8 shadow-[0_10px_40px_rgba(0,0,0,0.35)] transition-all duration-500 group-hover:border-white/[0.18] group-hover:bg-white/[0.07] group-hover:shadow-[0_16px_50px_rgba(0,0,0,0.4)]" style={{ WebkitBackdropFilter: 'blur(32px) saturate(150%)' }}>
               {/* Top highlight */}
               <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/10 to-transparent" />
               
