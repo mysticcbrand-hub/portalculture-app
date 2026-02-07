@@ -59,8 +59,16 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen relative overflow-x-hidden">
-      {/* Premium Mesh Gradient Background */}
-      <MeshGradient variant="default" intensity="low" />
+      {/* Premium Mesh Gradient Background - Darker mood */}
+      <MeshGradient variant="midnight" intensity="medium" />
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background: `radial-gradient(ellipse 80% 60% at 20% 10%, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.05) 30%, transparent 65%),
+          radial-gradient(ellipse 70% 60% at 85% 75%, rgba(139, 92, 246, 0.08) 0%, rgba(109, 40, 217, 0.05) 35%, transparent 70%),
+          linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.75) 100%)`
+        }}
+      />
 
       {/* Premium Header - Glassmorphism */}
       <header 
