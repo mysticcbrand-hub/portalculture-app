@@ -310,40 +310,36 @@ function HomePageContent() {
         {/* Forgot Password Modal */}
         {showForgotPassword ? (
           <div className="relative group animate-scale-in">
-            {/* Enhanced glow layers */}
+            {/* Subtle outer glow - verde temático */}
             <div 
-              className="absolute -inset-4 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              className="absolute -inset-3 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: `radial-gradient(ellipse 120% 110% at 50% 50%, rgba(167,243,208,0.12) 0%, rgba(110,231,183,0.06) 35%, transparent 65%)`,
-                filter: 'blur(24px)',
+                background: `radial-gradient(ellipse 115% 105% at 50% 50%, rgba(167,243,208,0.08) 0%, rgba(110,231,183,0.04) 40%, transparent 70%)`,
+                filter: 'blur(20px)',
               }}
             />
-            <div 
-              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-              style={{
-                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(147,197,253,0.10) 0%, rgba(96,165,250,0.05) 40%, transparent 70%)`,
-                filter: 'blur(16px)',
-              }}
-            />
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/8 to-white/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
+            {/* Liquid Glass Card */}
             <div 
-              className="relative backdrop-blur-3xl border rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_20px_60px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.03)]"
+              className="relative backdrop-blur-xl backdrop-saturate-150 border rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_1px_2px_rgba(255,255,255,0.05)] transition-all duration-700 ease-out group-hover:backdrop-blur-2xl group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.5),0_1px_2px_rgba(255,255,255,0.08)]"
               style={{
-                background: `linear-gradient(
-                  135deg,
-                  rgba(255, 255, 255, 0.12) 0%,
-                  rgba(255, 255, 255, 0.08) 50%,
-                  rgba(255, 255, 255, 0.05) 100%
-                )`,
-                borderColor: 'rgba(255, 255, 255, 0.12)',
+                background: `
+                  linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.08) 0%,
+                    rgba(255, 255, 255, 0.05) 50%,
+                    rgba(255, 255, 255, 0.03) 100%
+                  )
+                `,
+                borderColor: 'rgba(255, 255, 255, 0.10)',
+                WebkitBackdropFilter: 'blur(40px) saturate(150%)',
               }}
             >
-              {/* Top specular highlight */}
+              {/* Specular highlight sutil */}
               <div 
-                className="absolute top-0 left-8 right-8 h-px"
+                className="absolute top-0 left-12 right-12 h-px opacity-60"
                 style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 80%, transparent 100%)',
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
                 }}
               />
               
@@ -396,64 +392,55 @@ function HomePageContent() {
         ) : (
           /* Main Auth Card */
           <div className="relative group animate-scale-in">
-            {/* Premium multi-layer glow effect - ENHANCED */}
-            {/* Outer glow - brighter and more expansive */}
+            {/* Subtle outer glow - solo en hover */}
             <div 
-              className="absolute -inset-4 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              className="absolute -inset-3 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: `radial-gradient(ellipse 120% 110% at 50% 50%, rgba(147,197,253,0.15) 0%, rgba(96,165,250,0.08) 25%, rgba(59,130,246,0.04) 50%, transparent 70%)`,
-                filter: 'blur(24px)',
+                background: `radial-gradient(ellipse 115% 105% at 50% 50%, rgba(147,197,253,0.08) 0%, rgba(96,165,250,0.04) 40%, transparent 70%)`,
+                filter: 'blur(20px)',
               }}
             />
-            {/* Mid glow layer */}
-            <div 
-              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-              style={{
-                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(196,181,253,0.12) 0%, rgba(167,139,250,0.06) 35%, transparent 65%)`,
-                filter: 'blur(16px)',
-              }}
-            />
-            {/* Border glow enhancement */}
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/8 to-white/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
+            {/* Liquid Glass Card - interactúa con el fondo */}
             <div 
               className={`
-                relative backdrop-blur-3xl border rounded-3xl p-8 
-                shadow-[0_8px_32px_rgba(0,0,0,0.5),0_20px_60px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.03)]
-                transition-all duration-500 ease-premium
+                relative backdrop-blur-xl backdrop-saturate-150 border rounded-3xl p-8 
+                shadow-[0_8px_32px_rgba(0,0,0,0.4),0_1px_2px_rgba(255,255,255,0.05)]
+                transition-all duration-700 ease-out
+                group-hover:backdrop-blur-2xl
+                group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.5),0_1px_2px_rgba(255,255,255,0.08)]
                 ${mode === 'register' ? 'pb-10' : ''}
               `}
               style={{
-                background: `linear-gradient(
-                  135deg,
-                  rgba(255, 255, 255, 0.12) 0%,
-                  rgba(255, 255, 255, 0.08) 50%,
-                  rgba(255, 255, 255, 0.05) 100%
-                )`,
-                borderColor: 'rgba(255, 255, 255, 0.12)',
+                background: `
+                  linear-gradient(
+                    135deg,
+                    rgba(255, 255, 255, 0.08) 0%,
+                    rgba(255, 255, 255, 0.05) 50%,
+                    rgba(255, 255, 255, 0.03) 100%
+                  )
+                `,
+                borderColor: 'rgba(255, 255, 255, 0.10)',
+                WebkitBackdropFilter: 'blur(40px) saturate(150%)',
               }}
             >
-              {/* Top specular highlight - brighter */}
+              {/* Specular highlight sutil en top */}
               <div 
-                className="absolute top-0 left-8 right-8 h-px"
+                className="absolute top-0 left-12 right-12 h-px opacity-60"
                 style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 80%, transparent 100%)',
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
                 }}
               />
               
-              {/* Enhanced corner accents with glow */}
-              <div className="absolute top-4 left-4 w-10 h-10 border-l-2 border-t-2 border-white/15 rounded-tl-lg">
-                <div className="absolute -inset-1 bg-gradient-to-br from-white/10 to-transparent rounded-tl-lg blur-sm" />
-              </div>
-              <div className="absolute top-4 right-4 w-10 h-10 border-r-2 border-t-2 border-white/15 rounded-tr-lg">
-                <div className="absolute -inset-1 bg-gradient-to-bl from-white/10 to-transparent rounded-tr-lg blur-sm" />
-              </div>
+              {/* Corner indicators minimalistas */}
+              <div className="absolute top-3 left-3 w-8 h-8 border-l border-t border-white/10 rounded-tl-lg opacity-50" />
+              <div className="absolute top-3 right-3 w-8 h-8 border-r border-t border-white/10 rounded-tr-lg opacity-50" />
               
-              {/* Subtle inner glow from top */}
+              {/* Sutil inner light desde arriba */}
               <div 
-                className="absolute inset-x-0 top-0 h-24 rounded-t-3xl pointer-events-none"
+                className="absolute inset-x-0 top-0 h-20 rounded-t-3xl pointer-events-none opacity-40"
                 style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 50%, transparent 100%)',
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)',
                 }}
               />
               
