@@ -35,6 +35,8 @@ function HomePageContent() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [acceptedTerms, setAcceptedTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [checkingSession, setCheckingSession] = useState(true)
@@ -471,13 +473,30 @@ function HomePageContent() {
                     <label className="block text-white/50 text-xs font-medium mb-2 ml-1 tracking-wide">Contraseña</label>
                     <div className="relative">
                       <input
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-5 py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        className="w-full px-5 py-4 pr-12 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                         placeholder="••••••••"
                         required
                       />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      >
+                        {showPassword ? (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
+                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
+                          </svg>
+                        )}
+                      </button>
                       {/* Focus glow effect */}
                       <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/20 via-white/5 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
                       {/* Subtle shine on top */}
@@ -545,14 +564,33 @@ function HomePageContent() {
                   {/* Password Input */}
                   <div className="relative group/input">
                     <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Contraseña</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
-                      placeholder="••••••••"
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type={showPassword ? 'text' : 'password'}
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-5 py-4 pr-12 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                        placeholder="••••••••"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                        aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      >
+                        {showPassword ? (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
+                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                     
                     {/* Premium Password requirements */}
                     <div className="mt-4 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] space-y-2.5">
@@ -593,16 +631,35 @@ function HomePageContent() {
                   {/* Confirm Password */}
                   <div className="relative group/input">
                     <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Repetir contraseña</label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className={`w-full px-5 py-4 bg-white/[0.03] border rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:bg-white/[0.06] transition-all duration-500 ease-premium ${
-                        confirmPassword && !passwordsMatch ? 'border-red-500/30 focus:border-red-500/50' : 'border-white/[0.06] focus:border-white/20'
-                      }`}
-                      placeholder="••••••••"
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type={showConfirmPassword ? 'text' : 'password'}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className={`w-full px-5 py-4 pr-12 bg-white/[0.03] border rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:bg-white/[0.06] transition-all duration-500 ease-premium ${
+                          confirmPassword && !passwordsMatch ? 'border-red-500/30 focus:border-red-500/50' : 'border-white/[0.06] focus:border-white/20'
+                        }`}
+                        placeholder="••••••••"
+                        required
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowConfirmPassword((prev) => !prev)}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                        aria-label={showConfirmPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                      >
+                        {showConfirmPassword ? (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
+                          </svg>
+                        ) : (
+                          <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
+                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
+                          </svg>
+                        )}
+                      </button>
+                    </div>
                     {confirmPassword && !passwordsMatch && (
                       <div className="flex items-center gap-2 mt-2 ml-1">
                         <svg className="w-3.5 h-3.5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
