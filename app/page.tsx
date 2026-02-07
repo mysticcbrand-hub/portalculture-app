@@ -487,12 +487,12 @@ function HomePageContent() {
                       >
                         {showPassword ? (
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
+                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
                           </svg>
                         ) : (
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
-                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
                           </svg>
                         )}
                       </button>
@@ -580,12 +580,12 @@ function HomePageContent() {
                       >
                         {showPassword ? (
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
+                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
                           </svg>
                         ) : (
                           <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2 12s3.636-7 10-7 10 7 10 7-3.636 7-10 7-10-7-10-7z" />
-                            <circle cx="12" cy="12" r="3" strokeWidth={2} />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3l18 18M10.477 10.482a3 3 0 004.242 4.243M9.88 9.88A3 3 0 0114.12 14.12M6.228 6.228C4.227 7.634 2.808 9.43 2 12c1.73 5.523 7.0 9 10 9 1.545 0 3.006-.37 4.3-1.03M9.172 4.172A9.987 9.987 0 0112 4c3 0 8.27 3.477 10 9a14.95 14.95 0 01-1.548 2.91" />
                           </svg>
                         )}
                       </button>
