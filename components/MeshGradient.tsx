@@ -111,29 +111,39 @@ export default function MeshGradient({
     aurora: {
       gradient: `
         radial-gradient(
-          ellipse 85% 75% at 20% 15%,
-          rgba(167, 243, 208, 0.08) 0%,
-          rgba(110, 231, 183, 0.05) 20%,
-          rgba(52, 211, 153, 0.03) 40%,
-          rgba(16, 185, 129, 0.018) 60%,
+          ellipse 90% 80% at 20% 15%,
+          rgba(167, 243, 208, 0.18) 0%,
+          rgba(110, 231, 183, 0.14) 15%,
+          rgba(52, 211, 153, 0.10) 30%,
+          rgba(16, 185, 129, 0.06) 50%,
+          rgba(5, 150, 105, 0.03) 65%,
           transparent 80%
         ),
         radial-gradient(
-          ellipse 80% 70% at 75% 50%,
-          rgba(147, 197, 253, 0.06) 0%,
-          rgba(96, 165, 250, 0.04) 25%,
-          rgba(59, 130, 246, 0.025) 50%,
+          ellipse 85% 75% at 75% 50%,
+          rgba(147, 197, 253, 0.16) 0%,
+          rgba(96, 165, 250, 0.12) 20%,
+          rgba(59, 130, 246, 0.08) 40%,
+          rgba(37, 99, 235, 0.04) 60%,
           transparent 75%
         ),
         radial-gradient(
-          ellipse 70% 60% at 50% 80%,
-          rgba(196, 181, 253, 0.05) 0%,
-          rgba(167, 139, 250, 0.03) 30%,
-          rgba(139, 92, 246, 0.018) 60%,
+          ellipse 80% 70% at 50% 85%,
+          rgba(196, 181, 253, 0.14) 0%,
+          rgba(167, 139, 250, 0.10) 25%,
+          rgba(139, 92, 246, 0.06) 50%,
+          rgba(124, 58, 237, 0.03) 70%,
           transparent 85%
+        ),
+        radial-gradient(
+          ellipse 75% 65% at 85% 25%,
+          rgba(251, 207, 232, 0.12) 0%,
+          rgba(244, 114, 182, 0.08) 30%,
+          rgba(236, 72, 153, 0.04) 60%,
+          transparent 80%
         )
       `,
-      ambient: 'rgba(150, 200, 220, 0.02)',
+      ambient: 'rgba(150, 200, 220, 0.04)',
     },
     midnight: {
       gradient: `

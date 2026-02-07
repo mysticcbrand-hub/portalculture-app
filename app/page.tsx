@@ -310,20 +310,42 @@ function HomePageContent() {
         {/* Forgot Password Modal */}
         {showForgotPassword ? (
           <div className="relative group animate-scale-in">
-            {/* Premium card glow effect */}
-            {/* Debanded glow layers */}
+            {/* Enhanced glow layers */}
+            <div 
+              className="absolute -inset-4 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse 120% 110% at 50% 50%, rgba(167,243,208,0.12) 0%, rgba(110,231,183,0.06) 35%, transparent 65%)`,
+                filter: 'blur(24px)',
+              }}
+            />
             <div 
               className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 30%, transparent 60%)`,
+                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(147,197,253,0.10) 0%, rgba(96,165,250,0.05) 40%, transparent 70%)`,
                 filter: 'blur(16px)',
               }}
             />
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/8 to-white/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
-            <div className="relative bg-black/60 backdrop-blur-3xl border border-white/[0.08] rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]">
-              {/* Top highlight line */}
-              <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+            <div 
+              className="relative backdrop-blur-3xl border rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.5),0_20px_60px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.03)]"
+              style={{
+                background: `linear-gradient(
+                  135deg,
+                  rgba(255, 255, 255, 0.12) 0%,
+                  rgba(255, 255, 255, 0.08) 50%,
+                  rgba(255, 255, 255, 0.05) 100%
+                )`,
+                borderColor: 'rgba(255, 255, 255, 0.12)',
+              }}
+            >
+              {/* Top specular highlight */}
+              <div 
+                className="absolute top-0 left-8 right-8 h-px"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 80%, transparent 100%)',
+                }}
+              />
               
               <button
                 onClick={() => setShowForgotPassword(false)}
@@ -340,26 +362,33 @@ function HomePageContent() {
               
               <form onSubmit={handleForgotPassword} className="space-y-5">
                 <div className="relative group/input">
-                  <input
-                    type="email"
-                    value={forgotEmail}
-                    onChange={(e) => setForgotEmail(e.target.value)}
-                    className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
-                    placeholder="tu@email.com"
-                    required
-                  />
-                  {/* Focus glow */}
-                  <div className="absolute -inset-px rounded-2xl bg-gradient-to-b from-white/10 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                  <label className="block text-white/50 text-xs font-medium mb-2 ml-1 tracking-wide">Email de recuperación</label>
+                  <div className="relative">
+                    <input
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      className="w-full px-5 py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                      placeholder="tu@email.com"
+                      required
+                    />
+                    {/* Focus glow effect */}
+                    <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/20 via-white/5 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    {/* Subtle shine on top */}
+                    <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                  </div>
                 </div>
                 
                 <button
                   type="submit"
                   disabled={loading}
-                  className="relative w-full py-4 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] active:scale-[0.98]"
+                  className="relative w-full py-4 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(167,243,208,0.3),0_0_80px_rgba(110,231,183,0.15)] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span className="relative z-10">{loading ? 'Enviando...' : 'Enviar enlace'}</span>
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 bg-shimmer opacity-0 group-hover/btn:opacity-100 group-hover/btn:animate-shimmer" />
+                  {/* Enhanced shimmer effect */}
+                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                  {/* Subtle inner glow */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
                 </button>
               </form>
             </div>
@@ -367,61 +396,106 @@ function HomePageContent() {
         ) : (
           /* Main Auth Card */
           <div className="relative group animate-scale-in">
-            {/* Premium multi-layer glow effect */}
-            {/* Debanded glow layers */}
+            {/* Premium multi-layer glow effect - ENHANCED */}
+            {/* Outer glow - brighter and more expansive */}
+            <div 
+              className="absolute -inset-4 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              style={{
+                background: `radial-gradient(ellipse 120% 110% at 50% 50%, rgba(147,197,253,0.15) 0%, rgba(96,165,250,0.08) 25%, rgba(59,130,246,0.04) 50%, transparent 70%)`,
+                filter: 'blur(24px)',
+              }}
+            />
+            {/* Mid glow layer */}
             <div 
               className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 30%, transparent 60%)`,
+                background: `radial-gradient(ellipse 110% 100% at 50% 50%, rgba(196,181,253,0.12) 0%, rgba(167,139,250,0.06) 35%, transparent 65%)`,
                 filter: 'blur(16px)',
               }}
             />
-            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/15 via-white/5 to-transparent rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+            {/* Border glow enhancement */}
+            <div className="absolute -inset-[1px] bg-gradient-to-b from-white/20 via-white/8 to-white/5 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
             
             <div 
               className={`
-                relative bg-black/60 backdrop-blur-3xl border border-white/[0.06] rounded-3xl p-8 
-                shadow-[0_8px_32px_rgba(0,0,0,0.5),inset_0_1px_0_rgba(255,255,255,0.05)]
+                relative backdrop-blur-3xl border rounded-3xl p-8 
+                shadow-[0_8px_32px_rgba(0,0,0,0.5),0_20px_60px_rgba(0,0,0,0.3),inset_0_1px_0_rgba(255,255,255,0.12),inset_0_0_0_1px_rgba(255,255,255,0.03)]
                 transition-all duration-500 ease-premium
                 ${mode === 'register' ? 'pb-10' : ''}
               `}
+              style={{
+                background: `linear-gradient(
+                  135deg,
+                  rgba(255, 255, 255, 0.12) 0%,
+                  rgba(255, 255, 255, 0.08) 50%,
+                  rgba(255, 255, 255, 0.05) 100%
+                )`,
+                borderColor: 'rgba(255, 255, 255, 0.12)',
+              }}
             >
-              {/* Top highlight line */}
-              <div className="absolute top-0 left-8 right-8 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              {/* Top specular highlight - brighter */}
+              <div 
+                className="absolute top-0 left-8 right-8 h-px"
+                style={{
+                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.4) 20%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 80%, transparent 100%)',
+                }}
+              />
               
-              {/* Subtle corner accents */}
-              <div className="absolute top-4 left-4 w-8 h-8 border-l border-t border-white/10 rounded-tl-lg" />
-              <div className="absolute top-4 right-4 w-8 h-8 border-r border-t border-white/10 rounded-tr-lg" />
+              {/* Enhanced corner accents with glow */}
+              <div className="absolute top-4 left-4 w-10 h-10 border-l-2 border-t-2 border-white/15 rounded-tl-lg">
+                <div className="absolute -inset-1 bg-gradient-to-br from-white/10 to-transparent rounded-tl-lg blur-sm" />
+              </div>
+              <div className="absolute top-4 right-4 w-10 h-10 border-r-2 border-t-2 border-white/15 rounded-tr-lg">
+                <div className="absolute -inset-1 bg-gradient-to-bl from-white/10 to-transparent rounded-tr-lg blur-sm" />
+              </div>
+              
+              {/* Subtle inner glow from top */}
+              <div 
+                className="absolute inset-x-0 top-0 h-24 rounded-t-3xl pointer-events-none"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.03) 50%, transparent 100%)',
+                }}
+              />
               
               {/* Login Form */}
               {mode === 'login' && (
                 <form onSubmit={handleLogin} className="relative space-y-5">
                   {/* Email Input */}
                   <div className="relative group/input">
-                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Correo electrónico</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
-                      placeholder="tu@email.com"
-                      required
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 h-12 rounded-2xl bg-gradient-to-b from-white/0 to-white/[0.02] opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <label className="block text-white/50 text-xs font-medium mb-2 ml-1 tracking-wide">Correo electrónico</label>
+                    <div className="relative">
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full px-5 py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        placeholder="tu@email.com"
+                        required
+                      />
+                      {/* Focus glow effect */}
+                      <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/20 via-white/5 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      {/* Subtle shine on top */}
+                      <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                    </div>
                   </div>
 
                   {/* Password Input */}
                   <div className="relative group/input">
-                    <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Contraseña</label>
-                    <input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
-                      placeholder="••••••••"
-                      required
-                    />
-                    <div className="absolute bottom-0 left-0 right-0 h-12 rounded-2xl bg-gradient-to-b from-white/0 to-white/[0.02] opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                    <label className="block text-white/50 text-xs font-medium mb-2 ml-1 tracking-wide">Contraseña</label>
+                    <div className="relative">
+                      <input
+                        type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full px-5 py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        placeholder="••••••••"
+                        required
+                      />
+                      {/* Focus glow effect */}
+                      <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/20 via-white/5 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                      {/* Subtle shine on top */}
+                      <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                    </div>
                   </div>
 
                   {error && (
@@ -436,7 +510,7 @@ function HomePageContent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(255,255,255,0.2)] active:scale-[0.98]"
+                    className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(147,197,253,0.4),0_0_80px_rgba(96,165,250,0.2)] hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
@@ -449,8 +523,10 @@ function HomePageContent() {
                         </>
                       ) : 'Iniciar sesión'}
                     </span>
-                    {/* Shimmer effect */}
-                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                    {/* Enhanced shimmer effect */}
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
+                    {/* Subtle inner glow */}
+                    <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
                   </button>
 
                   <button
