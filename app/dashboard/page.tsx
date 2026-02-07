@@ -60,13 +60,14 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen relative overflow-x-hidden">
       {/* Premium Mesh Gradient Background - Darker mood */}
-      <MeshGradient variant="midnight" intensity="medium" />
+      <MeshGradient variant="midnight" intensity="high" />
       <div
         className="absolute inset-0 -z-10"
         style={{
-          background: `radial-gradient(ellipse 80% 60% at 20% 10%, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.05) 30%, transparent 65%),
-          radial-gradient(ellipse 70% 60% at 85% 75%, rgba(139, 92, 246, 0.08) 0%, rgba(109, 40, 217, 0.05) 35%, transparent 70%),
-          linear-gradient(180deg, rgba(0,0,0,0.65) 0%, rgba(0,0,0,0.35) 40%, rgba(0,0,0,0.75) 100%)`
+          background: `radial-gradient(ellipse 90% 70% at 20% 10%, rgba(59, 130, 246, 0.14) 0%, rgba(37, 99, 235, 0.08) 35%, transparent 70%),
+          radial-gradient(ellipse 80% 70% at 85% 75%, rgba(139, 92, 246, 0.12) 0%, rgba(109, 40, 217, 0.07) 40%, transparent 75%),
+          radial-gradient(ellipse 70% 60% at 50% 30%, rgba(99, 102, 241, 0.10) 0%, rgba(79, 70, 229, 0.05) 45%, transparent 75%),
+          linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.55) 100%)`
         }}
       />
 
@@ -193,9 +194,9 @@ export default function DashboardPage() {
                 style={{ animationDelay: `${0.3 + index * 0.05}s` }}
               >
                 {/* Hover glow */}
-                <div className="absolute -inset-[1px] bg-gradient-to-b from-white/10 to-transparent rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-hover:opacity-100 transition-all duration-500" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.06) 45%, rgba(255,255,255,0.02) 100%)' }} />
                 
-                <div className="relative bg-black/30 backdrop-blur-xl border border-white/[0.04] rounded-2xl p-5 md:p-6 transition-all duration-500 group-hover:border-white/[0.12] group-hover:bg-black/40">
+                <div className="relative bg-white/[0.04] backdrop-blur-2xl backdrop-saturate-150 border border-white/[0.08] rounded-2xl p-5 md:p-6 transition-all duration-500 group-hover:border-white/[0.16] group-hover:bg-white/[0.07] group-hover:shadow-[0_12px_40px_rgba(0,0,0,0.35)]" style={{ WebkitBackdropFilter: 'blur(32px) saturate(150%)' }}>
                   {/* Emoji with subtle glow */}
                   <div className="relative inline-block mb-4">
                     <div 
