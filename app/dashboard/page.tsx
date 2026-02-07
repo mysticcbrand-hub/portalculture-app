@@ -73,15 +73,17 @@ export default function DashboardPage() {
 
       {/* Premium Header - Glassmorphism */}
       <header 
-        className="sticky top-0 z-50 border-b border-white/[0.06]"
+        className="sticky top-0 z-50 border-b border-white/[0.08]"
         style={{
-          background: 'rgba(0, 0, 0, 0.7)',
-          backdropFilter: 'blur(20px) saturate(180%)',
-          WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.04) 50%, rgba(255, 255, 255, 0.02) 100%)',
+          backdropFilter: 'blur(24px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(160%)',
         }}
       >
         {/* Top highlight line */}
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.08] to-transparent" />
+        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/[0.18] to-transparent" />
+        {/* Subtle inner glow */}
+        <div className="absolute inset-x-0 top-0 h-12 bg-gradient-to-b from-white/[0.04] to-transparent pointer-events-none" />
         
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
