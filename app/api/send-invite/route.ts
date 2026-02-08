@@ -16,7 +16,7 @@ export async function POST(request: Request) {
     }
 
     // Create personalized invite link
-    const inviteLink = `https://app-portalculture.vercel.app?email=${encodeURIComponent(email)}&approved=true`
+    const inviteLink = `https://app.portalculture.com?email=${encodeURIComponent(email)}&approved=true`
 
     // Send transactional email via Mailerlite
     const response = await fetch('https://connect.mailerlite.com/api/subscribers', {

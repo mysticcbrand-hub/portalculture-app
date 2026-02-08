@@ -122,7 +122,7 @@ export async function POST(request: Request) {
       email: normalizedEmail,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-portalculture.vercel.app'}/confirm-email`
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.portalculture.com'}/confirm-email`
       }
     })
 

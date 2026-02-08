@@ -11,7 +11,8 @@ export async function POST(request: Request) {
     )
 
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app-portalculture.vercel.app'}/reset-password`,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.portalculture.com'}/reset-password`,
+
     })
 
     if (error) {

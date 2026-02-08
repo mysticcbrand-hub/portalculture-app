@@ -52,7 +52,7 @@ export async function chatCompletion(
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://app-portalculture.vercel.app',
+          'HTTP-Referer': 'https://app.portalculture.com',
           'X-Title': 'Portal Culture AI Coach',
         },
         body: JSON.stringify({
@@ -113,7 +113,7 @@ export async function chatCompletionStream(
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json',
-          'HTTP-Referer': 'https://app-portalculture.vercel.app',
+          'HTTP-Referer': 'https://app.portalculture.com',
           'X-Title': 'Portal Culture AI Coach',
         },
         body: JSON.stringify({
