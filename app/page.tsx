@@ -254,7 +254,7 @@ function HomePageContent() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${siteUrl}/dashboard`,
+          redirectTo: `${siteUrl}/auth/callback?next=/dashboard`,
         },
       })
 
