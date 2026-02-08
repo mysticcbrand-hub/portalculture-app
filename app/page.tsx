@@ -273,7 +273,7 @@ function HomePageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-start sm:items-center justify-center px-4 py-10 sm:py-12 relative overflow-hidden">
       {/* Premium Mesh Gradient Background - darker like landing */}
       <MeshGradient variant="midnight" intensity="high" />
       <div
@@ -290,8 +290,8 @@ function HomePageContent() {
       {toast && (
         <div 
           className={`
-            fixed top-6 left-1/2 -translate-x-1/2 z-50
-            px-5 py-3.5 rounded-2xl
+            fixed top-4 sm:top-6 left-1/2 -translate-x-1/2 z-50
+            px-4 sm:px-5 py-3.5 rounded-2xl
             backdrop-blur-2xl border
             shadow-2xl shadow-black/20
             animate-fade-in-down
@@ -322,11 +322,11 @@ function HomePageContent() {
 
       <div className="relative z-10 w-full max-w-[380px] animate-fade-in-up">
         {/* Logo with premium glow effect */}
-        <div className="text-center mb-10">
+        <div className="text-center mb-8 sm:mb-10">
           <div className="relative inline-block">
             {/* Subtle glow behind logo */}
             <div className="absolute -inset-8 bg-white/5 blur-3xl rounded-full opacity-50" />
-            <h1 className="relative text-3xl font-bold tracking-tight"
+            <h1 className="relative text-2xl sm:text-3xl font-bold tracking-tight"
               style={{
                 background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.7) 40%, #ffffff 60%, rgba(255,255,255,0.8) 100%)',
                 WebkitBackgroundClip: 'text',
@@ -437,12 +437,12 @@ function HomePageContent() {
             {/* Liquid Glass Card - interactúa con el fondo */}
             <div 
               className={`
-                relative backdrop-blur-xl backdrop-saturate-150 border rounded-3xl p-8 
+                relative backdrop-blur-xl backdrop-saturate-150 border rounded-3xl p-6 sm:p-8 
                 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_1px_2px_rgba(255,255,255,0.05)]
                 transition-all duration-700 ease-out
                 group-hover:backdrop-blur-2xl
                 group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.5),0_1px_2px_rgba(255,255,255,0.08)]
-                ${mode === 'register' ? 'pb-10' : ''}
+                ${mode === 'register' ? 'pb-8 sm:pb-10' : ''}
               `}
               style={{
                 background: `
@@ -479,7 +479,7 @@ function HomePageContent() {
               
               {/* Login Form */}
               {mode === 'login' && (
-                <form onSubmit={handleLogin} className="relative space-y-5">
+                <form onSubmit={handleLogin} className="relative space-y-4 sm:space-y-5">
                   {/* Email Input */}
                   <div className="relative group/input">
                     <label className="block text-white/50 text-xs font-medium mb-2 ml-1 tracking-wide">Correo electrónico</label>
@@ -488,7 +488,7 @@ function HomePageContent() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-5 py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        className="w-full px-5 py-3.5 sm:py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                         placeholder="tu@email.com"
                         required
                       />
@@ -507,7 +507,7 @@ function HomePageContent() {
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-5 py-4 pr-12 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        className="w-full px-5 py-3.5 sm:py-4 pr-12 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
                         placeholder="••••••••"
                         required
                       />
@@ -547,7 +547,7 @@ function HomePageContent() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(147,197,253,0.4),0_0_80px_rgba(96,165,250,0.2)] hover:scale-[1.02] active:scale-[0.98]"
+                    className="relative w-full py-3.5 sm:py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(147,197,253,0.4),0_0_80px_rgba(96,165,250,0.2)] hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
@@ -566,7 +566,7 @@ function HomePageContent() {
                     <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
                   </button>
 
-                  <div className="relative flex items-center gap-4 py-2">
+                  <div className="relative flex items-center gap-3 py-1.5 sm:py-2">
                     <div className="h-px flex-1 bg-white/10" />
                     <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">o</span>
                     <div className="h-px flex-1 bg-white/10" />
@@ -577,7 +577,7 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('google')}
                       disabled={oauthLoading !== null}
-                      className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/12 bg-white/[0.05] text-white/85 text-sm font-medium transition-all duration-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white disabled:opacity-60"
+                      className="w-full flex items-center justify-center gap-3 px-4 py-3.5 sm:py-4 rounded-2xl border border-white/12 bg-white/[0.05] text-white/85 text-sm font-medium transition-all duration-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white disabled:opacity-60"
                     >
                       <span className="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-white/10 text-[11px] font-semibold tracking-wide">G</span>
                       {oauthLoading === 'google' ? 'Conectando Google...' : 'Continuar con Google'}
@@ -587,7 +587,7 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('discord')}
                       disabled={oauthLoading !== null}
-                      className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/12 bg-white/[0.05] text-white/85 text-sm font-medium transition-all duration-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white disabled:opacity-60"
+                      className="w-full flex items-center justify-center gap-3 px-4 py-3.5 sm:py-4 rounded-2xl border border-white/12 bg-white/[0.05] text-white/85 text-sm font-medium transition-all duration-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white disabled:opacity-60"
                     >
                       <span className="flex items-center justify-center w-8 h-8 rounded-full border border-[#5865F2]/40 bg-[#5865F2]/20 text-[11px] font-semibold tracking-wide text-[#c7d2ff]">D</span>
                       {oauthLoading === 'discord' ? 'Conectando Discord...' : 'Continuar con Discord'}
@@ -606,7 +606,7 @@ function HomePageContent() {
 
               {/* Register Form */}
               {mode === 'register' && (
-                <form onSubmit={handleRegister} className="relative space-y-5">
+                <form onSubmit={handleRegister} className="relative space-y-4 sm:space-y-5">
                   {/* Email Input */}
                   <div className="relative group/input">
                     <label className="block text-white/40 text-xs font-medium mb-2 ml-1">Correo electrónico</label>
@@ -614,7 +614,7 @@ function HomePageContent() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                      className="w-full px-5 py-3.5 sm:py-4 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
                       placeholder="tu@email.com"
                       required
                     />
@@ -628,7 +628,7 @@ function HomePageContent() {
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-5 py-4 pr-12 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
+                        className="w-full px-5 py-3.5 sm:py-4 pr-12 bg-white/[0.03] border border-white/[0.06] rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:border-white/20 focus:bg-white/[0.06] transition-all duration-500 ease-premium"
                         placeholder="••••••••"
                         required
                       />
@@ -652,7 +652,7 @@ function HomePageContent() {
                     </div>
                     
                     {/* Premium Password requirements */}
-                    <div className="mt-4 p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] space-y-2.5">
+                    <div className="mt-3 sm:mt-4 p-3 sm:p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] space-y-2">
                       <p className="text-white/30 text-[10px] uppercase tracking-wider font-medium mb-3">Requisitos</p>
                       <div className={`flex items-center gap-3 text-xs transition-all duration-500 ${passwordRequirements.length ? 'text-emerald-400' : 'text-white/25'}`}>
                         <div className={`w-5 h-5 rounded-full flex items-center justify-center transition-all duration-500 ${passwordRequirements.length ? 'bg-emerald-500/20' : 'bg-white/5'}`}>
@@ -695,7 +695,7 @@ function HomePageContent() {
                         type={showPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        className={`w-full px-5 py-4 pr-12 bg-white/[0.03] border rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:bg-white/[0.06] transition-all duration-500 ease-premium ${
+                        className={`w-full px-5 py-3.5 sm:py-4 pr-12 bg-white/[0.03] border rounded-2xl text-white text-sm placeholder:text-white/20 focus:outline-none focus:bg-white/[0.06] transition-all duration-500 ease-premium ${
                           confirmPassword && !passwordsMatch ? 'border-red-500/30 focus:border-red-500/50' : 'border-white/[0.06] focus:border-white/20'
                         }`}
                         placeholder="••••••••"
@@ -738,7 +738,7 @@ function HomePageContent() {
                   </div>
 
                   {/* Premium Terms checkbox */}
-                  <label className="flex items-start gap-4 cursor-pointer group/check p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-300">
+                  <label className="flex items-start gap-3 sm:gap-4 cursor-pointer group/check p-3 sm:p-4 bg-white/[0.02] rounded-xl border border-white/[0.04] hover:bg-white/[0.03] hover:border-white/[0.08] transition-all duration-300">
                     <div className="relative mt-0.5">
                       <input
                         type="checkbox"
