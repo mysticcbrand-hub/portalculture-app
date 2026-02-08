@@ -250,10 +250,11 @@ function HomePageContent() {
     setOauthLoading(provider)
 
     try {
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://app.portalculture.com'
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${siteUrl}/dashboard`,
         },
       })
 
@@ -576,12 +577,9 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('google')}
                       disabled={oauthLoading !== null}
-                      className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/80 text-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white disabled:opacity-60"
+                      className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/12 bg-white/[0.05] text-white/85 text-sm font-medium transition-all duration-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white disabled:opacity-60"
                     >
-                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="#EA4335" d="M12 10.2v3.6h5.1c-.2 1.3-1.5 3.8-5.1 3.8-3.1 0-5.6-2.6-5.6-5.8S8.9 6 12 6c1.8 0 3 .8 3.6 1.4l2.4-2.3C16.5 3.6 14.4 2.6 12 2.6 7.6 2.6 4 6.2 4 10.6s3.6 8 8 8c4.6 0 7.6-3.2 7.6-7.8 0-.5-.1-.9-.2-1.2H12z" />
-                        <path fill="#4285F4" d="M20.8 10.6c0-.6-.1-1.1-.2-1.6H12v3.2h5.1c-.3 1.6-1.6 3-3.9 3-2.3 0-4.3-1.9-4.3-4.6s2-4.6 4.3-4.6c1.3 0 2.2.5 2.7 1l1.8-1.7C16.6 4.4 14.5 3.6 12 3.6c-3.9 0-7 3.1-7 7s3.1 7 7 7c4 0 6.6-2.8 6.6-6.8z"/>
-                      </svg>
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full border border-white/20 bg-white/10 text-[11px] font-semibold tracking-wide">G</span>
                       {oauthLoading === 'google' ? 'Conectando Google...' : 'Continuar con Google'}
                     </button>
 
@@ -589,11 +587,9 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('discord')}
                       disabled={oauthLoading !== null}
-                      className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/80 text-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white disabled:opacity-60"
+                      className="w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/12 bg-white/[0.05] text-white/85 text-sm font-medium transition-all duration-300 hover:border-white/25 hover:bg-white/[0.08] hover:text-white disabled:opacity-60"
                     >
-                      <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
-                        <path fill="#5865F2" d="M19.5 5.4A16.3 16.3 0 0015.5 4l-.2.4a11 11 0 012.5 1c-2.2-1-4.5-1.5-7-1.5s-4.8.5-7 1.5a11 11 0 012.5-1l-.2-.4A16.3 16.3 0 002.5 5.4C.8 8.6.4 11.7.5 14.7a16.5 16.5 0 005.1 2.6l.7-.9a10.6 10.6 0 01-1.6-.8l.4-.3c1.2.6 2.5 1 3.8 1.2 1.3.2 2.7.2 4 0 1.3-.2 2.6-.6 3.8-1.2l.4.3c-.5.3-1 .6-1.6.8l.7.9a16.5 16.5 0 005.1-2.6c.1-3-.3-6.1-2-9.3zM8.7 13.7c-.7 0-1.2-.6-1.2-1.3 0-.7.5-1.3 1.2-1.3s1.2.6 1.2 1.3c0 .7-.5 1.3-1.2 1.3zm6.6 0c-.7 0-1.2-.6-1.2-1.3 0-.7.5-1.3 1.2-1.3s1.2.6 1.2 1.3c0 .7-.5 1.3-1.2 1.3z"/>
-                      </svg>
+                      <span className="flex items-center justify-center w-8 h-8 rounded-full border border-[#5865F2]/40 bg-[#5865F2]/20 text-[11px] font-semibold tracking-wide text-[#c7d2ff]">D</span>
                       {oauthLoading === 'discord' ? 'Conectando Discord...' : 'Continuar con Discord'}
                     </button>
                   </div>
