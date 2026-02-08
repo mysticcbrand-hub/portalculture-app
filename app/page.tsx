@@ -44,6 +44,7 @@ function HomePageContent() {
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null)
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
+  const [oauthLoading, setOauthLoading] = useState<'google' | 'discord' | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -244,6 +245,27 @@ function HomePageContent() {
     }
   }
 
+  const handleOAuthLogin = async (provider: 'google' | 'discord') => {
+    setError(null)
+    setOauthLoading(provider)
+
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
+      })
+
+      if (error) {
+        throw new Error(error.message)
+      }
+    } catch (err: any) {
+      setError(err.message || 'Error al iniciar sesión')
+      setOauthLoading(null)
+    }
+  }
+
   // Show loading while checking session
   if (checkingSession) {
     return <PremiumLoader />
@@ -251,8 +273,17 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Premium Mesh Gradient Background */}
-      <MeshGradient variant="aurora" intensity="medium" />
+      {/* Premium Mesh Gradient Background - darker like landing */}
+      <MeshGradient variant="midnight" intensity="high" />
+      <div
+        className="absolute inset-0 -z-10"
+        style={{
+          background: `radial-gradient(ellipse 90% 70% at 20% 10%, rgba(30, 64, 175, 0.18) 0%, rgba(30, 58, 138, 0.10) 35%, transparent 70%),
+          radial-gradient(ellipse 80% 70% at 85% 75%, rgba(109, 40, 217, 0.16) 0%, rgba(88, 28, 135, 0.09) 40%, transparent 75%),
+          radial-gradient(ellipse 70% 60% at 50% 30%, rgba(30, 64, 175, 0.12) 0%, rgba(30, 58, 138, 0.07) 45%, transparent 75%),
+          linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.30) 45%, rgba(0,0,0,0.65) 100%)`
+        }}
+      />
 
       {/* Toast notification - Premium style */}
       {toast && (
@@ -533,6 +564,39 @@ function HomePageContent() {
                     {/* Subtle inner glow */}
                     <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
                   </button>
+
+                  <div className="relative flex items-center gap-4 py-2">
+                    <div className="h-px flex-1 bg-white/10" />
+                    <span className="text-[10px] uppercase tracking-[0.3em] text-white/30">o</span>
+                    <div className="h-px flex-1 bg-white/10" />
+                  </div>
+
+                  <div className="grid gap-3">
+                    <button
+                      type="button"
+                      onClick={() => handleOAuthLogin('google')}
+                      disabled={oauthLoading !== null}
+                      className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/80 text-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white disabled:opacity-60"
+                    >
+                      <svg className="w-4.5 h-4.5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="#EA4335" d="M12 10.2v3.6h5.1c-.2 1.3-1.5 3.8-5.1 3.8-3.1 0-5.6-2.6-5.6-5.8S8.9 6 12 6c1.8 0 3 .8 3.6 1.4l2.4-2.3C16.5 3.6 14.4 2.6 12 2.6 7.6 2.6 4 6.2 4 10.6s3.6 8 8 8c4.6 0 7.6-3.2 7.6-7.8 0-.5-.1-.9-.2-1.2H12z" />
+                        <path fill="#4285F4" d="M20.8 10.6c0-.6-.1-1.1-.2-1.6H12v3.2h5.1c-.3 1.6-1.6 3-3.9 3-2.3 0-4.3-1.9-4.3-4.6s2-4.6 4.3-4.6c1.3 0 2.2.5 2.7 1l1.8-1.7C16.6 4.4 14.5 3.6 12 3.6c-3.9 0-7 3.1-7 7s3.1 7 7 7c4 0 6.6-2.8 6.6-6.8z"/>
+                      </svg>
+                      {oauthLoading === 'google' ? 'Conectando Google...' : 'Continuar con Google'}
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleOAuthLogin('discord')}
+                      disabled={oauthLoading !== null}
+                      className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-2xl border border-white/10 bg-white/[0.04] text-white/80 text-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.07] hover:text-white disabled:opacity-60"
+                    >
+                      <svg className="w-5 h-5" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill="#5865F2" d="M19.5 5.4A16.3 16.3 0 0015.5 4l-.2.4a11 11 0 012.5 1c-2.2-1-4.5-1.5-7-1.5s-4.8.5-7 1.5a11 11 0 012.5-1l-.2-.4A16.3 16.3 0 002.5 5.4C.8 8.6.4 11.7.5 14.7a16.5 16.5 0 005.1 2.6l.7-.9a10.6 10.6 0 01-1.6-.8l.4-.3c1.2.6 2.5 1 3.8 1.2 1.3.2 2.7.2 4 0 1.3-.2 2.6-.6 3.8-1.2l.4.3c-.5.3-1 .6-1.6.8l.7.9a16.5 16.5 0 005.1-2.6c.1-3-.3-6.1-2-9.3zM8.7 13.7c-.7 0-1.2-.6-1.2-1.3 0-.7.5-1.3 1.2-1.3s1.2.6 1.2 1.3c0 .7-.5 1.3-1.2 1.3zm6.6 0c-.7 0-1.2-.6-1.2-1.3 0-.7.5-1.3 1.2-1.3s1.2.6 1.2 1.3c0 .7-.5 1.3-1.2 1.3z"/>
+                      </svg>
+                      {oauthLoading === 'discord' ? 'Conectando Discord...' : 'Continuar con Discord'}
+                    </button>
+                  </div>
 
                   <button
                     type="button"
