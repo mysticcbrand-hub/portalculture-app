@@ -84,27 +84,38 @@ export default function SeleccionarAcceso() {
   return (
     <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden" style={{ backgroundColor: '#000000' }}>
       
-      {/* Ambiente cinematográfico tenue - Colores sutiles */}
+      {/* Gradientes cinematográficos - Balance perfecto */}
       <div 
         className="fixed inset-0"
         style={{
           background: `
-            radial-gradient(circle 800px at 20% 30%, rgba(30, 58, 138, 0.08), transparent 70%),
-            radial-gradient(circle 700px at 80% 70%, rgba(67, 20, 100, 0.06), transparent 65%),
-            radial-gradient(circle 600px at 50% 50%, rgba(45, 40, 90, 0.05), transparent 60%),
-            radial-gradient(circle 500px at 15% 80%, rgba(80, 20, 20, 0.04), transparent 55%),
-            radial-gradient(circle 550px at 85% 20%, rgba(4, 80, 60, 0.05), transparent 60%)
+            radial-gradient(circle 900px at 20% 30%, rgba(37, 99, 235, 0.18), transparent 65%),
+            radial-gradient(circle 800px at 80% 70%, rgba(124, 58, 237, 0.15), transparent 60%),
+            radial-gradient(circle 700px at 50% 45%, rgba(79, 70, 229, 0.12), transparent 58%),
+            radial-gradient(circle 600px at 15% 78%, rgba(220, 38, 38, 0.14), transparent 55%),
+            radial-gradient(circle 650px at 85% 22%, rgba(5, 150, 105, 0.13), transparent 58%)
           `,
         }}
       />
       
-      {/* Vignette profundo cinematográfico */}
+      {/* Noise texture para suavizar */}
+      <div 
+        className="fixed inset-0 pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '250px 250px',
+          opacity: 0.05,
+          mixBlendMode: 'overlay',
+        }}
+      />
+      
+      {/* Vignette cinematográfico */}
       <div 
         className="fixed inset-0"
         style={{
           background: `
-            radial-gradient(ellipse 75% 65% at 50% 50%, transparent 0%, rgba(0,0,0,0.6) 75%, rgba(0,0,0,0.9) 100%),
-            linear-gradient(180deg, rgba(0,0,0,0.3) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.4) 100%)
+            radial-gradient(ellipse 78% 68% at 50% 50%, transparent 0%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0.85) 100%),
+            linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.3) 100%)
           `,
         }}
       />
