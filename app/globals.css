@@ -621,3 +621,14 @@ body::after {
 .animate-bounce-subtle {
   animation: bounce-subtle 2s ease-in-out infinite;
 }
+
+/* Shimmer animation for cards */
+@keyframes shine {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shine {
+  animation: shine 1.8s ease-in-out;
+}

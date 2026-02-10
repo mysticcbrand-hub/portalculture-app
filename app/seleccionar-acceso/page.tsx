@@ -46,16 +46,54 @@ export default function SeleccionarAcceso() {
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Premium Mesh Gradient Background - Igual que landing */}
+      {/* Premium Mesh Gradient Background - Optimizado sin banding */}
       <MeshGradient variant="midnight" intensity="high" />
       <div
         className="absolute inset-0 -z-10"
         style={{
-          background: `radial-gradient(ellipse 95% 75% at 20% 10%, rgba(59, 130, 246, 0.20) 0%, rgba(37, 99, 235, 0.12) 35%, transparent 70%),
-          radial-gradient(ellipse 85% 75% at 85% 75%, rgba(139, 92, 246, 0.18) 0%, rgba(109, 40, 217, 0.10) 40%, transparent 75%),
-          radial-gradient(ellipse 75% 65% at 50% 30%, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.08) 45%, transparent 75%),
-          radial-gradient(ellipse 70% 60% at 15% 85%, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.06) 45%, transparent 75%),
-          linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.50) 100%)`
+          background: `
+            radial-gradient(ellipse 100% 80% at 20% 10%, 
+              rgba(59, 130, 246, 0.25) 0%, 
+              rgba(59, 130, 246, 0.22) 10%,
+              rgba(37, 99, 235, 0.18) 20%,
+              rgba(37, 99, 235, 0.14) 30%,
+              rgba(37, 99, 235, 0.10) 40%,
+              rgba(30, 80, 200, 0.06) 50%,
+              rgba(20, 60, 180, 0.03) 60%,
+              transparent 70%
+            ),
+            radial-gradient(ellipse 90% 80% at 85% 75%, 
+              rgba(139, 92, 246, 0.22) 0%,
+              rgba(139, 92, 246, 0.19) 10%,
+              rgba(109, 40, 217, 0.15) 20%,
+              rgba(109, 40, 217, 0.11) 30%,
+              rgba(90, 30, 180, 0.08) 40%,
+              rgba(70, 20, 150, 0.04) 55%,
+              transparent 70%
+            ),
+            radial-gradient(ellipse 80% 70% at 50% 30%, 
+              rgba(99, 102, 241, 0.20) 0%,
+              rgba(99, 102, 241, 0.17) 12%,
+              rgba(79, 70, 229, 0.13) 25%,
+              rgba(79, 70, 229, 0.09) 40%,
+              rgba(60, 50, 200, 0.05) 55%,
+              transparent 70%
+            ),
+            radial-gradient(ellipse 75% 65% at 15% 85%, 
+              rgba(239, 68, 68, 0.16) 0%,
+              rgba(239, 68, 68, 0.13) 15%,
+              rgba(220, 38, 38, 0.09) 30%,
+              rgba(200, 30, 30, 0.05) 50%,
+              transparent 70%
+            ),
+            linear-gradient(180deg, 
+              rgba(0,0,0,0.35) 0%, 
+              rgba(0,0,0,0.25) 20%,
+              rgba(0,0,0,0.12) 40%, 
+              rgba(0,0,0,0.08) 60%,
+              rgba(0,0,0,0.40) 100%
+            )
+          `,
         }}
       />
       
@@ -78,14 +116,14 @@ export default function SeleccionarAcceso() {
             onMouseEnter={() => setHoveredCard(1)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={handleFastPass}
-            className="relative cursor-pointer group order-1"
+            className="relative cursor-pointer group order-1 isolate"
           >
             {/* Outer glow rojo */}
             <div 
-              className="absolute -inset-1 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none will-change-opacity"
               style={{
                 background: 'radial-gradient(ellipse 110% 100% at 50% 50%, rgba(239,68,68,0.25) 0%, rgba(220,38,38,0.12) 40%, transparent 70%)',
-                filter: 'blur(20px)',
+                filter: 'blur(24px)',
               }}
             />
             
@@ -103,9 +141,15 @@ export default function SeleccionarAcceso() {
                   : '0 10px 30px -10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}
             >
-              {/* Shimmer effect - Fixed smooth */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden">
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] ease-out bg-gradient-to-r from-transparent via-white/12 to-transparent" />
+              {/* Shimmer effect - Visible y suave */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-3xl">
+                <div 
+                  className="absolute inset-0 group-hover:animate-shine"
+                  style={{
+                    background: 'linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.3) 45%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.3) 55%, transparent 75%)',
+                    transform: 'translateX(-100%)',
+                  }}
+                />
               </div>
               
               {/* Tag PREMIUM */}
@@ -172,14 +216,14 @@ export default function SeleccionarAcceso() {
             onMouseEnter={() => setHoveredCard(2)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={handleWaitlist}
-            className="relative cursor-pointer group order-2"
+            className="relative cursor-pointer group order-2 isolate"
           >
             {/* Outer glow azul suave */}
             <div 
-              className="absolute -inset-1 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none will-change-opacity"
               style={{
                 background: 'radial-gradient(ellipse 110% 100% at 50% 50%, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.08) 40%, transparent 70%)',
-                filter: 'blur(18px)',
+                filter: 'blur(24px)',
               }}
             />
             
