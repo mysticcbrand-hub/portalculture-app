@@ -51,10 +51,11 @@ export default function SeleccionarAcceso() {
       <div
         className="absolute inset-0 -z-10"
         style={{
-          background: `radial-gradient(ellipse 90% 70% at 20% 10%, rgba(59, 130, 246, 0.14) 0%, rgba(37, 99, 235, 0.08) 35%, transparent 70%),
-          radial-gradient(ellipse 80% 70% at 85% 75%, rgba(139, 92, 246, 0.12) 0%, rgba(109, 40, 217, 0.07) 40%, transparent 75%),
-          radial-gradient(ellipse 70% 60% at 50% 30%, rgba(99, 102, 241, 0.10) 0%, rgba(79, 70, 229, 0.05) 45%, transparent 75%),
-          linear-gradient(180deg, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.2) 45%, rgba(0,0,0,0.55) 100%)`
+          background: `radial-gradient(ellipse 95% 75% at 20% 10%, rgba(59, 130, 246, 0.20) 0%, rgba(37, 99, 235, 0.12) 35%, transparent 70%),
+          radial-gradient(ellipse 85% 75% at 85% 75%, rgba(139, 92, 246, 0.18) 0%, rgba(109, 40, 217, 0.10) 40%, transparent 75%),
+          radial-gradient(ellipse 75% 65% at 50% 30%, rgba(99, 102, 241, 0.15) 0%, rgba(79, 70, 229, 0.08) 45%, transparent 75%),
+          radial-gradient(ellipse 70% 60% at 15% 85%, rgba(239, 68, 68, 0.12) 0%, rgba(220, 38, 38, 0.06) 45%, transparent 75%),
+          linear-gradient(180deg, rgba(0,0,0,0.40) 0%, rgba(0,0,0,0.15) 45%, rgba(0,0,0,0.50) 100%)`
         }}
       />
       
@@ -102,9 +103,9 @@ export default function SeleccionarAcceso() {
                   : '0 10px 30px -10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}
             >
-              {/* Shimmer effect */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 group-hover:animate-shimmer pointer-events-none">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent -translate-x-full" />
+              {/* Shimmer effect - Fixed smooth */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden">
+                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-[1500ms] ease-out bg-gradient-to-r from-transparent via-white/12 to-transparent" />
               </div>
               
               {/* Tag PREMIUM */}
@@ -136,19 +137,19 @@ export default function SeleccionarAcceso() {
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
+                  <span className="text-white/80 text-sm sm:text-base font-medium">⚡ Templos desbloqueados al instante</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                  <span className="text-white/80 text-sm sm:text-base">Rol exclusivo en Discord</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
                   <span className="text-white/80 text-sm sm:text-base">Acceso de por vida</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/80 text-sm sm:text-base font-medium">⚡ Sin esperas - Activa en 30 segundos</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/80 text-sm sm:text-base">Comunidad Discord exclusiva</span>
                 </li>
               </ul>
 
@@ -222,19 +223,19 @@ export default function SeleccionarAcceso() {
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/70 text-sm sm:text-base">Acceso de por vida</span>
+                  <span className="text-white/70 text-sm sm:text-base">Templos se desbloquean progresivamente</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                  <span className="text-white/70 text-sm sm:text-base">Rol exclusivo en Discord</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
                   <span className="text-white/70 text-sm sm:text-base">Espera de 1-3 días (revisión manual)</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/70 text-sm sm:text-base">Comunidad Discord exclusiva</span>
                 </li>
               </ul>
 
