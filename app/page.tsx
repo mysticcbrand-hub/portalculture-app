@@ -578,7 +578,7 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('google')}
                       disabled={oauthLoading !== null}
-                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/15 bg-gradient-to-br from-white/[0.08] to-white/[0.04] text-white text-sm font-semibold transition-all duration-300 hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/15 bg-gradient-to-br from-white/[0.08] to-white/[0.04] text-white text-sm font-semibold transition-all duration-300 hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100 overflow-hidden"
                     >
                       <div className="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-lg">
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -599,7 +599,7 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('discord')}
                       disabled={oauthLoading !== null}
-                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-[#5865F2]/30 bg-gradient-to-br from-[#5865F2]/[0.15] to-[#5865F2]/[0.08] text-white text-sm font-semibold transition-all duration-300 hover:border-[#5865F2]/50 hover:from-[#5865F2]/[0.20] hover:to-[#5865F2]/[0.12] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(88,101,242,0.2)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-[#5865F2]/30 bg-gradient-to-br from-[#5865F2]/[0.15] to-[#5865F2]/[0.08] text-white text-sm font-semibold transition-all duration-300 hover:border-[#5865F2]/50 hover:from-[#5865F2]/[0.20] hover:to-[#5865F2]/[0.12] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(88,101,242,0.2)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100 overflow-hidden"
                     >
                       <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#5865F2] shadow-lg">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
@@ -826,7 +826,7 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('google')}
                       disabled={oauthLoading !== null}
-                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/15 bg-gradient-to-br from-white/[0.08] to-white/[0.04] text-white text-sm font-semibold transition-all duration-300 hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-white/15 bg-gradient-to-br from-white/[0.08] to-white/[0.04] text-white text-sm font-semibold transition-all duration-300 hover:border-white/30 hover:from-white/[0.12] hover:to-white/[0.06] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(255,255,255,0.1)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100 overflow-hidden"
                     >
                       <div className="flex items-center justify-center w-9 h-9 rounded-full bg-white shadow-lg">
                         <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -847,7 +847,7 @@ function HomePageContent() {
                       type="button"
                       onClick={() => handleOAuthLogin('discord')}
                       disabled={oauthLoading !== null}
-                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-[#5865F2]/30 bg-gradient-to-br from-[#5865F2]/[0.15] to-[#5865F2]/[0.08] text-white text-sm font-semibold transition-all duration-300 hover:border-[#5865F2]/50 hover:from-[#5865F2]/[0.20] hover:to-[#5865F2]/[0.12] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(88,101,242,0.2)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100"
+                      className="group/oauth relative w-full flex items-center justify-center gap-3 px-4 py-4 rounded-2xl border border-[#5865F2]/30 bg-gradient-to-br from-[#5865F2]/[0.15] to-[#5865F2]/[0.08] text-white text-sm font-semibold transition-all duration-300 hover:border-[#5865F2]/50 hover:from-[#5865F2]/[0.20] hover:to-[#5865F2]/[0.12] hover:scale-[1.02] hover:shadow-[0_8px_30px_rgba(88,101,242,0.2)] active:scale-[0.98] disabled:opacity-60 disabled:hover:scale-100 overflow-hidden"
                     >
                       <div className="flex items-center justify-center w-9 h-9 rounded-full bg-[#5865F2] shadow-lg">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="white">
