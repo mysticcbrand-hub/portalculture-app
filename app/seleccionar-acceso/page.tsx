@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
+import { createClient } from '@/utils/supabase/client'
 import MeshGradient from '@/components/MeshGradient'
 
 export default function SeleccionarAcceso() {
@@ -10,7 +10,7 @@ export default function SeleccionarAcceso() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
-  const supabase = createClientComponentClient()
+  const supabase = createClient()
 
   useEffect(() => {
     const getUser = async () => {
