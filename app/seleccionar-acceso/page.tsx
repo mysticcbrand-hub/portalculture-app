@@ -82,49 +82,140 @@ export default function SeleccionarAcceso() {
   }
 
   return (
-    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Cinematic Gradient Background - Dramatic & Focused with deband */}
+    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden" style={{ backgroundColor: '#000000' }}>
+      {/* Apple-Grade Cinematic Background - Sistema completo anti-banding */}
+      
+      {/* Layer 1: Base noise texture (como landing) */}
       <div 
-        className="fixed inset-0 -z-10" 
+        className="fixed inset-0 -z-[15] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '300px 300px',
+          opacity: 0.06,
+          mixBlendMode: 'soft-light',
+        }}
+      />
+      
+      {/* Layer 2: Color gradients con 8 stops cada uno (anti-banding real) */}
+      <div 
+        className="fixed inset-0 -z-[14]"
         style={{
           background: `
-            radial-gradient(circle 1100px at 22% 35%, rgba(29, 78, 216, 0.14) 0%, rgba(29, 78, 216, 0.12) 20%, rgba(29, 78, 216, 0.09) 35%, rgba(29, 78, 216, 0.06) 48%, rgba(29, 78, 216, 0.03) 58%, transparent 65%),
-            radial-gradient(circle 950px at 78% 65%, rgba(88, 28, 135, 0.12) 0%, rgba(88, 28, 135, 0.10) 18%, rgba(88, 28, 135, 0.07) 32%, rgba(88, 28, 135, 0.04) 45%, rgba(88, 28, 135, 0.02) 53%, transparent 60%),
-            radial-gradient(circle 800px at 50% 48%, rgba(67, 56, 202, 0.10) 0%, rgba(67, 56, 202, 0.08) 16%, rgba(67, 56, 202, 0.06) 30%, rgba(67, 56, 202, 0.04) 42%, rgba(67, 56, 202, 0.02) 50%, transparent 55%),
-            radial-gradient(circle 700px at 12% 78%, rgba(185, 28, 28, 0.11) 0%, rgba(185, 28, 28, 0.09) 16%, rgba(185, 28, 28, 0.07) 30%, rgba(185, 28, 28, 0.04) 42%, rgba(185, 28, 28, 0.02) 50%, transparent 55%),
-            radial-gradient(circle 750px at 88% 22%, rgba(5, 150, 105, 0.11) 0%, rgba(5, 150, 105, 0.09) 16%, rgba(5, 150, 105, 0.07) 30%, rgba(5, 150, 105, 0.04) 42%, rgba(5, 150, 105, 0.02) 50%, transparent 55%),
-            radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 25%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.7) 100%),
-            radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.40) 30%, rgba(0,0,0,0.60) 60%, rgba(0,0,0,0.75) 85%, rgba(0,0,0,0.85) 100%)
+            radial-gradient(
+              circle 1100px at 22% 35%, 
+              rgba(29, 78, 216, 0.14) 0%,
+              rgba(27, 73, 201, 0.125) 12%,
+              rgba(24, 68, 186, 0.11) 24%,
+              rgba(21, 62, 171, 0.095) 36%,
+              rgba(18, 56, 156, 0.08) 48%,
+              rgba(15, 50, 141, 0.06) 58%,
+              rgba(12, 44, 126, 0.04) 68%,
+              rgba(8, 38, 111, 0.02) 78%,
+              transparent 88%
+            ),
+            radial-gradient(
+              circle 950px at 78% 65%, 
+              rgba(88, 28, 135, 0.12) 0%,
+              rgba(82, 26, 126, 0.105) 12%,
+              rgba(76, 24, 117, 0.09) 24%,
+              rgba(70, 22, 108, 0.075) 36%,
+              rgba(64, 20, 99, 0.06) 48%,
+              rgba(58, 18, 90, 0.045) 60%,
+              rgba(52, 16, 81, 0.03) 72%,
+              rgba(46, 14, 72, 0.015) 84%,
+              transparent 96%
+            ),
+            radial-gradient(
+              circle 800px at 50% 48%, 
+              rgba(67, 56, 202, 0.10) 0%,
+              rgba(62, 52, 188, 0.088) 12%,
+              rgba(57, 48, 174, 0.076) 24%,
+              rgba(52, 44, 160, 0.064) 36%,
+              rgba(47, 40, 146, 0.052) 48%,
+              rgba(42, 36, 132, 0.04) 60%,
+              rgba(37, 32, 118, 0.028) 72%,
+              rgba(32, 28, 104, 0.016) 84%,
+              transparent 96%
+            ),
+            radial-gradient(
+              circle 700px at 12% 78%, 
+              rgba(185, 28, 28, 0.11) 0%,
+              rgba(172, 26, 26, 0.096) 12%,
+              rgba(159, 24, 24, 0.082) 24%,
+              rgba(146, 22, 22, 0.068) 36%,
+              rgba(133, 20, 20, 0.054) 48%,
+              rgba(120, 18, 18, 0.04) 60%,
+              rgba(107, 16, 16, 0.026) 72%,
+              rgba(94, 14, 14, 0.012) 84%,
+              transparent 96%
+            ),
+            radial-gradient(
+              circle 750px at 88% 22%, 
+              rgba(5, 150, 105, 0.11) 0%,
+              rgba(5, 140, 98, 0.096) 12%,
+              rgba(4, 130, 91, 0.082) 24%,
+              rgba(4, 120, 84, 0.068) 36%,
+              rgba(3, 110, 77, 0.054) 48%,
+              rgba(3, 100, 70, 0.04) 60%,
+              rgba(2, 90, 63, 0.026) 72%,
+              rgba(2, 80, 56, 0.012) 84%,
+              transparent 96%
+            )
           `,
-          backgroundColor: '#000000'
         }}
       />
       
-      {/* Multi-layer noise dithering - Anti-banding premium */}
+      {/* Layer 3: Vignette profundo con 8 stops (estilo landing mejorado) */}
       <div 
-        className="fixed inset-0 -z-[9] pointer-events-none"
+        className="fixed inset-0 -z-[13]"
         style={{
-          opacity: 0.04,
-          mixBlendMode: 'overlay',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '200px 200px',
-        }}
-      />
-      <div 
-        className="fixed inset-0 -z-[9] pointer-events-none"
-        style={{
-          opacity: 0.02,
-          mixBlendMode: 'soft-light',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter2)'/%3E%3C/svg%3E")`,
-          backgroundSize: '300px 300px',
+          background: `
+            radial-gradient(
+              ellipse 85% 75% at 50% 50%,
+              rgba(0, 0, 0, 0) 0%,
+              rgba(2, 2, 2, 0.12) 12%,
+              rgba(4, 4, 4, 0.24) 24%,
+              rgba(6, 6, 6, 0.36) 36%,
+              rgba(8, 8, 8, 0.48) 48%,
+              rgba(6, 6, 6, 0.60) 60%,
+              rgba(4, 4, 4, 0.72) 72%,
+              rgba(2, 2, 2, 0.84) 84%,
+              rgba(0, 0, 0, 0.92) 100%
+            )
+          `,
         }}
       />
       
-      {/* Cinematic blur vignette - Focus on center */}
+      {/* Layer 4: Vertical depth gradient (como landing) */}
       <div 
-        className="fixed inset-0 -z-[8] pointer-events-none"
+        className="fixed inset-0 -z-[12] pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.10) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.7) 100%)`,
+          background: `linear-gradient(
+            180deg,
+            rgba(0, 0, 0, 0) 0%,
+            rgba(5, 5, 5, 0.2) 15%,
+            rgba(8, 8, 8, 0.35) 30%,
+            rgba(10, 10, 10, 0.45) 50%,
+            rgba(8, 8, 8, 0.35) 70%,
+            rgba(5, 5, 5, 0.2) 85%,
+            rgba(0, 0, 0, 0) 100%
+          )`,
+        }}
+      />
+      
+      {/* Layer 5: Focus vignette cinematográfico */}
+      <div 
+        className="fixed inset-0 -z-[11] pointer-events-none"
+        style={{
+          background: `radial-gradient(
+            ellipse 68% 58% at 50% 50%, 
+            transparent 0%,
+            rgba(0, 0, 0, 0.08) 30%,
+            rgba(0, 0, 0, 0.18) 50%,
+            rgba(0, 0, 0, 0.32) 70%,
+            rgba(0, 0, 0, 0.50) 85%,
+            rgba(0, 0, 0, 0.70) 100%
+          )`,
         }}
       />
       
