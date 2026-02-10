@@ -45,65 +45,63 @@ export default function SeleccionarAcceso() {
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Apple-style Premium Gradient Background - Sin banding */}
+      {/* Apple-style Premium Gradient Background - Brillante y visible */}
       <div 
-        className="absolute inset-0 -z-10"
+        className="fixed inset-0 -z-10"
         style={{
           background: `
             radial-gradient(ellipse 140% 100% at 25% 15%, 
-              #3b82f6 0%, 
-              #2563eb 8%,
-              #1d4ed8 15%,
-              #1e40af 22%,
-              #1e3a8a 30%,
+              rgba(59, 130, 246, 0.4) 0%, 
+              rgba(37, 99, 235, 0.35) 8%,
+              rgba(29, 78, 216, 0.28) 15%,
+              rgba(30, 64, 175, 0.20) 22%,
+              rgba(30, 58, 138, 0.12) 30%,
               transparent 50%
             ),
             radial-gradient(ellipse 120% 100% at 80% 70%, 
-              #8b5cf6 0%,
-              #7c3aed 10%,
-              #6d28d9 18%,
-              #5b21b6 28%,
+              rgba(139, 92, 246, 0.38) 0%,
+              rgba(124, 58, 237, 0.32) 10%,
+              rgba(109, 40, 217, 0.25) 18%,
+              rgba(91, 33, 182, 0.16) 28%,
               transparent 45%
             ),
             radial-gradient(ellipse 100% 80% at 50% 25%, 
-              #6366f1 0%,
-              #4f46e5 12%,
-              #4338ca 22%,
+              rgba(99, 102, 241, 0.35) 0%,
+              rgba(79, 70, 229, 0.28) 12%,
+              rgba(67, 56, 202, 0.18) 22%,
               transparent 40%
             ),
             radial-gradient(ellipse 90% 70% at 18% 82%, 
-              #ef4444 0%,
-              #dc2626 15%,
-              #b91c1c 25%,
+              rgba(239, 68, 68, 0.28) 0%,
+              rgba(220, 38, 38, 0.20) 15%,
+              rgba(185, 28, 28, 0.12) 25%,
               transparent 40%
             ),
             radial-gradient(ellipse 85% 75% at 75% 18%, 
-              #10b981 0%,
-              #059669 12%,
-              #047857 22%,
+              rgba(16, 185, 129, 0.30) 0%,
+              rgba(5, 150, 105, 0.22) 12%,
+              rgba(4, 120, 87, 0.14) 22%,
               transparent 35%
             ),
             radial-gradient(circle at 60% 50%,
-              rgba(139, 92, 246, 0.15) 0%,
+              rgba(139, 92, 246, 0.20) 0%,
               transparent 40%
             ),
             linear-gradient(180deg, 
-              rgba(0,0,0,0.4) 0%, 
-              rgba(0,0,0,0.2) 30%,
-              rgba(0,0,0,0.1) 50%, 
-              rgba(0,0,0,0.25) 80%,
-              rgba(0,0,0,0.5) 100%
-            ),
-            #000000
+              rgba(0,0,0,0.5) 0%, 
+              rgba(0,0,0,0.3) 30%,
+              rgba(0,0,0,0.2) 50%, 
+              rgba(0,0,0,0.35) 80%,
+              rgba(0,0,0,0.6) 100%
+            )
           `,
-          backgroundBlendMode: 'screen, screen, screen, screen, screen, overlay, normal, normal',
-          filter: 'contrast(1.1) saturate(1.3)',
+          backgroundColor: '#000000',
         }}
       />
       
       {/* Animated grain overlay - Apple style */}
       <div 
-        className="absolute inset-0 -z-[9] opacity-[0.015] mix-blend-overlay pointer-events-none"
+        className="fixed inset-0 -z-[9] opacity-[0.015] mix-blend-overlay pointer-events-none"
         style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
           backgroundRepeat: 'repeat',
@@ -132,20 +130,12 @@ export default function SeleccionarAcceso() {
             className="relative cursor-pointer group order-1"
             style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
           >
-            {/* Multi-layer outer glow - Premium */}
+            {/* Outer glow - Premium suavizado */}
             <div 
-              className="absolute -inset-4 rounded-[36px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+              className="absolute -inset-3 rounded-[34px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 130% 120% at 50% 50%, rgba(239,68,68,0.4) 0%, rgba(220,38,38,0.25) 30%, rgba(185,28,28,0.12) 60%, transparent 85%)',
-                filter: 'blur(32px)',
-                zIndex: -2,
-              }}
-            />
-            <div 
-              className="absolute -inset-2 rounded-[34px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse 110% 110% at 50% 50%, rgba(239,68,68,0.3) 0%, rgba(220,38,38,0.15) 50%, transparent 80%)',
-                filter: 'blur(20px)',
+                background: 'radial-gradient(ellipse 120% 110% at 50% 50%, rgba(239,68,68,0.25) 0%, rgba(220,38,38,0.14) 35%, rgba(185,28,28,0.06) 65%, transparent 85%)',
+                filter: 'blur(24px)',
                 zIndex: -1,
               }}
             />
@@ -177,15 +167,15 @@ export default function SeleccionarAcceso() {
                 transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             >
-              {/* Shimmer effect loop - Premium subtle */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-3xl">
+              {/* Shimmer effect loop - Premium ultra suave y lento */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden rounded-3xl">
                 <div 
                   className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.1) 55%, transparent 65%, transparent 100%)',
-                    transform: 'translateX(-100%) skewX(-15deg)',
+                    background: 'linear-gradient(110deg, transparent 0%, transparent 40%, rgba(255,255,255,0.06) 47%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 53%, transparent 60%, transparent 100%)',
+                    transform: 'translateX(-100%) skewX(-12deg)',
                     width: '200%',
-                    animation: hoveredCard === 1 ? 'shimmer 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' : 'none',
+                    animation: hoveredCard === 1 ? 'shimmer 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' : 'none',
                   }}
                 />
               </div>
@@ -227,7 +217,13 @@ export default function SeleccionarAcceso() {
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/80 text-sm sm:text-base font-medium">⚡ Templos desbloqueados al instante</span>
+                  <span className="text-white/80 text-sm sm:text-base font-medium">⚡ Accede al instante</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                  <span className="text-white/80 text-sm sm:text-base">Templos desbloqueados al instante</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
