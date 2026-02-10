@@ -45,19 +45,29 @@ export default function SeleccionarAcceso() {
 
   return (
     <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Gradient Background VISIBLE - Sistema directo */}
+      {/* Cinematic Gradient Background - Dramatic & Focused */}
       <div 
         className="fixed inset-0 -z-10" 
         style={{
           background: `
-            radial-gradient(circle 1200px at 20% 30%, rgba(59, 130, 246, 0.25) 0%, transparent 70%),
-            radial-gradient(circle 1000px at 80% 70%, rgba(139, 92, 246, 0.22) 0%, transparent 65%),
-            radial-gradient(circle 900px at 50% 50%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
-            radial-gradient(circle 800px at 15% 80%, rgba(239, 68, 68, 0.20) 0%, transparent 60%),
-            radial-gradient(circle 850px at 85% 20%, rgba(16, 185, 129, 0.20) 0%, transparent 60%),
-            radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%)
+            radial-gradient(circle 1100px at 22% 35%, rgba(29, 78, 216, 0.14) 0%, transparent 65%),
+            radial-gradient(circle 950px at 78% 65%, rgba(88, 28, 135, 0.12) 0%, transparent 60%),
+            radial-gradient(circle 800px at 50% 48%, rgba(67, 56, 202, 0.10) 0%, transparent 55%),
+            radial-gradient(circle 700px at 12% 78%, rgba(185, 28, 28, 0.11) 0%, transparent 55%),
+            radial-gradient(circle 750px at 88% 22%, rgba(5, 150, 105, 0.11) 0%, transparent 55%),
+            radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%),
+            radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%)
           `,
           backgroundColor: '#000000'
+        }}
+      />
+      
+      {/* Cinematic blur vignette - Focus on center */}
+      <div 
+        className="fixed inset-0 -z-[9] pointer-events-none"
+        style={{
+          background: `radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.7) 100%)`,
+          backdropFilter: 'blur(0px)',
         }}
       />
       
@@ -93,31 +103,31 @@ export default function SeleccionarAcceso() {
               }}
             />
             
-            {/* Card con gradiente premium */}
+            {/* Card con gradiente premium - Cinematic depth */}
             <div 
-              className="relative h-full p-6 sm:p-8 rounded-3xl border overflow-hidden backdrop-blur-2xl backdrop-saturate-150"
+              className="relative h-full p-6 sm:p-8 rounded-3xl border overflow-hidden backdrop-blur-xl backdrop-saturate-150"
               style={{
                 background: hoveredCard === 1
                   ? `
                     linear-gradient(135deg, 
-                      rgba(239,68,68,0.20) 0%, 
-                      rgba(220,38,38,0.14) 40%, 
-                      rgba(185,28,28,0.10) 100%
+                      rgba(239,68,68,0.16) 0%, 
+                      rgba(220,38,38,0.11) 40%, 
+                      rgba(185,28,28,0.08) 100%
                     )
                   `
                   : `
                     linear-gradient(135deg, 
-                      rgba(239,68,68,0.12) 0%, 
-                      rgba(220,38,38,0.08) 40%, 
-                      rgba(185,28,28,0.05) 100%
+                      rgba(239,68,68,0.10) 0%, 
+                      rgba(220,38,38,0.06) 40%, 
+                      rgba(185,28,28,0.04) 100%
                     )
                   `,
-                borderColor: hoveredCard === 1 ? 'rgba(239,68,68,0.45)' : 'rgba(239,68,68,0.25)',
-                transform: hoveredCard === 1 ? 'translateY(-6px) scale(1.015)' : 'translateY(0) scale(1)',
+                borderColor: hoveredCard === 1 ? 'rgba(239,68,68,0.40)' : 'rgba(239,68,68,0.20)',
+                transform: hoveredCard === 1 ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
                 boxShadow: hoveredCard === 1 
-                  ? '0 30px 60px -15px rgba(239,68,68,0.4), 0 15px 25px -10px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 0 20px rgba(255,255,255,0.03)' 
-                  : '0 10px 30px -10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
-                transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  ? '0 40px 80px -20px rgba(239,68,68,0.35), 0 20px 40px -15px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 0 40px rgba(255,255,255,0.02)' 
+                  : '0 10px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
+                transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
               {/* Shimmer effect loop - Premium ultra suave y lento */}
@@ -176,19 +186,13 @@ export default function SeleccionarAcceso() {
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/90 text-sm sm:text-base">NOVA AI ilimitado</span>
+                  <span className="text-white/90 text-sm sm:text-base">Acceso a NOVA AI</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/90 text-sm sm:text-base">Rol Premium Discord</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/90 text-sm sm:text-base">Soporte prioritario</span>
+                  <span className="text-white/90 text-sm sm:text-base">Rol Deluxe Discord</span>
                 </li>
               </ul>
 
@@ -252,31 +256,31 @@ export default function SeleccionarAcceso() {
               }}
             />
             
-            {/* Card con gradiente azul sutil */}
+            {/* Card con gradiente azul sutil - Cinematic subtle */}
             <div 
               className="relative h-full p-6 sm:p-8 rounded-3xl border backdrop-blur-xl backdrop-saturate-150 overflow-hidden"
               style={{
                 background: hoveredCard === 2
                   ? `
                     linear-gradient(135deg, 
-                      rgba(59,130,246,0.09) 0%, 
-                      rgba(37,99,235,0.06) 40%, 
-                      rgba(29,78,216,0.04) 100%
+                      rgba(59,130,246,0.08) 0%, 
+                      rgba(37,99,235,0.05) 40%, 
+                      rgba(29,78,216,0.03) 100%
                     )
                   `
                   : `
                     linear-gradient(135deg, 
-                      rgba(59,130,246,0.05) 0%, 
-                      rgba(37,99,235,0.03) 40%, 
-                      rgba(29,78,216,0.02) 100%
+                      rgba(59,130,246,0.04) 0%, 
+                      rgba(37,99,235,0.02) 40%, 
+                      rgba(29,78,216,0.01) 100%
                     )
                   `,
-                borderColor: hoveredCard === 2 ? 'rgba(59,130,246,0.28)' : 'rgba(59,130,246,0.18)',
-                transform: hoveredCard === 2 ? 'translateY(-3px) scale(1.005)' : 'translateY(0) scale(1)',
+                borderColor: hoveredCard === 2 ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.15)',
+                transform: hoveredCard === 2 ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
                 boxShadow: hoveredCard === 2 
-                  ? '0 20px 45px -15px rgba(59,130,246,0.2), 0 10px 20px -8px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 0 15px rgba(255,255,255,0.02)' 
-                  : '0 10px 30px -10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
-                transition: 'all 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
+                  ? '0 25px 50px -15px rgba(59,130,246,0.18), 0 12px 25px -10px rgba(59,130,246,0.12), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 0 30px rgba(255,255,255,0.01)' 
+                  : '0 10px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
+                transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
               }}
             >
               {/* Subtle radial highlight on hover */}
@@ -318,19 +322,13 @@ export default function SeleccionarAcceso() {
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/75 text-sm sm:text-base">NOVA AI estándar</span>
+                  <span className="text-white/75 text-sm sm:text-base">Acceso a NOVA AI</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
                   <span className="text-white/75 text-sm sm:text-base">Acceso Discord</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Soporte estándar</span>
                 </li>
               </ul>
 
