@@ -53,7 +53,7 @@ export default function SeleccionarAcceso() {
   const handleWaitlist = () => {
     // Trigger fade to black transition
     const fadeOverlay = document.createElement('div')
-    fadeOverlay.className = 'fixed inset-0 bg-black z-[9999] transition-opacity duration-1000'
+    fadeOverlay.className = 'fixed inset-0 bg-black z-[9999] transition-opacity duration-1000 pointer-events-none'
     fadeOverlay.style.opacity = '0'
     fadeOverlay.style.transitionTimingFunction = 'cubic-bezier(0.16, 1, 0.3, 1)'
     document.body.appendChild(fadeOverlay)
@@ -65,6 +65,12 @@ export default function SeleccionarAcceso() {
     // Navigate after 1 second
     setTimeout(() => {
       router.push('/dashboard')
+      // Clean up overlay after navigation starts
+      setTimeout(() => {
+        if (fadeOverlay.parentNode) {
+          document.body.removeChild(fadeOverlay)
+        }
+      }, 100)
     }, 1000)
   }
 
@@ -95,12 +101,23 @@ export default function SeleccionarAcceso() {
         }}
       />
       
-      {/* Noise dithering layer - Anti-banding */}
+      {/* Multi-layer noise dithering - Anti-banding premium */}
       <div 
-        className="fixed inset-0 -z-[9] pointer-events-none opacity-[0.03] mix-blend-overlay"
+        className="fixed inset-0 -z-[9] pointer-events-none"
         style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '180px 180px',
+          opacity: 0.04,
+          mixBlendMode: 'overlay',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '200px 200px',
+        }}
+      />
+      <div 
+        className="fixed inset-0 -z-[9] pointer-events-none"
+        style={{
+          opacity: 0.02,
+          mixBlendMode: 'soft-light',
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter2)'/%3E%3C/svg%3E")`,
+          backgroundSize: '300px 300px',
         }}
       />
       
