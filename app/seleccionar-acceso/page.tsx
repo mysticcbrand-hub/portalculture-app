@@ -28,11 +28,44 @@ export default function SeleccionarAcceso() {
   }, [router, supabase.auth])
 
   const handleFastPass = () => {
-    window.open('https://whop.com/portalculture/acceso-inmediato', '_blank')
+    // Trigger fade to black transition
+    const fadeOverlay = document.createElement('div')
+    fadeOverlay.className = 'fixed inset-0 bg-black z-[9999] transition-opacity duration-1000'
+    fadeOverlay.style.opacity = '0'
+    fadeOverlay.style.transitionTimingFunction = 'cubic-bezier(0.16, 1, 0.3, 1)'
+    document.body.appendChild(fadeOverlay)
+    
+    // Force reflow
+    fadeOverlay.offsetHeight
+    fadeOverlay.style.opacity = '1'
+    
+    // Navigate after 1 second
+    setTimeout(() => {
+      window.open('https://whop.com/portalculture/acceso-inmediato', '_blank')
+      // Fade out
+      setTimeout(() => {
+        fadeOverlay.style.opacity = '0'
+        setTimeout(() => document.body.removeChild(fadeOverlay), 1000)
+      }, 100)
+    }, 1000)
   }
 
   const handleWaitlist = () => {
-    router.push('/dashboard')
+    // Trigger fade to black transition
+    const fadeOverlay = document.createElement('div')
+    fadeOverlay.className = 'fixed inset-0 bg-black z-[9999] transition-opacity duration-1000'
+    fadeOverlay.style.opacity = '0'
+    fadeOverlay.style.transitionTimingFunction = 'cubic-bezier(0.16, 1, 0.3, 1)'
+    document.body.appendChild(fadeOverlay)
+    
+    // Force reflow
+    fadeOverlay.offsetHeight
+    fadeOverlay.style.opacity = '1'
+    
+    // Navigate after 1 second
+    setTimeout(() => {
+      router.push('/cuestionario')
+    }, 1000)
   }
 
   if (loading) {
@@ -45,29 +78,37 @@ export default function SeleccionarAcceso() {
 
   return (
     <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Cinematic Gradient Background - Dramatic & Focused */}
+      {/* Cinematic Gradient Background - Dramatic & Focused with deband */}
       <div 
         className="fixed inset-0 -z-10" 
         style={{
           background: `
-            radial-gradient(circle 1100px at 22% 35%, rgba(29, 78, 216, 0.14) 0%, transparent 65%),
-            radial-gradient(circle 950px at 78% 65%, rgba(88, 28, 135, 0.12) 0%, transparent 60%),
-            radial-gradient(circle 800px at 50% 48%, rgba(67, 56, 202, 0.10) 0%, transparent 55%),
-            radial-gradient(circle 700px at 12% 78%, rgba(185, 28, 28, 0.11) 0%, transparent 55%),
-            radial-gradient(circle 750px at 88% 22%, rgba(5, 150, 105, 0.11) 0%, transparent 55%),
-            radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.7) 100%),
-            radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%)
+            radial-gradient(circle 1100px at 22% 35%, rgba(29, 78, 216, 0.14) 0%, rgba(29, 78, 216, 0.12) 20%, rgba(29, 78, 216, 0.09) 35%, rgba(29, 78, 216, 0.06) 48%, rgba(29, 78, 216, 0.03) 58%, transparent 65%),
+            radial-gradient(circle 950px at 78% 65%, rgba(88, 28, 135, 0.12) 0%, rgba(88, 28, 135, 0.10) 18%, rgba(88, 28, 135, 0.07) 32%, rgba(88, 28, 135, 0.04) 45%, rgba(88, 28, 135, 0.02) 53%, transparent 60%),
+            radial-gradient(circle 800px at 50% 48%, rgba(67, 56, 202, 0.10) 0%, rgba(67, 56, 202, 0.08) 16%, rgba(67, 56, 202, 0.06) 30%, rgba(67, 56, 202, 0.04) 42%, rgba(67, 56, 202, 0.02) 50%, transparent 55%),
+            radial-gradient(circle 700px at 12% 78%, rgba(185, 28, 28, 0.11) 0%, rgba(185, 28, 28, 0.09) 16%, rgba(185, 28, 28, 0.07) 30%, rgba(185, 28, 28, 0.04) 42%, rgba(185, 28, 28, 0.02) 50%, transparent 55%),
+            radial-gradient(circle 750px at 88% 22%, rgba(5, 150, 105, 0.11) 0%, rgba(5, 150, 105, 0.09) 16%, rgba(5, 150, 105, 0.07) 30%, rgba(5, 150, 105, 0.04) 42%, rgba(5, 150, 105, 0.02) 50%, transparent 55%),
+            radial-gradient(ellipse 85% 75% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.15) 25%, rgba(0,0,0,0.35) 50%, rgba(0,0,0,0.55) 75%, rgba(0,0,0,0.7) 100%),
+            radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.40) 30%, rgba(0,0,0,0.60) 60%, rgba(0,0,0,0.75) 85%, rgba(0,0,0,0.85) 100%)
           `,
           backgroundColor: '#000000'
         }}
       />
       
+      {/* Noise dithering layer - Anti-banding */}
+      <div 
+        className="fixed inset-0 -z-[9] pointer-events-none opacity-[0.03] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundSize: '180px 180px',
+        }}
+      />
+      
       {/* Cinematic blur vignette - Focus on center */}
       <div 
-        className="fixed inset-0 -z-[9] pointer-events-none"
+        className="fixed inset-0 -z-[8] pointer-events-none"
         style={{
-          background: `radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 70%, rgba(0,0,0,0.7) 100%)`,
-          backdropFilter: 'blur(0px)',
+          background: `radial-gradient(ellipse 70% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.10) 40%, rgba(0,0,0,0.25) 60%, rgba(0,0,0,0.4) 75%, rgba(0,0,0,0.7) 100%)`,
         }}
       />
       
