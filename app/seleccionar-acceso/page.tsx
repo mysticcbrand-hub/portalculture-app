@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import MeshGradient from '@/components/MeshGradient'
 
 export default function SeleccionarAcceso() {
   const router = useRouter()
@@ -46,61 +45,68 @@ export default function SeleccionarAcceso() {
 
   return (
     <div className="min-h-screen bg-black text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
-      {/* Premium Mesh Gradient Background - Optimizado sin banding */}
-      <MeshGradient variant="midnight" intensity="high" />
-      <div
+      {/* Apple-style Premium Gradient Background - Sin banding */}
+      <div 
         className="absolute inset-0 -z-10"
         style={{
           background: `
-            radial-gradient(ellipse 100% 80% at 20% 10%, 
-              rgba(59, 130, 246, 0.25) 0%, 
-              rgba(59, 130, 246, 0.22) 10%,
-              rgba(37, 99, 235, 0.18) 20%,
-              rgba(37, 99, 235, 0.14) 30%,
-              rgba(37, 99, 235, 0.10) 40%,
-              rgba(30, 80, 200, 0.06) 50%,
-              rgba(20, 60, 180, 0.03) 60%,
-              transparent 70%
-            ),
-            radial-gradient(ellipse 90% 80% at 85% 75%, 
-              rgba(139, 92, 246, 0.22) 0%,
-              rgba(139, 92, 246, 0.19) 10%,
-              rgba(109, 40, 217, 0.15) 20%,
-              rgba(109, 40, 217, 0.11) 30%,
-              rgba(90, 30, 180, 0.08) 40%,
-              rgba(70, 20, 150, 0.04) 55%,
-              transparent 70%
-            ),
-            radial-gradient(ellipse 80% 70% at 50% 30%, 
-              rgba(99, 102, 241, 0.20) 0%,
-              rgba(99, 102, 241, 0.17) 12%,
-              rgba(79, 70, 229, 0.13) 25%,
-              rgba(79, 70, 229, 0.09) 40%,
-              rgba(60, 50, 200, 0.05) 55%,
-              transparent 70%
-            ),
-            radial-gradient(ellipse 75% 65% at 15% 85%, 
-              rgba(239, 68, 68, 0.16) 0%,
-              rgba(239, 68, 68, 0.13) 15%,
-              rgba(220, 38, 38, 0.09) 30%,
-              rgba(200, 30, 30, 0.05) 50%,
-              transparent 70%
-            ),
-            radial-gradient(ellipse 75% 65% at 70% 20%, 
-              rgba(16, 185, 129, 0.18) 0%,
-              rgba(16, 185, 129, 0.14) 20%,
-              rgba(5, 150, 105, 0.10) 30%,
-              rgba(4, 120, 87, 0.06) 40%,
+            radial-gradient(ellipse 140% 100% at 25% 15%, 
+              #3b82f6 0%, 
+              #2563eb 8%,
+              #1d4ed8 15%,
+              #1e40af 22%,
+              #1e3a8a 30%,
               transparent 50%
             ),
+            radial-gradient(ellipse 120% 100% at 80% 70%, 
+              #8b5cf6 0%,
+              #7c3aed 10%,
+              #6d28d9 18%,
+              #5b21b6 28%,
+              transparent 45%
+            ),
+            radial-gradient(ellipse 100% 80% at 50% 25%, 
+              #6366f1 0%,
+              #4f46e5 12%,
+              #4338ca 22%,
+              transparent 40%
+            ),
+            radial-gradient(ellipse 90% 70% at 18% 82%, 
+              #ef4444 0%,
+              #dc2626 15%,
+              #b91c1c 25%,
+              transparent 40%
+            ),
+            radial-gradient(ellipse 85% 75% at 75% 18%, 
+              #10b981 0%,
+              #059669 12%,
+              #047857 22%,
+              transparent 35%
+            ),
+            radial-gradient(circle at 60% 50%,
+              rgba(139, 92, 246, 0.15) 0%,
+              transparent 40%
+            ),
             linear-gradient(180deg, 
-              rgba(0,0,0,0.25) 0%, 
-              rgba(0,0,0,0.15) 30%,
-              rgba(0,0,0,0.05) 50%, 
-              rgba(0,0,0,0.10) 70%,
-              rgba(0,0,0,0.30) 100%
-            )
+              rgba(0,0,0,0.4) 0%, 
+              rgba(0,0,0,0.2) 30%,
+              rgba(0,0,0,0.1) 50%, 
+              rgba(0,0,0,0.25) 80%,
+              rgba(0,0,0,0.5) 100%
+            ),
+            #000000
           `,
+          backgroundBlendMode: 'screen, screen, screen, screen, screen, overlay, normal, normal',
+          filter: 'contrast(1.1) saturate(1.3)',
+        }}
+      />
+      
+      {/* Animated grain overlay - Apple style */}
+      <div 
+        className="absolute inset-0 -z-[9] opacity-[0.015] mix-blend-overlay pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
         }}
       />
       
@@ -118,49 +124,79 @@ export default function SeleccionarAcceso() {
         {/* Cards Grid */}
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           
-          {/* CARD 1: PAGO (ROJA PREMIUM) */}
+          {/* CARD 1: PAGO (PREMIUM) - Apple-style polish */}
           <div
             onMouseEnter={() => setHoveredCard(1)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={handleFastPass}
             className="relative cursor-pointer group order-1"
-            style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+            style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
           >
-            {/* Outer glow rojo */}
+            {/* Multi-layer outer glow - Premium */}
             <div 
-              className="absolute -inset-3 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              className="absolute -inset-4 rounded-[36px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 120% 110% at 50% 50%, rgba(239,68,68,0.3) 0%, rgba(220,38,38,0.15) 40%, rgba(185,28,28,0.05) 70%, transparent 80%)',
-                filter: 'blur(28px)',
+                background: 'radial-gradient(ellipse 130% 120% at 50% 50%, rgba(239,68,68,0.4) 0%, rgba(220,38,38,0.25) 30%, rgba(185,28,28,0.12) 60%, transparent 85%)',
+                filter: 'blur(32px)',
+                zIndex: -2,
+              }}
+            />
+            <div 
+              className="absolute -inset-2 rounded-[34px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
+              style={{
+                background: 'radial-gradient(ellipse 110% 110% at 50% 50%, rgba(239,68,68,0.3) 0%, rgba(220,38,38,0.15) 50%, transparent 80%)',
+                filter: 'blur(20px)',
                 zIndex: -1,
               }}
             />
             
-            {/* Card con gradiente rojo */}
+            {/* Card con gradiente premium */}
             <div 
-              className="relative h-full p-6 sm:p-8 rounded-3xl border overflow-hidden transition-all duration-500 backdrop-blur-xl backdrop-saturate-150"
+              className="relative h-full p-6 sm:p-8 rounded-3xl border overflow-hidden backdrop-blur-2xl backdrop-saturate-150"
               style={{
                 background: hoveredCard === 1
-                  ? 'linear-gradient(135deg, rgba(239,68,68,0.15) 0%, rgba(220,38,38,0.10) 50%, rgba(185,28,28,0.08) 100%)'
-                  : 'linear-gradient(135deg, rgba(239,68,68,0.10) 0%, rgba(220,38,38,0.06) 50%, rgba(185,28,28,0.04) 100%)',
-                borderColor: hoveredCard === 1 ? 'rgba(239,68,68,0.35)' : 'rgba(239,68,68,0.20)',
-                transform: hoveredCard === 1 ? 'translateY(-4px) scale(1.02)' : 'translateY(0) scale(1)',
+                  ? `
+                    linear-gradient(135deg, 
+                      rgba(239,68,68,0.20) 0%, 
+                      rgba(220,38,38,0.14) 40%, 
+                      rgba(185,28,28,0.10) 100%
+                    )
+                  `
+                  : `
+                    linear-gradient(135deg, 
+                      rgba(239,68,68,0.12) 0%, 
+                      rgba(220,38,38,0.08) 40%, 
+                      rgba(185,28,28,0.05) 100%
+                    )
+                  `,
+                borderColor: hoveredCard === 1 ? 'rgba(239,68,68,0.45)' : 'rgba(239,68,68,0.25)',
+                transform: hoveredCard === 1 ? 'translateY(-6px) scale(1.015)' : 'translateY(0) scale(1)',
                 boxShadow: hoveredCard === 1 
-                  ? '0 25px 50px -12px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.15)' 
-                  : '0 10px 30px -10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
+                  ? '0 30px 60px -15px rgba(239,68,68,0.4), 0 15px 25px -10px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 0 20px rgba(255,255,255,0.03)' 
+                  : '0 10px 30px -10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1)',
+                transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             >
-              {/* Shimmer effect - Premium visible */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none overflow-hidden rounded-3xl">
+              {/* Shimmer effect loop - Premium subtle */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-3xl">
                 <div 
-                  className="absolute inset-0 group-hover:translate-x-full transition-transform duration-1000 ease-out"
+                  className="absolute inset-0"
                   style={{
-                    background: 'linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 60%, transparent 80%)',
-                    transform: 'translateX(-100%)',
-                    width: '150%',
+                    background: 'linear-gradient(110deg, transparent 0%, transparent 35%, rgba(255,255,255,0.1) 45%, rgba(255,255,255,0.25) 50%, rgba(255,255,255,0.1) 55%, transparent 65%, transparent 100%)',
+                    transform: 'translateX(-100%) skewX(-15deg)',
+                    width: '200%',
+                    animation: hoveredCard === 1 ? 'shimmer 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' : 'none',
                   }}
                 />
               </div>
+              
+              {/* Radial highlight on hover */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl"
+                style={{
+                  background: 'radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08) 0%, transparent 100%)',
+                }}
+              />
               
               {/* Tag PREMIUM */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/30 mb-6">
@@ -207,52 +243,100 @@ export default function SeleccionarAcceso() {
                 </li>
               </ul>
 
-              {/* Button Premium */}
+              {/* Button Premium - Apple polish */}
               <a
                 href="https://whop.com/portalculture/acceso-inmediato"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="relative block w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white text-sm font-bold rounded-2xl transition-all duration-300 hover:from-red-500 hover:to-red-600 hover:shadow-[0_10px_40px_rgba(239,68,68,0.4)] hover:scale-[1.02] active:scale-[0.98] text-center overflow-hidden group/btn"
+                className="relative block w-full py-4 bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white text-sm font-bold rounded-2xl text-center overflow-hidden group/btn"
+                style={{
+                  boxShadow: '0 4px 14px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.25)',
+                  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
+                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(239,68,68,0.45), 0 6px 20px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.3)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.25)'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(0.98)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
+                }}
               >
-                <span className="relative z-10">Acceder ahora →</span>
-                {/* Inner shimmer */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity" />
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  Acceder ahora
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
+                {/* Subtle shimmer on hover */}
+                <div 
+                  className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"
+                  style={{
+                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
+                  }}
+                />
               </a>
             </div>
           </div>
 
-          {/* CARD 2: GRATIS (AZUL NORMAL) */}
+          {/* CARD 2: GRATIS (SUBTLE) - Apple-style minimal */}
           <div
             onMouseEnter={() => setHoveredCard(2)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={handleWaitlist}
             className="relative cursor-pointer group order-2"
-            style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
+            style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
           >
-            {/* Outer glow azul suave */}
+            {/* Outer glow azul muy suave */}
             <div 
-              className="absolute -inset-3 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+              className="absolute -inset-2 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 120% 110% at 50% 50%, rgba(59,130,246,0.2) 0%, rgba(37,99,235,0.1) 40%, rgba(29,78,216,0.04) 70%, transparent 80%)',
-                filter: 'blur(28px)',
+                background: 'radial-gradient(ellipse 110% 110% at 50% 50%, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.08) 50%, transparent 75%)',
+                filter: 'blur(24px)',
                 zIndex: -1,
               }}
             />
             
-            {/* Card con gradiente azul */}
+            {/* Card con gradiente azul sutil */}
             <div 
-              className="relative h-full p-6 sm:p-8 rounded-3xl border transition-all duration-500 backdrop-blur-xl backdrop-saturate-150 overflow-hidden"
+              className="relative h-full p-6 sm:p-8 rounded-3xl border backdrop-blur-xl backdrop-saturate-150 overflow-hidden"
               style={{
                 background: hoveredCard === 2
-                  ? 'linear-gradient(135deg, rgba(59,130,246,0.10) 0%, rgba(37,99,235,0.06) 50%, rgba(29,78,216,0.04) 100%)'
-                  : 'linear-gradient(135deg, rgba(59,130,246,0.06) 0%, rgba(37,99,235,0.04) 50%, rgba(29,78,216,0.02) 100%)',
-                borderColor: hoveredCard === 2 ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.15)',
-                transform: hoveredCard === 2 ? 'translateY(-2px)' : 'translateY(0)',
+                  ? `
+                    linear-gradient(135deg, 
+                      rgba(59,130,246,0.09) 0%, 
+                      rgba(37,99,235,0.06) 40%, 
+                      rgba(29,78,216,0.04) 100%
+                    )
+                  `
+                  : `
+                    linear-gradient(135deg, 
+                      rgba(59,130,246,0.05) 0%, 
+                      rgba(37,99,235,0.03) 40%, 
+                      rgba(29,78,216,0.02) 100%
+                    )
+                  `,
+                borderColor: hoveredCard === 2 ? 'rgba(59,130,246,0.28)' : 'rgba(59,130,246,0.18)',
+                transform: hoveredCard === 2 ? 'translateY(-3px) scale(1.005)' : 'translateY(0) scale(1)',
                 boxShadow: hoveredCard === 2 
-                  ? '0 20px 40px -15px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.12)' 
-                  : '0 10px 30px -10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.06)',
+                  ? '0 20px 45px -15px rgba(59,130,246,0.2), 0 10px 20px -8px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.12), inset 0 0 15px rgba(255,255,255,0.02)' 
+                  : '0 10px 30px -10px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.08)',
+                transition: 'all 0.4s cubic-bezier(0.32, 0.72, 0, 1)',
               }}
             >
+              {/* Subtle radial highlight on hover */}
+              <div 
+                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl"
+                style={{
+                  background: 'radial-gradient(circle 180px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.04) 0%, transparent 100%)',
+                }}
+              />
               {/* Tag */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
                 <div className="w-2 h-2 rounded-full bg-blue-400"></div>
@@ -295,12 +379,35 @@ export default function SeleccionarAcceso() {
                 </li>
               </ul>
 
-              {/* Button Normal */}
+              {/* Button Gratis - Subtle minimal */}
               <button
                 onClick={handleWaitlist}
-                className="w-full py-4 bg-gradient-to-r from-blue-600 to-blue-700 text-white text-sm font-semibold rounded-2xl transition-all duration-300 hover:from-blue-500 hover:to-blue-600 hover:shadow-[0_8px_30px_rgba(59,130,246,0.3)] hover:scale-[1.01] active:scale-[0.99] text-center"
+                className="relative w-full py-4 bg-gradient-to-br from-blue-600/90 via-blue-700/90 to-blue-800/90 text-white text-sm font-semibold rounded-2xl text-center overflow-hidden group/btn2"
+                style={{
+                  boxShadow: '0 3px 10px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.15)',
+                  transition: 'all 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)'
+                  e.currentTarget.style.boxShadow = '0 8px 28px rgba(59,130,246,0.28), 0 4px 14px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.2)'
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
+                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.15)'
+                }}
+                onMouseDown={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(0.99)'
+                }}
+                onMouseUp={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)'
+                }}
               >
-                Continuar gratis →
+                <span className="relative z-10 flex items-center justify-center gap-2">
+                  Continuar gratis
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </span>
               </button>
             </div>
           </div>
@@ -309,4 +416,26 @@ export default function SeleccionarAcceso() {
       </div>
     </div>
   )
+}
+
+// Keyframes for shimmer animation - Apple style
+const shimmerStyles = `
+  @keyframes shimmer {
+    0% {
+      transform: translateX(-100%) skewX(-15deg);
+    }
+    100% {
+      transform: translateX(100%) skewX(-15deg);
+    }
+  }
+`;
+
+// Inject styles
+if (typeof document !== 'undefined') {
+  const styleSheet = document.createElement('style');
+  styleSheet.textContent = shimmerStyles;
+  if (!document.head.querySelector('style[data-shimmer]')) {
+    styleSheet.setAttribute('data-shimmer', 'true');
+    document.head.appendChild(styleSheet);
+  }
 }
