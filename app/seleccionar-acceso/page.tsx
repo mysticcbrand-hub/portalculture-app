@@ -86,12 +86,19 @@ export default function SeleccionarAcceso() {
               rgba(200, 30, 30, 0.05) 50%,
               transparent 70%
             ),
+            radial-gradient(ellipse 75% 65% at 70% 20%, 
+              rgba(16, 185, 129, 0.18) 0%,
+              rgba(16, 185, 129, 0.14) 20%,
+              rgba(5, 150, 105, 0.10) 30%,
+              rgba(4, 120, 87, 0.06) 40%,
+              transparent 50%
+            ),
             linear-gradient(180deg, 
-              rgba(0,0,0,0.35) 0%, 
-              rgba(0,0,0,0.25) 20%,
-              rgba(0,0,0,0.12) 40%, 
-              rgba(0,0,0,0.08) 60%,
-              rgba(0,0,0,0.40) 100%
+              rgba(0,0,0,0.25) 0%, 
+              rgba(0,0,0,0.15) 30%,
+              rgba(0,0,0,0.05) 50%, 
+              rgba(0,0,0,0.10) 70%,
+              rgba(0,0,0,0.30) 100%
             )
           `,
         }}
@@ -116,14 +123,16 @@ export default function SeleccionarAcceso() {
             onMouseEnter={() => setHoveredCard(1)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={handleFastPass}
-            className="relative cursor-pointer group order-1 isolate"
+            className="relative cursor-pointer group order-1"
+            style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
           >
             {/* Outer glow rojo */}
             <div 
-              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none will-change-opacity"
+              className="absolute -inset-3 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 110% 100% at 50% 50%, rgba(239,68,68,0.25) 0%, rgba(220,38,38,0.12) 40%, transparent 70%)',
-                filter: 'blur(24px)',
+                background: 'radial-gradient(ellipse 120% 110% at 50% 50%, rgba(239,68,68,0.3) 0%, rgba(220,38,38,0.15) 40%, rgba(185,28,28,0.05) 70%, transparent 80%)',
+                filter: 'blur(28px)',
+                zIndex: -1,
               }}
             />
             
@@ -141,13 +150,14 @@ export default function SeleccionarAcceso() {
                   : '0 10px 30px -10px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}
             >
-              {/* Shimmer effect - Visible y suave */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none overflow-hidden rounded-3xl">
+              {/* Shimmer effect - Premium visible */}
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none overflow-hidden rounded-3xl">
                 <div 
-                  className="absolute inset-0 group-hover:animate-shine"
+                  className="absolute inset-0 group-hover:translate-x-full transition-transform duration-1000 ease-out"
                   style={{
-                    background: 'linear-gradient(110deg, transparent 25%, rgba(255, 255, 255, 0.3) 45%, rgba(255, 255, 255, 0.4) 50%, rgba(255, 255, 255, 0.3) 55%, transparent 75%)',
+                    background: 'linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.35) 50%, rgba(255,255,255,0.15) 60%, transparent 80%)',
                     transform: 'translateX(-100%)',
+                    width: '150%',
                   }}
                 />
               </div>
@@ -216,14 +226,16 @@ export default function SeleccionarAcceso() {
             onMouseEnter={() => setHoveredCard(2)}
             onMouseLeave={() => setHoveredCard(null)}
             onClick={handleWaitlist}
-            className="relative cursor-pointer group order-2 isolate"
+            className="relative cursor-pointer group order-2"
+            style={{ isolation: 'isolate', transform: 'translateZ(0)' }}
           >
             {/* Outer glow azul suave */}
             <div 
-              className="absolute -inset-2 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none will-change-opacity"
+              className="absolute -inset-3 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 110% 100% at 50% 50%, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.08) 40%, transparent 70%)',
-                filter: 'blur(24px)',
+                background: 'radial-gradient(ellipse 120% 110% at 50% 50%, rgba(59,130,246,0.2) 0%, rgba(37,99,235,0.1) 40%, rgba(29,78,216,0.04) 70%, transparent 80%)',
+                filter: 'blur(28px)',
+                zIndex: -1,
               }}
             />
             
