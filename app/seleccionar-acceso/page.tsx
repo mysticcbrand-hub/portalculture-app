@@ -64,7 +64,7 @@ export default function SeleccionarAcceso() {
     
     // Navigate after 1 second
     setTimeout(() => {
-      router.push('/cuestionario')
+      router.push('/dashboard')
     }, 1000)
   }
 
@@ -134,12 +134,12 @@ export default function SeleccionarAcceso() {
             className="relative cursor-pointer group order-1"
             style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
           >
-            {/* Outer glow - Solo exterior, no invade card */}
+            {/* Outer glow premium - Sin banding */}
             <div 
               className="absolute -inset-[20px] rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(239,68,68,0.0) 0%, rgba(239,68,68,0.18) 50%, rgba(220,38,38,0.12) 70%, transparent 90%)',
-                filter: 'blur(30px)',
+                background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(239,68,68,0.0) 0%, rgba(239,68,68,0.08) 30%, rgba(239,68,68,0.14) 45%, rgba(239,68,68,0.18) 55%, rgba(220,38,38,0.15) 65%, rgba(220,38,38,0.10) 75%, rgba(185,28,28,0.05) 85%, transparent 95%)',
+                filter: 'blur(32px)',
                 zIndex: -1,
               }}
             />
@@ -287,12 +287,12 @@ export default function SeleccionarAcceso() {
             className="relative cursor-pointer group order-2"
             style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
           >
-            {/* Outer glow azul muy suave */}
+            {/* Outer glow gratis - Sin banding */}
             <div 
               className="absolute -inset-2 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
               style={{
-                background: 'radial-gradient(ellipse 110% 110% at 50% 50%, rgba(59,130,246,0.15) 0%, rgba(37,99,235,0.08) 50%, transparent 75%)',
-                filter: 'blur(24px)',
+                background: 'radial-gradient(ellipse 110% 110% at 50% 50%, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.12) 20%, rgba(59,130,246,0.10) 35%, rgba(37,99,235,0.08) 50%, rgba(37,99,235,0.05) 62%, rgba(29,78,216,0.03) 72%, transparent 85%)',
+                filter: 'blur(26px)',
                 zIndex: -1,
               }}
             />
