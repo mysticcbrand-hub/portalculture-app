@@ -44,34 +44,22 @@ export default function SeleccionarAcceso() {
   }
 
   return (
-    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden" style={{ backgroundColor: '#000000' }}>
-      {/* Premium Gradient Background - VISIBLE */}
-      <div className="fixed inset-0 -z-10">
-        {/* Base gradients - Colores vibrantes */}
-        <div className="absolute inset-0" style={{
+    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden">
+      {/* Gradient Background VISIBLE - Sistema directo */}
+      <div 
+        className="fixed inset-0 -z-10" 
+        style={{
           background: `
-            radial-gradient(circle 800px at 20% 20%, rgba(59, 130, 246, 0.15), transparent 50%),
-            radial-gradient(circle 600px at 80% 80%, rgba(139, 92, 246, 0.15), transparent 50%),
-            radial-gradient(circle 700px at 50% 50%, rgba(99, 102, 241, 0.12), transparent 50%),
-            radial-gradient(circle 500px at 10% 80%, rgba(239, 68, 68, 0.10), transparent 50%),
-            radial-gradient(circle 550px at 90% 20%, rgba(16, 185, 129, 0.12), transparent 50%)
-          `
-        }} />
-        
-        {/* Vignette overlay */}
-        <div className="absolute inset-0" style={{
-          background: `
-            radial-gradient(ellipse 80% 60% at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%),
-            linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.4) 100%)
-          `
-        }} />
-        
-        {/* Noise texture */}
-        <div className="absolute inset-0 opacity-[0.02]" style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='5' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '200px 200px'
-        }} />
-      </div>
+            radial-gradient(circle 1200px at 20% 30%, rgba(59, 130, 246, 0.25) 0%, transparent 70%),
+            radial-gradient(circle 1000px at 80% 70%, rgba(139, 92, 246, 0.22) 0%, transparent 65%),
+            radial-gradient(circle 900px at 50% 50%, rgba(99, 102, 241, 0.18) 0%, transparent 60%),
+            radial-gradient(circle 800px at 15% 80%, rgba(239, 68, 68, 0.20) 0%, transparent 60%),
+            radial-gradient(circle 850px at 85% 20%, rgba(16, 185, 129, 0.20) 0%, transparent 60%),
+            radial-gradient(ellipse 100% 100% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.6) 100%)
+          `,
+          backgroundColor: '#000000'
+        }}
+      />
       
       <div className="max-w-6xl w-full relative z-10">
         {/* Header */}
@@ -170,31 +158,37 @@ export default function SeleccionarAcceso() {
                 <p className="text-red-200/70 text-sm font-medium">Acceso inmediato sin esperas</p>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-3 mb-6">
+              {/* Features - PREMIUM */}
+              <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/85 text-sm sm:text-base font-medium">⚡ Accede al instante</span>
+                  <span className="text-white/90 text-sm sm:text-base font-medium">⚡ Acceso instantáneo</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/85 text-sm sm:text-base">5 Templos desbloqueados</span>
+                  <span className="text-white/90 text-sm sm:text-base">5 Templos desbloqueados</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/85 text-sm sm:text-base">NOVA AI Coach</span>
+                  <span className="text-white/90 text-sm sm:text-base">NOVA AI ilimitado</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/85 text-sm sm:text-base">Rol exclusivo Discord</span>
+                  <span className="text-white/90 text-sm sm:text-base">Rol Premium Discord</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                  <span className="text-white/90 text-sm sm:text-base">Soporte prioritario</span>
                 </li>
               </ul>
 
@@ -306,31 +300,37 @@ export default function SeleccionarAcceso() {
                 <p className="text-blue-200/60 text-sm">Tras aprobación manual</p>
               </div>
 
-              {/* Features */}
-              <ul className="space-y-3 mb-6">
+              {/* Features - GRATIS */}
+              <ul className="space-y-3 mb-8">
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Espera 1-3 días</span>
+                  <span className="text-white/75 text-sm sm:text-base">Aprobación en 1-3 días</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/75 text-sm sm:text-base">5 Templos (progresivos)</span>
+                  <span className="text-white/75 text-sm sm:text-base">Templos progresivos</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/75 text-sm sm:text-base">NOVA AI Coach</span>
+                  <span className="text-white/75 text-sm sm:text-base">NOVA AI estándar</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Rol exclusivo Discord</span>
+                  <span className="text-white/75 text-sm sm:text-base">Acceso Discord</span>
+                </li>
+                <li className="flex items-start gap-3">
+                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+                  </svg>
+                  <span className="text-white/75 text-sm sm:text-base">Soporte estándar</span>
                 </li>
               </ul>
 
