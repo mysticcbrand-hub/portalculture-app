@@ -41,6 +41,10 @@ CREATE TRIGGER premium_users_updated_at
 -- RLS Policies
 ALTER TABLE premium_users ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "Users can view own premium status" ON premium_users;
+DROP POLICY IF EXISTS "Service role has full access" ON premium_users;
+
 -- Policy: Usuarios pueden ver su propio registro
 CREATE POLICY "Users can view own premium status"
   ON premium_users

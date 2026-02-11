@@ -80,20 +80,34 @@ SELECT * FROM premium_users LIMIT 1;
 
 Ve a Vercel Dashboard → Tu proyecto → Settings → Environment Variables
 
-Añade:
+**Variables REQUERIDAS** (añade SOLO si no existen):
 
 ```bash
-# Ya existe (verificar que esté)
-NEXT_PUBLIC_SUPABASE_URL=https://dzbmnumpzdhydfkjmlif.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=[tu anon key]
-SUPABASE_SERVICE_ROLE_KEY=[tu service role key]
+# 1. URL de la app (NUEVA - añadir)
+Name: NEXT_PUBLIC_APP_URL
+Value: https://app.portalculture.com
 
-# Nueva - URL de la app
-NEXT_PUBLIC_APP_URL=https://app.portalculture.com
-
-# Nueva - Secret de Whop webhook (opcional pero recomendado)
-WHOP_WEBHOOK_SECRET=[generar en Whop dashboard]
+# Las siguientes YA DEBEN EXISTIR (verificar solamente):
+# - NEXT_PUBLIC_SUPABASE_URL
+# - NEXT_PUBLIC_SUPABASE_ANON_KEY  
+# - SUPABASE_SERVICE_ROLE_KEY
 ```
+
+**Variable OPCIONAL** (solo si Whop te pide verificación de firma):
+
+```bash
+# Solo añadir si Whop te da un "Webhook Secret"
+Name: WHOP_WEBHOOK_SECRET
+Value: [el secret que Whop te muestre al crear el webhook]
+
+# NOTA: En Whop dashboard, al crear el webhook, hay un campo "Secret"
+# Si está vacío o dice "Optional", NO lo añadas
+```
+
+**Cómo saber si necesitas WHOP_WEBHOOK_SECRET:**
+- Ve a Whop → Settings → Developer → Webhooks
+- Si al crear webhook hay un campo "Secret" con un valor → Cópialo
+- Si el campo está vacío o no existe → NO lo necesitas
 
 ### **2.2 Añadir en .env.local (desarrollo)**
 

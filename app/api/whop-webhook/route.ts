@@ -9,6 +9,19 @@ const supabase = createClient(
 )
 
 /**
+ * GET - Verificación del webhook
+ */
+export async function GET(request: Request) {
+  return NextResponse.json({ 
+    status: 'ok',
+    message: 'Whop webhook endpoint is active',
+    url: 'https://app.portalculture.com/api/whop-webhook',
+    methods: ['POST'],
+    events: ['payment.succeeded', 'membership.went_valid', 'membership.went_invalid']
+  })
+}
+
+/**
  * Webhook de Whop para gestionar compras
  * Configura en Whop: https://dash.whop.com/settings/developer
  * URL: https://app.portalculture.com/api/whop-webhook
@@ -19,8 +32,8 @@ export async function POST(request: Request) {
     const body = await request.text()
     const signature = request.headers.get('x-whop-signature')
     
-    // Verificar firma de Whop (seguridad)
-    if (process.env.WHOP_WEBHOOK_SECRET) {
+    // Verificar firma de Whop SOLO si está configurado el secret
+    if (process.env.WHOP_WEBHOOK_SECRET && signature) {
       const expectedSignature = crypto
         .createHmac('sha256', process.env.WHOP_WEBHOOK_SECRET)
         .update(body)
@@ -30,10 +43,13 @@ export async function POST(request: Request) {
         console.error('❌ Invalid Whop signature')
         return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
       }
+      console.log('✅ Whop signature verified')
+    } else {
+      console.log('⚠️ Webhook signature verification disabled (WHOP_WEBHOOK_SECRET not configured)')
     }
 
     const event = JSON.parse(body)
-    console.log('📥 Whop webhook event:', event.action, event.data?.id)
+    console.log('📥 Whop webhook event:', event.action, event.data?.id || 'no-id')
 
     // Eventos que nos interesan
     if (event.action === 'payment.succeeded' || event.action === 'membership.went_valid') {
