@@ -78,14 +78,26 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // CASE 3: Logged in user trying to access dashboard - check if approved
+  // CASE 3: Logged in user trying to access dashboard - check if approved or premium
   if (user && isDashboard) {
     // Admin always has access
     if (user.email === 'mysticcbrand@gmail.com') {
       return response
     }
 
-    // Check user's access status in profiles table
+    // Check if user is premium (paid via Whop)
+    const { data: premiumUser } = await supabase
+      .from('premium_users')
+      .select('payment_status, access_granted')
+      .eq('user_id', user.id)
+      .single()
+
+    // If premium and active, grant access
+    if (premiumUser?.payment_status === 'active' && premiumUser?.access_granted) {
+      return response
+    }
+
+    // Check user's access status in profiles table (for waitlist users)
     const { data: profiles } = await supabase
       .from('profiles')
       .select('access_status')
@@ -111,7 +123,19 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/admin/waitlist', request.url))
     }
 
-    // Check if already has access
+    // Check if user is premium (paid via Whop)
+    const { data: premiumUser } = await supabase
+      .from('premium_users')
+      .select('payment_status, access_granted')
+      .eq('user_id', user.id)
+      .single()
+
+    // If premium and active, go to dashboard
+    if (premiumUser?.payment_status === 'active' && premiumUser?.access_granted) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    // Check if already has access via waitlist
     const { data: profiles } = await supabase
       .from('profiles')
       .select('access_status')
