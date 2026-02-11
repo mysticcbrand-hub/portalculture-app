@@ -82,52 +82,21 @@ export async function POST(request: Request) {
     }
 
     // =============================================
-    // 4. CREAR CUENTA CON SUPABASE SIGNUP
+    // 4. CREAR CUENTA CON ADMIN (EMAIL AUTO-CONFIRMADO)
     // =============================================
     
-    const cookieStore = await cookies()
-    
-    const supabase = createServerClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            try {
-              cookieStore.set({ name, value, ...options })
-            } catch (e) {
-              // Ignore in server context
-            }
-          },
-          remove(name: string, options: any) {
-            try {
-              cookieStore.set({ name, value: '', ...options })
-            } catch (e) {
-              // Ignore in server context
-            }
-          },
-        },
-      }
-    )
-
-    const supabaseAuth = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-    )
-
-    const { data: signUpData, error: signUpError } = await supabaseAuth.auth.signUp({
+    // Usar admin.createUser para evitar problemas con email confirmation
+    const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
       email: normalizedEmail,
       password,
-      options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://app.portalculture.com'}/confirm-email`
+      email_confirm: true, // Auto-confirmar email
+      user_metadata: {
+        created_via: 'registration_form'
       }
     })
 
     if (signUpError) {
-      console.error('❌ SignUp error:', signUpError.message)
+      console.error('❌ CreateUser error:', signUpError.message)
       
       if (signUpError.message.includes('already') || signUpError.message.includes('exists')) {
         return NextResponse.json(
@@ -141,6 +110,15 @@ export async function POST(request: Request) {
         { status: 400 }
       )
     }
+
+    if (!signUpData.user) {
+      return NextResponse.json(
+        { error: 'No se pudo crear la cuenta. Intenta de nuevo.' },
+        { status: 500 }
+      )
+    }
+
+    console.log('✅ User created with admin:', normalizedEmail)
 
     // =============================================
     // 5. CREAR PROFILE CON access_status 'none'
@@ -200,8 +178,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true,
-      needsEmailConfirmation: true,
-      message: 'Revisa tu email para confirmar tu cuenta.'
+      needsEmailConfirmation: false,
+      message: 'Cuenta creada exitosamente. Ahora puedes iniciar sesión.'
     })
 
   } catch (error: any) {

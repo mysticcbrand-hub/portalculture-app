@@ -150,15 +150,21 @@ export async function GET(request: Request) {
     const accessLink = tokenData.properties.action_link
     console.log('✅ Access link generated for:', email)
 
-    // 4. Página de éxito con auto-redirect
+    // 4. Página de éxito con auto-redirect - Estilo premium
     return new Response(
       `<!DOCTYPE html>
-      <html>
+      <html lang="es">
         <head>
-          <title>Acceso Concedido - Portal Culture</title>
-          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Bienvenido a Portal Culture</title>
           <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
+            * { 
+              margin: 0; 
+              padding: 0; 
+              box-sizing: border-box; 
+            }
+            
             body {
               background: #000;
               color: #fff;
@@ -167,37 +173,67 @@ export async function GET(request: Request) {
               align-items: center;
               justify-content: center;
               min-height: 100vh;
+              overflow: hidden;
             }
+            
+            /* Background gradient cinematográfico */
+            .bg-gradient {
+              position: fixed;
+              inset: 0;
+              z-index: -1;
+              background: 
+                radial-gradient(circle 900px at 20% 30%, rgba(37, 99, 235, 0.18), transparent 65%),
+                radial-gradient(circle 800px at 80% 70%, rgba(124, 58, 237, 0.15), transparent 60%),
+                radial-gradient(ellipse 78% 68% at 50% 50%, transparent 0%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0.85) 100%);
+            }
+            
             .container {
               text-align: center;
               max-width: 600px;
               padding: 3rem 2rem;
+              position: relative;
             }
+            
+            .icon {
+              font-size: 4rem;
+              margin-bottom: 1.5rem;
+              animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            
             h1 {
               font-size: 2.5rem;
               margin-bottom: 1rem;
+              font-weight: 700;
               background: linear-gradient(135deg, #3b82f6, #8b5cf6);
               -webkit-background-clip: text;
+              background-clip: text;
               -webkit-text-fill-color: transparent;
+              animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.1s both;
             }
+            
             p {
               color: #999;
               font-size: 1.125rem;
               line-height: 1.6;
-              margin-bottom: 2rem;
+              margin-bottom: 1rem;
+              animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.2s both;
             }
+            
+            .countdown {
+              color: #3b82f6;
+              font-weight: 700;
+            }
+            
             .spinner {
-              width: 50px;
-              height: 50px;
-              border: 3px solid rgba(255,255,255,0.1);
+              width: 60px;
+              height: 60px;
+              border: 3px solid rgba(59, 130, 246, 0.1);
               border-top-color: #3b82f6;
               border-radius: 50%;
               animation: spin 1s linear infinite;
               margin: 2rem auto;
             }
-            @keyframes spin {
-              to { transform: rotate(360deg); }
-            }
+            
             .manual-link {
               display: inline-block;
               margin-top: 2rem;
@@ -207,26 +243,88 @@ export async function GET(request: Request) {
               text-decoration: none;
               border-radius: 0.75rem;
               font-weight: 600;
-              transition: transform 0.2s;
+              transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+              border: 1px solid rgba(255,255,255,0.1);
+              animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
             }
+            
             .manual-link:hover {
-              transform: translateY(-2px);
+              transform: translateY(-3px);
+              box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3);
+            }
+            
+            .features {
+              margin-top: 3rem;
+              display: grid;
+              gap: 0.75rem;
+              animation: slideDown 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s both;
+            }
+            
+            .feature {
+              color: #666;
+              font-size: 0.875rem;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              gap: 0.5rem;
+            }
+            
+            .check {
+              color: #10b981;
+            }
+            
+            @keyframes spin {
+              to { transform: rotate(360deg); }
+            }
+            
+            @keyframes slideDown {
+              from {
+                opacity: 0;
+                transform: translateY(-20px);
+              }
+              to {
+                opacity: 1;
+                transform: translateY(0);
+              }
+            }
+            
+            @media (max-width: 640px) {
+              h1 { font-size: 2rem; }
+              .icon { font-size: 3rem; }
             }
           </style>
         </head>
         <body>
+          <div class="bg-gradient"></div>
+          
           <div class="container">
-            <h1>✅ ¡Bienvenido a Portal Culture!</h1>
-            <p>Tu acceso premium ha sido activado.</p>
-            <p>Redirigiendo al dashboard en <span id="countdown">3</span> segundos...</p>
+            <div class="icon">✨</div>
+            <h1>Bienvenido a Portal Culture</h1>
+            <p>Tu acceso premium ha sido activado correctamente.</p>
+            <p>Redirigiendo en <span class="countdown" id="countdown">3</span> segundos...</p>
+            
             <div class="spinner"></div>
-            <p style="font-size: 0.875rem; color: #666;">
-              Si no eres redirigido automáticamente:
-            </p>
+            
+            <div class="features">
+              <div class="feature">
+                <span class="check">✓</span>
+                <span>5 Templos desbloqueados</span>
+              </div>
+              <div class="feature">
+                <span class="check">✓</span>
+                <span>Acceso a NOVA AI</span>
+              </div>
+              <div class="feature">
+                <span class="check">✓</span>
+                <span>Rol Deluxe Discord</span>
+              </div>
+            </div>
+            
             <a href="${accessLink}" class="manual-link">
-              Acceder al Dashboard →
+              Acceder al Dashboard
             </a>
           </div>
+          
           <script>
             let count = 3;
             const countdownEl = document.getElementById('countdown');
@@ -243,7 +341,9 @@ export async function GET(request: Request) {
       </html>`,
       {
         status: 200,
-        headers: { 'Content-Type': 'text/html' }
+        headers: { 
+          'Content-Type': 'text/html; charset=utf-8'
+        }
       }
     )
 
