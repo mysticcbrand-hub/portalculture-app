@@ -82,21 +82,47 @@ export async function POST(request: Request) {
     }
 
     // =============================================
-    // 4. CREAR CUENTA CON ADMIN (EMAIL AUTO-CONFIRMADO)
+    // 4. CREAR CUENTA CON SUPABASE SIGNUP
     // =============================================
     
-    // Usar admin.createUser para evitar problemas con email confirmation
-    const { data: signUpData, error: signUpError } = await supabaseAdmin.auth.admin.createUser({
+    const cookieStore = await cookies()
+    
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            try {
+              cookieStore.set({ name, value, ...options })
+            } catch (e) {
+              // Ignore in server context
+            }
+          },
+          remove(name: string, options: any) {
+            try {
+              cookieStore.set({ name, value: '', ...options })
+            } catch (e) {
+              // Ignore in server context
+            }
+          },
+        },
+      }
+    )
+
+    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
-      email_confirm: true, // Auto-confirmar email
-      user_metadata: {
-        created_via: 'registration_form'
+      options: {
+        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com'}/auth/callback`
       }
     })
 
     if (signUpError) {
-      console.error('❌ CreateUser error:', signUpError.message)
+      console.error('❌ SignUp error:', signUpError.message)
       
       if (signUpError.message.includes('already') || signUpError.message.includes('exists')) {
         return NextResponse.json(
@@ -118,7 +144,7 @@ export async function POST(request: Request) {
       )
     }
 
-    console.log('✅ User created with admin:', normalizedEmail)
+    console.log('✅ User created, confirmation email sent:', normalizedEmail)
 
     // =============================================
     // 5. CREAR PROFILE CON access_status 'none'
@@ -136,40 +162,13 @@ export async function POST(request: Request) {
     }
 
     // =============================================
-    // 6. AÑADIR A MAILERLITE (GRUPO PORTAL CULTURE)
+    // 6. MAILERLITE - NO SE AÑADE AQUÍ
     // =============================================
+    // MailerLite se añade SOLO cuando el usuario completa el Typeform
+    // para que reciba el email de "Solicitud recibida".
+    // 
+    // Al crear cuenta, solo Supabase envía el email de "Confirm signup"
     
-    try {
-      const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY
-      const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID
-
-      if (MAILERLITE_API_KEY && MAILERLITE_GROUP_ID) {
-        const mailerliteResponse = await fetch('https://connect.mailerlite.com/api/subscribers', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
-            'Accept': 'application/json'
-          },
-          body: JSON.stringify({
-            email: normalizedEmail,
-            groups: [MAILERLITE_GROUP_ID],
-            status: 'active'
-          })
-        })
-
-        if (mailerliteResponse.ok) {
-          console.log('✅ User added to Mailerlite group:', normalizedEmail)
-        } else {
-          const mlError = await mailerliteResponse.json()
-          console.warn('⚠️ Mailerlite warning:', mlError.message || 'Could not add to mailing list')
-        }
-      }
-    } catch (mlError) {
-      // No bloqueamos el registro si falla Mailerlite
-      console.warn('⚠️ Mailerlite error (non-blocking):', mlError)
-    }
-
     console.log('✅ User registered successfully:', normalizedEmail)
 
     // =============================================
@@ -178,8 +177,8 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ 
       success: true,
-      needsEmailConfirmation: false,
-      message: 'Cuenta creada exitosamente. Ahora puedes iniciar sesión.'
+      needsEmailConfirmation: true,
+      message: 'Revisa tu email para confirmar tu cuenta.'
     })
 
   } catch (error: any) {

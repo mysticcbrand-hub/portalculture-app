@@ -68,7 +68,49 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
-    console.log('Successfully saved to waitlist:', data)
+    console.log('✅ Successfully saved to waitlist:', data)
+
+    // =============================================
+    // AÑADIR A MAILERLITE (Grupo "pending")
+    // =============================================
+    // Esto dispara el email de "Solicitud recibida"
+    
+    const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY
+    const MAILERLITE_GROUP_ID = process.env.MAILERLITE_GROUP_ID
+    
+    if (MAILERLITE_API_KEY && MAILERLITE_GROUP_ID) {
+      try {
+        const mailerliteResponse = await fetch('https://connect.mailerlite.com/api/subscribers', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
+            'Accept': 'application/json'
+          },
+          body: JSON.stringify({
+            email,
+            fields: {
+              name: name || ''
+            },
+            groups: [MAILERLITE_GROUP_ID]
+          })
+        })
+
+        const mailerliteData = await mailerliteResponse.json()
+
+        if (mailerliteResponse.ok) {
+          console.log('✅ User added to Mailerlite "pending" group:', email)
+        } else {
+          console.error('⚠️ Mailerlite API error:', mailerliteData)
+          // No fallar el webhook por esto
+        }
+      } catch (mailerliteError: any) {
+        console.error('⚠️ Error adding to Mailerlite:', mailerliteError)
+        // No fallar el webhook por esto
+      }
+    } else {
+      console.warn('⚠️ Mailerlite credentials not configured')
+    }
 
     return NextResponse.json({ success: true, data })
   } catch (error: any) {
