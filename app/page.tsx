@@ -178,37 +178,13 @@ function HomePageContent() {
         throw new Error(data.error || 'Error al crear la cuenta')
       }
 
-      // Check if email confirmation is needed
-      if (data.needsEmailConfirmation) {
-        // Show message to check email
-        showToast('✅ Cuenta creada. Revisa tu email para confirmar.', 'success')
-        setMode('login')
-        setPassword('')
-        setConfirmPassword('')
-        setAcceptedTerms(false)
-        setError(null)
-      } else {
-        // No confirmation needed - auto-login
-        showToast('¡Cuenta creada! Iniciando sesión...', 'success')
-        
-        const loginResponse = await fetch('/api/auth/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        })
-
-        if (loginResponse.ok) {
-          setTimeout(() => {
-            window.location.href = '/dashboard'
-          }, 300)
-        } else {
-          setMode('login')
-          setPassword('')
-          setConfirmPassword('')
-          setAcceptedTerms(false)
-          showToast('Cuenta creada. Por favor inicia sesión.', 'success')
-        }
-      }
+      // Success! Redirect to verify email page
+      showToast('✅ Cuenta creada exitosamente', 'success')
+      
+      // Redirect to verify-email page with email param
+      setTimeout(() => {
+        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+      }, 500)
     } catch (err: any) {
       setError(err.message)
     } finally {
