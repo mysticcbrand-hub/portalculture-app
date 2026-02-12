@@ -5,7 +5,14 @@ import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json()
+    const body = await request.json()
+    const { email, password } = body
+    
+    console.log('📥 Register request received:', { 
+      email: email ? '***@' + email.split('@')[1] : 'missing',
+      hasPassword: !!password,
+      bodyKeys: Object.keys(body)
+    })
 
     // =============================================
     // 1. VALIDACIONES
@@ -183,8 +190,14 @@ export async function POST(request: Request) {
 
   } catch (error: any) {
     console.error('❌ Register error:', error)
+    console.error('Error stack:', error.stack)
+    console.error('Error details:', {
+      message: error.message,
+      name: error.name,
+      cause: error.cause
+    })
     return NextResponse.json(
-      { error: 'Error interno del servidor. Intenta de nuevo.' },
+      { error: error.message || 'Error interno del servidor. Intenta de nuevo.' },
       { status: 500 }
     )
   }

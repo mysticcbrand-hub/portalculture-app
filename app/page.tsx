@@ -175,6 +175,12 @@ function HomePageContent() {
       const data = await response.json()
 
       if (!response.ok) {
+        console.error('❌ Register failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          error: data.error,
+          data
+        })
         throw new Error(data.error || 'Error al crear la cuenta')
       }
 
@@ -186,7 +192,8 @@ function HomePageContent() {
         router.push(`/verify-email?email=${encodeURIComponent(email)}`)
       }, 500)
     } catch (err: any) {
-      setError(err.message)
+      console.error('❌ Register error caught:', err)
+      setError(err.message || 'Error desconocido al crear la cuenta')
     } finally {
       setLoading(false)
     }
