@@ -184,10 +184,18 @@ function HomePageContent() {
         throw new Error(data.error || 'Error al crear la cuenta')
       }
 
-      // Success! Redirect to verify email page
+      // Success flow
       showToast('✅ Cuenta creada exitosamente', 'success')
-      
-      // Redirect to verify-email page with email param
+
+      // If email sending failed, redirect with special params
+      if (data.emailSendError && data.confirmationLink) {
+        setTimeout(() => {
+          router.push(`/verify-email?email=${encodeURIComponent(email)}&manualConfirm=1&link=${encodeURIComponent(data.confirmationLink)}`)
+        }, 500)
+        return
+      }
+
+      // Normal flow: redirect to verify-email page
       setTimeout(() => {
         router.push(`/verify-email?email=${encodeURIComponent(email)}`)
       }, 500)

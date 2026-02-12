@@ -15,6 +15,9 @@ function VerifyEmailContent() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
 
+  const manualConfirm = searchParams.get('manualConfirm')
+  const manualLink = searchParams.get('link')
+
   useEffect(() => {
     // Get email from URL params or from Supabase
     const emailParam = searchParams.get('email')
@@ -177,6 +180,12 @@ function VerifyEmailContent() {
                   <br />
                   <span className="text-emerald-400/60">Redirigiendo al siguiente paso...</span>
                 </>
+              ) : manualConfirm ? (
+                <>
+                  Hubo un problema enviando el email automático.
+                  <br />
+                  <span className="text-white/25">Usa el botón para confirmar manualmente</span>
+                </>
               ) : (
                 <>
                   Hemos enviado un enlace de verificación a tu email.
@@ -225,6 +234,13 @@ function VerifyEmailContent() {
                         </svg>
                         Verificando...
                       </>
+                    ) : manualConfirm ? (
+                      <>
+                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Confirmar manualmente
+                      </>
                     ) : (
                       <>
                         <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -237,13 +253,24 @@ function VerifyEmailContent() {
                   <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-black/10 to-transparent" />
                 </button>
 
+                {manualConfirm && manualLink && (
+                  <a
+                    href={manualLink}
+                    className="block w-full text-center text-sm font-semibold text-white/80 py-3 mb-2 rounded-xl bg-white/10 hover:bg-white/15 transition-all duration-300"
+                  >
+                    Abrir enlace de confirmación
+                  </a>
+                )}
+
                 {/* Resend email button */}
-                <button
-                  onClick={resendEmail}
-                  className="w-full text-white/40 text-sm hover:text-white/70 transition-all duration-300 py-3 mb-2 hover:bg-white/[0.02] rounded-xl"
-                >
-                  Reenviar email de verificación
-                </button>
+                {!manualConfirm && (
+                  <button
+                    onClick={resendEmail}
+                    className="w-full text-white/40 text-sm hover:text-white/70 transition-all duration-300 py-3 mb-2 hover:bg-white/[0.02] rounded-xl"
+                  >
+                    Reenviar email de verificación
+                  </button>
+                )}
 
                 {/* Divider */}
                 <div className="relative my-4">
