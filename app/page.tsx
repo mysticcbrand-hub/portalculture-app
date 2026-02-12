@@ -185,19 +185,14 @@ function HomePageContent() {
       }
 
       // Success flow
-      showToast('✅ Cuenta creada exitosamente', 'success')
+      showToast('✅ Cuenta creada exitosamente. Revisa tu email para confirmar.', 'success')
 
-      // If email sending failed, redirect with special params
-      if (data.emailSendError && data.confirmationLink) {
-        setTimeout(() => {
-          router.push(`/verify-email?email=${encodeURIComponent(email)}&manualConfirm=1&link=${encodeURIComponent(data.confirmationLink)}`)
-        }, 500)
-        return
-      }
-
-      // Normal flow: redirect to verify-email page
+      // Redirect back to main login screen
       setTimeout(() => {
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`)
+        setMode('login')
+        setPassword('')
+        setConfirmPassword('')
+        setAcceptedTerms(false)
       }, 500)
     } catch (err: any) {
       console.error('❌ Register error caught:', err)

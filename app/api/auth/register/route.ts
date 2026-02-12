@@ -138,54 +138,6 @@ export async function POST(request: Request) {
         )
       }
 
-      // Fallback: If confirmation email fails, generate confirmation link manually
-      if (signUpError.message.includes('Error sending confirmation email')) {
-        try {
-          const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
-            type: 'signup',
-            email: normalizedEmail,
-            password,
-            options: {
-              redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com'}/auth/callback`
-            }
-          })
-
-          if (linkError || !linkData?.properties?.action_link) {
-            console.error('❌ Failed to generate confirmation link:', linkError)
-            return NextResponse.json(
-              { error: 'No se pudo enviar el email de confirmación. Intenta de nuevo más tarde.' },
-              { status: 500 }
-            )
-          }
-
-          // Create profile entry for generated user
-          if (linkData.user?.id) {
-            await supabaseAdmin
-              .from('profiles')
-              .upsert({
-                id: linkData.user.id,
-                email: normalizedEmail,
-                access_status: 'none',
-                created_at: new Date().toISOString()
-              })
-          }
-
-          return NextResponse.json({
-            success: true,
-            needsEmailConfirmation: true,
-            emailSendError: true,
-            confirmationLink: linkData.properties.action_link,
-            message: 'No se pudo enviar el email. Usa el botón para confirmar tu cuenta.'
-          })
-        } catch (fallbackError) {
-          console.error('❌ Fallback email error:', fallbackError)
-          return NextResponse.json(
-            { error: 'No se pudo enviar el email de confirmación. Intenta de nuevo más tarde.' },
-            { status: 500 }
-          )
-        }
-      }
-
       return NextResponse.json(
         { error: signUpError.message },
         { status: 400 }
