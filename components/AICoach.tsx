@@ -34,6 +34,13 @@ export default function AICoach() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const supabase = createClient();
 
+  const quickActions = [
+    'Plan de 30 días para disciplina',
+    'Rutina express para ganar energía',
+    'Mejora tu carisma hoy',
+    'Cómo vencer la procrastinación'
+  ];
+
   // Auto-scroll to bottom
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -212,6 +219,11 @@ export default function AICoach() {
     }
   };
 
+  const handleQuickAction = (text: string) => {
+    setInput(text);
+    inputRef.current?.focus();
+  };
+
   const clearHistory = async () => {
     if (!confirm('¿Seguro que quieres borrar todo el historial?')) return;
 
@@ -236,31 +248,64 @@ export default function AICoach() {
 
   if (!isOpen) {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group"
-      >
-        <div className="relative">
-          {/* Liquid Glass FAB */}
-          <div className="liquid-glass-fab p-4 md:p-5">
-            <svg className="w-7 h-7 md:w-8 md:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-            </svg>
+      <>
+        {/* Mobile dock */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
+        >
+          <div className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
+            <div className="flex items-center gap-3">
+              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 p-[1px]">
+                <div className="w-full h-full rounded-2xl bg-black/60 flex items-center justify-center">
+                  <Image src="/ai.png" alt="NOVA" width={34} height={34} className="rounded-xl" />
+                </div>
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-sm text-white/90 font-semibold">NOVA™ en tu bolsillo</p>
+                <p className="text-xs text-white/45">Abrir coach privado →</p>
+              </div>
+              <div className="text-xs text-white/60 px-3 py-1 rounded-full border border-white/10 bg-white/5">Abrir</div>
+            </div>
           </div>
-        </div>
-        <div className="absolute -top-12 right-0 liquid-glass-chip opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-          <span className="text-sm text-white font-medium">Habla con NOVA 🔥</span>
-        </div>
-      </button>
+        </button>
+
+        {/* Desktop FAB */}
+        <button
+          onClick={() => setIsOpen(true)}
+          className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group hidden md:block"
+        >
+          <div className="relative">
+            <div className="liquid-glass-fab p-4 md:p-5">
+              <svg className="w-7 h-7 md:w-8 md:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+              </svg>
+            </div>
+          </div>
+          <div className="absolute -top-12 right-0 liquid-glass-chip opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            <span className="text-sm text-white font-medium">Habla con NOVA 🔥</span>
+          </div>
+        </button>
+      </>
     );
   }
 
   return (
     <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[450px] md:h-[700px] z-50 flex flex-col">
+      {/* Mobile backdrop */}
+      <div
+        className="md:hidden absolute inset-0 bg-black/60"
+        onClick={() => setIsOpen(false)}
+      />
+
       {/* Liquid Glass container */}
-      <div className="flex-1 liquid-glass md:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+      <div className="relative flex-1 md:flex-none md:h-full liquid-glass md:rounded-3xl shadow-2xl flex flex-col overflow-hidden md:mt-0 mt-auto rounded-t-3xl border border-white/10">
         {/* Header */}
         <div className="relative border-b border-white/20 p-4">
+          {/* Mobile grabber */}
+          <div className="md:hidden flex justify-center mb-3">
+            <div className="h-1.5 w-12 rounded-full bg-white/10" />
+          </div>
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20" />
           <div className="relative flex items-center justify-between z-10">
             <div className="flex items-center gap-3">
@@ -302,6 +347,37 @@ export default function AICoach() {
                 </svg>
               </button>
             </div>
+          </div>
+        </div>
+
+        {/* Mobile Spotlight card */}
+        <div className="md:hidden px-4 pt-4">
+          <div className="relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-4 backdrop-blur-2xl">
+            <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_20%,rgba(168,85,247,0.18),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.18),transparent_50%)]" />
+            <div className="relative flex items-center gap-3">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 p-[1px]">
+                <div className="w-full h-full rounded-2xl bg-black/60 flex items-center justify-center">
+                  <Image src="/ai.png" alt="NOVA" width={36} height={36} className="rounded-xl" />
+                </div>
+              </div>
+              <div>
+                <p className="text-sm text-white/80 uppercase tracking-[0.2em]">NOVA™</p>
+                <p className="text-lg font-semibold text-white">Tu coach privado</p>
+                <p className="text-xs text-white/45">Respuestas claras, acción inmediata</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4 flex flex-wrap gap-2">
+            {quickActions.map((action) => (
+              <button
+                key={action}
+                onClick={() => handleQuickAction(action)}
+                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/70 transition-all active:scale-95"
+              >
+                {action}
+              </button>
+            ))}
           </div>
         </div>
 
