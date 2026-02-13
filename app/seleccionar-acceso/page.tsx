@@ -154,8 +154,60 @@ export default function SeleccionarAcceso() {
           </p>
         </div>
 
-        {/* Cards Grid */}
-        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        {/* Mobile tactile selector */}
+        <div className="md:hidden space-y-4 max-w-md mx-auto">
+          <div className="text-center text-xs uppercase tracking-[0.3em] text-white/35">Selecciona tu acceso</div>
+          
+          <button
+            onClick={handleFastPass}
+            className="group relative w-full text-left rounded-3xl border border-red-500/25 bg-gradient-to-br from-red-500/20 via-red-600/10 to-transparent p-5 backdrop-blur-2xl transition-all duration-300 active:scale-[0.98]"
+          >
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/15 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-red-200">
+                  Premium
+                </div>
+                <h3 className="mt-3 text-xl font-semibold text-white">Acceso inmediato</h3>
+                <p className="text-sm text-white/60">Sin esperas · Discord + NOVA + 5 Templos</p>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-white">17€</div>
+                <div className="text-xs text-white/50">pago único</div>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <span className="text-sm text-white/80">Acceder ahora</span>
+              <span className="text-white/60">→</span>
+            </div>
+          </button>
+
+          <button
+            onClick={handleWaitlist}
+            className="group relative w-full text-left rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 via-blue-600/5 to-transparent p-5 backdrop-blur-2xl transition-all duration-300 active:scale-[0.98]"
+          >
+            <div className="relative flex items-center justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-blue-200">
+                  Gratis
+                </div>
+                <h3 className="mt-3 text-xl font-semibold text-white">Lista de espera</h3>
+                <p className="text-sm text-white/60">Mismo acceso · Aprobación manual</p>
+              </div>
+              <div className="text-right">
+                <div className="text-3xl font-bold text-white">0€</div>
+                <div className="text-xs text-white/50">sin coste</div>
+              </div>
+            </div>
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
+              <span className="text-sm text-white/80">Unirme</span>
+              <span className="text-white/60">→</span>
+            </div>
+          </button>
+        </div>
+
+        {/* Cards Grid (desktop) */}
+        <div className="hidden md:grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
           
           {/* CARD 1: PAGO (PREMIUM) - Apple-style polish */}
           <div
@@ -382,7 +434,7 @@ export default function SeleccionarAcceso() {
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                     <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
                   </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Aprobación en 1-3 días</span>
+                  <span className="text-white/75 text-sm sm:text-base">Aprobación con prueba de acceso</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
