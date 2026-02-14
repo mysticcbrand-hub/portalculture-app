@@ -120,13 +120,27 @@ export async function POST(request: Request) {
       }
     )
 
-    const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com').trim()
+    const emailRedirectTo = `${appUrl.replace(/\/$/, '')}/auth/callback`
+
+    let { data: signUpData, error: signUpError } = await supabase.auth.signUp({
       email: normalizedEmail,
       password,
       options: {
-        emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com'}/auth/callback`
+        emailRedirectTo
       }
     })
+
+    // If SMTP rejects due to redirect or config, retry without emailRedirectTo (uses Supabase Site URL)
+    if (signUpError && signUpError.message?.toLowerCase().includes('error sending confirmation email')) {
+      console.error('❌ SignUp error (with redirect):', signUpError.message)
+      const retry = await supabase.auth.signUp({
+        email: normalizedEmail,
+        password,
+      })
+      signUpData = retry.data
+      signUpError = retry.error
+    }
 
     if (signUpError) {
       console.error('❌ SignUp error:', signUpError.message)
