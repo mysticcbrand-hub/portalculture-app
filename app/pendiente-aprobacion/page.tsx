@@ -11,6 +11,7 @@ export default function PendienteAprobacion() {
   const [checking, setChecking] = useState(false)
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const [statusType, setStatusType] = useState<'approved' | 'rejected' | 'pending' | 'error' | null>(null)
 
   useEffect(() => {
     const getUser = async () => {
@@ -26,6 +27,7 @@ export default function PendienteAprobacion() {
   const checkStatus = async () => {
     setChecking(true)
     setStatusMessage(null)
+    setStatusType(null)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
@@ -43,18 +45,21 @@ export default function PendienteAprobacion() {
 
       if (!response.ok) {
         setStatusMessage(data.error || 'Error al verificar. Intenta de nuevo.')
+        setStatusType('error')
         setChecking(false)
         return
       }
 
       if (data.approved) {
         setStatusMessage('¡Aprobado! Redirigiendo...')
+        setStatusType('approved')
         setTimeout(() => router.push('/dashboard'), 1000)
         return
       }
 
       if (data.status === 'rejected') {
         setStatusMessage('Tu solicitud no ha sido aprobada')
+        setStatusType('rejected')
         setChecking(false)
         return
       }
@@ -69,6 +74,7 @@ export default function PendienteAprobacion() {
       if (error) {
         console.error('Profile query error:', error)
         setStatusMessage('Error al verificar. Intenta de nuevo.')
+        setStatusType('error')
         setChecking(false)
         return
       }
@@ -77,14 +83,17 @@ export default function PendienteAprobacion() {
 
       if (profile?.access_status === 'approved' || profile?.access_status === 'paid') {
         setStatusMessage('¡Aprobado! Redirigiendo...')
+        setStatusType('approved')
         setTimeout(() => router.push('/dashboard'), 1000)
       } else {
         setStatusMessage('Tu solicitud sigue en revisión')
+        setStatusType('pending')
         setChecking(false)
       }
     } catch (error) {
       console.error('Error checking status:', error)
       setStatusMessage('Error al verificar')
+      setStatusType('error')
       setChecking(false)
     }
   }
@@ -146,13 +155,34 @@ export default function PendienteAprobacion() {
             {/* Status message */}
             {statusMessage && (
               <div className={`mb-6 px-4 py-3 rounded-xl text-sm text-center animate-fade-in ${
-                statusMessage.includes('Aprobado') 
+                statusType === 'approved' 
                   ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-400'
-                  : statusMessage.includes('Error')
+                  : statusType === 'rejected'
                     ? 'bg-red-500/10 border border-red-500/20 text-red-400'
-                    : 'bg-white/[0.03] border border-white/[0.06] text-white/50'
+                    : statusType === 'error'
+                      ? 'bg-red-500/10 border border-red-500/20 text-red-400'
+                      : 'bg-white/[0.03] border border-white/[0.06] text-white/50'
               }`}>
                 {statusMessage}
+              </div>
+            )}
+
+            {statusType === 'rejected' && (
+              <div className="mb-6">
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
+                  <p className="text-white/60 text-sm mb-4">
+                    Puedes volver a intentarlo cuando quieras con un perfil más completo.
+                  </p>
+                  <a
+                    href="/cuestionario"
+                    className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-white border border-white/20 bg-white/5 hover:bg-white/10 transition-all"
+                  >
+                    Rehacer cuestionario
+                    <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9" />
+                    </svg>
+                  </a>
+                </div>
               </div>
             )}
 
