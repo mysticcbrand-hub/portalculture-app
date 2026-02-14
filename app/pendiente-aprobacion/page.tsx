@@ -33,7 +33,35 @@ export default function PendienteAprobacion() {
         return
       }
 
-      // Try to get profile
+      // Check waitlist status by email
+      const { data: waitlistRows, error: waitlistError } = await supabase
+        .from('waitlist')
+        .select('status')
+        .eq('email', user.email)
+        .limit(1)
+
+      if (waitlistError) {
+        console.error('Waitlist query error:', waitlistError)
+        setStatusMessage('Error al verificar. Intenta de nuevo.')
+        setChecking(false)
+        return
+      }
+
+      const waitlist = waitlistRows?.[0]
+
+      if (waitlist?.status === 'approved') {
+        setStatusMessage('¡Aprobado! Redirigiendo...')
+        setTimeout(() => router.push('/dashboard'), 1000)
+        return
+      }
+
+      if (waitlist?.status === 'rejected') {
+        setStatusMessage('Tu solicitud no ha sido aprobada')
+        setChecking(false)
+        return
+      }
+
+      // Fallback to profiles access_status
       const { data: profiles, error } = await supabase
         .from('profiles')
         .select('access_status')
@@ -49,21 +77,7 @@ export default function PendienteAprobacion() {
 
       const profile = profiles?.[0]
 
-      // If no profile exists, create one
-      if (!profile) {
-        await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            access_status: 'pending'
-          })
-        setStatusMessage('Tu solicitud sigue en revisión')
-        setChecking(false)
-        return
-      }
-
-      if (profile.access_status === 'approved' || profile.access_status === 'paid') {
+      if (profile?.access_status === 'approved' || profile?.access_status === 'paid') {
         setStatusMessage('¡Aprobado! Redirigiendo...')
         setTimeout(() => router.push('/dashboard'), 1000)
       } else {
