@@ -135,10 +135,10 @@ Tool call argument 'replace' pruned from message history.
             </div>
           </section>
 
-          {/* Section 8 */}
+          {/* Section 10 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">8</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">10</span>
               Suspensión y Terminación
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
@@ -153,10 +153,10 @@ Tool call argument 'replace' pruned from message history.
             </div>
           </section>
 
-          {/* Section 9 */}
+          {/* Section 11 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">9</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">11</span>
               Modificaciones
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
@@ -165,10 +165,10 @@ Tool call argument 'replace' pruned from message history.
             </div>
           </section>
 
-          {/* Section 10 */}
+          {/* Section 12 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">10</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">12</span>
               Ley Aplicable y Jurisdicción
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
@@ -177,10 +177,10 @@ Tool call argument 'replace' pruned from message history.
             </div>
           </section>
 
-          {/* Section 11 */}
+          {/* Section 13 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">11</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">13</span>
               Contacto
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
