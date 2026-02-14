@@ -296,10 +296,8 @@ export default function Cuestionario() {
 
       setIsComplete(true)
 
-      // Redirect to pending page after animation
-      setTimeout(() => {
-        router.push('/pendiente-aprobacion')
-      }, 2500)
+      // Don't auto-redirect, user clicks button to Notion
+      // setTimeout removed
     } catch (error: any) {
       console.error('Submit error:', error)
       alert(error.message || 'Error al enviar. Intenta de nuevo.')
@@ -336,145 +334,103 @@ export default function Cuestionario() {
     )
   }
 
-  // Completion screen - NUEVA PANTALLA con mensaje de Anxo
+  // Completion screen - Face ID Style
   if (isComplete) {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
-        {/* Background gradient premium */}
+        {/* Subtle gradient background (no banding) */}
         <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-950/20 via-black to-cyan-950/15" />
           <div className="absolute inset-0" style={{
-            background: `
-              radial-gradient(ellipse 75% 60% at 50% 40%, rgba(168, 85, 247, 0.12) 0%, rgba(147, 51, 234, 0.08) 20%, transparent 60%),
-              radial-gradient(ellipse 70% 65% at 50% 60%, rgba(236, 72, 153, 0.08) 0%, rgba(219, 39, 119, 0.05) 25%, transparent 70%)
-            `
-          }} />
-          <div className="absolute inset-0" style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-            backgroundSize: '180px 180px',
-            opacity: 0.025,
-            mixBlendMode: 'overlay',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.6' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            opacity: 0.015,
           }} />
         </div>
 
-        <div className="max-w-2xl mx-auto text-center animate-fadeIn space-y-8">
-          {/* Animated checkmark premium */}
-          <div className="w-24 h-24 mx-auto mb-8 relative">
-            <div 
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%)',
-                filter: 'blur(20px)',
-              }}
-            />
-            <svg 
-              className="w-24 h-24 text-white relative z-10"
-              viewBox="0 0 52 52"
-            >
-              <circle 
-                cx="26" cy="26" r="24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2"
-                strokeLinecap="round"
-                style={{
-                  strokeDasharray: 166,
-                  strokeDashoffset: 166,
-                  animation: 'stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards'
-                }}
-              />
-              <path 
-                className="animate-check"
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14 27l7 7 16-16"
-                style={{
-                  strokeDasharray: 48,
-                  strokeDashoffset: 48,
-                  animation: 'stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.5s forwards'
-                }}
-              />
-            </svg>
-          </div>
-
-          {/* Título premium */}
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
-            Gracias por tu tiempo
-            <br />
-            <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-purple-400 bg-clip-text text-transparent">
-              y honestidad
-            </span>
-          </h1>
-
-          {/* Mensaje de Anxo */}
-          <div 
-            className="relative max-w-xl mx-auto p-8 md:p-10 rounded-2xl text-left"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%)',
-              backdropFilter: 'blur(20px)',
-              border: '1px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.37)',
-            }}
-          >
-            <div className="space-y-4 text-white/80 leading-relaxed">
-              <p>
-                Revisaremos tu solicitud en los próximos días y te contactaremos por email.
-              </p>
-              
-              <div className="space-y-2">
-                <p className="font-semibold text-white">
-                  <span className="text-green-400">✓</span> Si entras:
-                </p>
-                <p className="pl-6">
-                  Te enviaremos los pasos siguientes.
-                </p>
-              </div>
-
-              <div className="space-y-2">
-                <p className="font-semibold text-white">
-                  <span className="text-red-400">✗</span> Si no:
-                </p>
-                <p className="pl-6">
-                  Te explicaremos por qué y cuándo puedes volver a aplicar.
-                </p>
-              </div>
-
-              <div className="pt-4 mt-6 border-t border-white/10">
-                <p className="text-white/60 italic">
-                  Portal Culture no es para todos.
-                  <br />
-                  Y eso está bien.
-                </p>
-              </div>
-
-              {/* Firma */}
-              <div className="pt-4">
-                <p className="text-white font-semibold">— Anxo</p>
-              </div>
+        <div className="max-w-md mx-auto text-center space-y-8">
+          {/* Face ID Animation */}
+          <div className="w-32 h-32 mx-auto mb-6 relative">
+            {/* Outer pulsing rings */}
+            <div className="absolute inset-0 rounded-full border-2 border-emerald-500/20 animate-ping" style={{ animationDuration: '2s' }} />
+            <div className="absolute inset-4 rounded-full border-2 border-emerald-500/30 animate-ping" style={{ animationDuration: '2s', animationDelay: '0.3s' }} />
+            
+            {/* Checkmark circle */}
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-emerald-500/10 to-cyan-500/10 backdrop-blur-xl border border-white/10 flex items-center justify-center">
+              <svg 
+                className="w-16 h-16 text-emerald-400"
+                viewBox="0 0 52 52"
+                style={{ animation: 'scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards' }}
+              >
+                <circle 
+                  cx="26" cy="26" r="24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2"
+                  style={{
+                    strokeDasharray: 166,
+                    strokeDashoffset: 166,
+                    animation: 'drawCircle 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards'
+                  }}
+                />
+                <path 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="3"
+                  strokeLinecap="round"
+                  d="M14 27l7 7 16-16"
+                  style={{
+                    strokeDasharray: 48,
+                    strokeDashoffset: 48,
+                    animation: 'drawCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards'
+                  }}
+                />
+              </svg>
             </div>
           </div>
 
-          {/* CTA */}
-          <button
-            onClick={() => router.push('/')}
-            className="mt-8 px-6 py-3 bg-white/10 hover:bg-white/15 border border-white/20 rounded-xl text-white text-sm font-medium transition-all duration-200"
+          {/* Title */}
+          <h1 className="text-2xl md:text-3xl font-semibold text-white">
+            Completado ✓
+          </h1>
+
+          {/* CTA Button to Notion */}
+          <a
+            href="https://portalculture.notion.site/EVOLUCIONA-PORTAL-CULTURE-f110e93696d583e481ec8164b6a5e55f?pvs=74"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block w-full max-w-xs mx-auto"
           >
-            Volver al inicio
-          </button>
+            <button className="w-full px-8 py-4 rounded-2xl text-white font-medium transition-all duration-300 active:scale-95 group relative overflow-hidden">
+              {/* Glassmorphism background */}
+              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border border-white/10 rounded-2xl" />
+              
+              {/* Hover glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/0 to-cyan-500/0 group-hover:from-emerald-500/10 group-hover:to-cyan-500/10 transition-all duration-500 rounded-2xl" />
+              
+              <span className="relative flex items-center justify-center gap-2">
+                Recoge tu regalo 🎁
+                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </span>
+            </button>
+          </a>
+
+          <p className="text-white/40 text-sm">
+            Tu solicitud ha sido enviada
+          </p>
         </div>
 
         <style jsx>{`
-          @keyframes stroke {
-            100% { stroke-dashoffset: 0; }
+          @keyframes drawCircle {
+            to { strokeDashoffset: 0; }
           }
-          @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+          @keyframes drawCheck {
+            to { strokeDashoffset: 0; }
           }
-          .animate-fadeIn {
-            animation: fadeIn 0.5s ease-out forwards;
+          @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
           }
         `}</style>
       </main>
@@ -576,8 +532,7 @@ export default function Cuestionario() {
             
             {/* Text */}
             <div className="flex-1">
-              <p className="text-white font-semibold text-sm">Menos de 5 minutos</p>
-              <p className="text-white/70 text-xs">Este cuestionario es rápido y sencillo</p>
+              <p className="text-white font-semibold text-sm">Regalo al final 🎁</p>
             </div>
           </div>
         </div>
