@@ -88,7 +88,7 @@ export default function DashboardPage() {
         
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Image src="/favicon.ico" alt="Portal Culture" width={40} height={40} className="w-9 h-9 md:w-10 md:h-10" priority />
+            <Image src="/este_logo.ico" alt="Portal Culture" width={40} height={40} className="w-9 h-9 md:w-10 md:h-10" priority />
             <span className="text-lg md:text-xl font-bold text-white tracking-tight">Portal Culture</span>
           </div>
           <div className="flex items-center gap-3 md:gap-4">
