@@ -32,7 +32,8 @@ export async function POST(request: Request) {
     const { error: updateError } = await supabase
       .from('waitlist')
       .update({ 
-        status: 'rejected'
+        status: 'rejected',
+        rejected_at: new Date().toISOString()
       })
       .eq('id', userId)
     

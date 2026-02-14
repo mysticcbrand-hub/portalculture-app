@@ -12,7 +12,7 @@ export async function POST(request: Request) {
     // Buscar en waitlist usando el cliente admin (bypassa RLS)
     const { data, error } = await supabaseAdmin
       .from('waitlist')
-      .select('status')
+      .select('status, rejected_at')
       .eq('email', email)
       .single()
 
@@ -27,6 +27,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ 
         approved: false,
         status: data.status,
+        rejected_at: data.rejected_at,
         message: data.status === 'rejected'
           ? 'Tu solicitud no ha sido aprobada'
           : 'Tu solicitud aún está siendo revisada. Te contactaremos pronto por email.'

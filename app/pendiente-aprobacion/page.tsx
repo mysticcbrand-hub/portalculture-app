@@ -12,6 +12,8 @@ export default function PendienteAprobacion() {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const [statusType, setStatusType] = useState<'approved' | 'rejected' | 'pending' | 'error' | null>(null)
+  const [retryAt, setRetryAt] = useState<string | null>(null)
+  const [nowTs, setNowTs] = useState(Date.now())
 
   useEffect(() => {
     const getUser = async () => {
@@ -23,11 +25,18 @@ export default function PendienteAprobacion() {
     getUser()
   }, [supabase.auth])
 
+  useEffect(() => {
+    if (statusType !== 'rejected' || !retryAt) return
+    const interval = setInterval(() => setNowTs(Date.now()), 1000)
+    return () => clearInterval(interval)
+  }, [statusType, retryAt])
+
   // Check if user has been approved
   const checkStatus = async () => {
     setChecking(true)
     setStatusMessage(null)
     setStatusType(null)
+    setRetryAt(null)
     try {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
@@ -42,6 +51,9 @@ export default function PendienteAprobacion() {
       })
 
       const data = await response.json()
+      if (data?.retry_at) {
+        setRetryAt(data.retry_at)
+      }
 
       if (!response.ok) {
         setStatusMessage(data.error || 'Error al verificar. Intenta de nuevo.')
@@ -96,6 +108,36 @@ export default function PendienteAprobacion() {
       setStatusType('error')
       setChecking(false)
     }
+  }
+
+  const formatCountdown = (targetIso: string) => {
+    const diff = new Date(targetIso).getTime() - nowTs
+    if (diff <= 0) return 'Ya puedes reintentar'
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24)
+    const minutes = Math.floor((diff / (1000 * 60)) % 60)
+    return `${days}d ${hours}h ${minutes}m`
+  }
+
+  const handleRetry = async () => {
+    if (!userEmail) return
+    const response = await fetch('/api/waitlist/retry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: userEmail })
+    })
+
+    if (response.ok) {
+      router.push('/cuestionario')
+      return
+    }
+
+    const data = await response.json()
+    if (data?.retry_at) {
+      setRetryAt(data.retry_at)
+    }
+    setStatusMessage(data.error || 'Aún no puedes reintentar')
+    setStatusType('error')
   }
 
   const handleLogout = async () => {
@@ -169,22 +211,30 @@ export default function PendienteAprobacion() {
 
             {statusType === 'rejected' && (
               <div className="mb-6">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-center">
-                  <p className="text-white/60 text-sm mb-4">
-                    Puedes volver a intentarlo cuando quieras con un perfil más completo.
+                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 text-center">
+                  <p className="text-white/70 text-sm mb-2">
+                    Podrás volver a intentarlo en 14 días.
                   </p>
-                  <a
-                    href="/cuestionario"
-                    className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-white border border-white/20 bg-white/5 hover:bg-white/10 transition-all"
+                  {retryAt && (
+                    <p className="text-white/35 text-xs mb-4">
+                      Reintento disponible en: <span className="text-white/60">{formatCountdown(retryAt)}</span>
+                    </p>
+                  )}
+                  <button
+                    onClick={handleRetry}
+                    disabled={!retryAt || new Date(retryAt).getTime() > nowTs}
+                    className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2 text-xs font-semibold text-white border border-white/20 bg-white/5 hover:bg-white/10 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
                   >
                     Rehacer cuestionario
                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9" />
                     </svg>
-                  </a>
+                  </button>
                 </div>
               </div>
             )}
+
+
 
             {/* Check status button */}
             <button

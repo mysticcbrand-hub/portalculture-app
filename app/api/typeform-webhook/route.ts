@@ -46,6 +46,23 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No email provided' }, { status: 400 })
     }
 
+    const { data: existing } = await supabaseAdmin
+      .from('waitlist')
+      .select('status, rejected_at')
+      .eq('email', email)
+      .single()
+
+    if (existing?.status === 'rejected' && existing?.rejected_at) {
+      const rejectedAt = new Date(existing.rejected_at)
+      const retryAt = new Date(rejectedAt.getTime() + 14 * 24 * 60 * 60 * 1000)
+      if (retryAt > new Date()) {
+        return NextResponse.json({
+          error: 'Cooldown activo. Intenta más tarde.',
+          retry_at: retryAt.toISOString()
+        }, { status: 429 })
+      }
+    }
+
     // Save to waitlist table
     const { data, error } = await supabaseAdmin
       .from('waitlist')
