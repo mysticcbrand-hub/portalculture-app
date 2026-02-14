@@ -117,24 +117,7 @@ export default function TerminosPage() {
             </div>
           </section>
 
-          {/* Section 6 */}
-          <section className="mb-10">
-            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">6</span>
-              Pagos y Reembolsos
-            </h2>
-            <div className="space-y-3 text-white/50 pl-11">
-              <p>Los pagos se procesan a través de plataformas de pago seguras (Whop). Al realizar un pago:</p>
-              <ul className="list-disc pl-5 space-y-2">
-                <li>Confirmas que estás autorizado a usar el método de pago proporcionado.</li>
-                <li>Aceptas que el pago de 17€ es único y otorga acceso de por vida.</li>
-                <li>Los reembolsos se considerarán caso por caso dentro de los primeros 7 días si no has accedido al contenido principal.</li>
-              </ul>
-              <p>Para solicitar un reembolso, contacta con nosotros a través de los canales oficiales.</p>
-            </div>
-          </section>
-
-          {/* Section 8 */}
+Tool call argument 'replace' pruned from message history.
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
               <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">8</span>
@@ -170,10 +153,10 @@ export default function TerminosPage() {
             </div>
           </section>
 
-          {/* Section 10 */}
+          {/* Section 9 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">10</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">9</span>
               Modificaciones
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
