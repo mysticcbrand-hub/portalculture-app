@@ -33,29 +33,27 @@ export default function PendienteAprobacion() {
         return
       }
 
-      // Check waitlist status by email
-      const { data: waitlistRows, error: waitlistError } = await supabase
-        .from('waitlist')
-        .select('status')
-        .eq('email', user.email)
-        .limit(1)
+      const response = await fetch('/api/check-waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email })
+      })
 
-      if (waitlistError) {
-        console.error('Waitlist query error:', waitlistError)
-        setStatusMessage('Error al verificar. Intenta de nuevo.')
+      const data = await response.json()
+
+      if (!response.ok) {
+        setStatusMessage(data.error || 'Error al verificar. Intenta de nuevo.')
         setChecking(false)
         return
       }
 
-      const waitlist = waitlistRows?.[0]
-
-      if (waitlist?.status === 'approved') {
+      if (data.approved) {
         setStatusMessage('¡Aprobado! Redirigiendo...')
         setTimeout(() => router.push('/dashboard'), 1000)
         return
       }
 
-      if (waitlist?.status === 'rejected') {
+      if (data.status === 'rejected') {
         setStatusMessage('Tu solicitud no ha sido aprobada')
         setChecking(false)
         return

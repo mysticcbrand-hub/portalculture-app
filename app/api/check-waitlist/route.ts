@@ -25,13 +25,17 @@ export async function POST(request: Request) {
 
     if (data.status !== 'approved') {
       return NextResponse.json({ 
-        approved: false, 
-        message: 'Tu solicitud aún está siendo revisada. Te contactaremos pronto por email.' 
+        approved: false,
+        status: data.status,
+        message: data.status === 'rejected'
+          ? 'Tu solicitud no ha sido aprobada'
+          : 'Tu solicitud aún está siendo revisada. Te contactaremos pronto por email.'
       })
     }
 
     return NextResponse.json({ 
-      approved: true, 
+      approved: true,
+      status: data.status,
       message: 'Email aprobado' 
     })
   } catch (error: any) {

@@ -416,6 +416,9 @@ export default function Cuestionario() {
             </button>
           </a>
 
+          <p className="mt-3 text-xs text-white/55">
+            Dale clic a &quot;Duplicar&quot; para hacerlo tuyo
+          </p>
           <p className="text-white/40 text-sm">
             Tu solicitud ha sido enviada
           </p>
