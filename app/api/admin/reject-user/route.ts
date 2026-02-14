@@ -33,7 +33,6 @@ export async function POST(request: Request) {
       .from('waitlist')
       .update({ 
         status: 'rejected',
-        rejected_at: new Date().toISOString(),
         rejection_reason: reason || 'No especificado'
       })
       .eq('id', userId)
