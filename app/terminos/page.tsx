@@ -134,6 +134,24 @@ export default function TerminosPage() {
             </div>
           </section>
 
+          {/* Section 7 */}
+          <section className="mb-10">
+            <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">7</span>
+              Comunicaciones y Email
+            </h2>
+            <div className="space-y-3 text-white/50 pl-11">
+              <p>Al registrarte en Portal Culture, aceptas recibir comunicaciones relevantes por email, que pueden incluir:</p>
+              <ul className="list-disc pl-5 space-y-2">
+                <li>Avisos importantes sobre tu cuenta, la plataforma o cambios en los términos</li>
+                <li>Contenido de valor como recursos exclusivos, videos de YouTube y artículos</li>
+                <li>Información sobre nuevos productos, servicios o funcionalidades de Portal Culture o Anxo</li>
+                <li>Cuestionarios post-entrada, encuestas de mejora o recompensas opcionales</li>
+              </ul>
+              <p className="text-sm text-white/40">Siempre puedes darte de baja de estas comunicaciones desde cualquier email que recibas, mediante el enlace de cancelación de suscripción.</p>
+            </div>
+          </section>
+
           {/* Section 8 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
