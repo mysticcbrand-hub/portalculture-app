@@ -134,10 +134,10 @@ export default function TerminosPage() {
             </div>
           </section>
 
-          {/* Section 7 */}
+          {/* Section 8 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">7</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">8</span>
               Limitación de Responsabilidad
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
@@ -170,10 +170,10 @@ export default function TerminosPage() {
             </div>
           </section>
 
-          {/* Section 9 */}
+          {/* Section 10 */}
           <section className="mb-10">
             <h2 className="text-xl font-semibold text-white mb-4 flex items-center gap-3">
-              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">9</span>
+              <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm">10</span>
               Modificaciones
             </h2>
             <div className="space-y-3 text-white/50 pl-11">
