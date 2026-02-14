@@ -32,8 +32,7 @@ export async function POST(request: Request) {
     const { error: updateError } = await supabase
       .from('waitlist')
       .update({ 
-        status: 'rejected',
-        rejection_reason: reason || 'No especificado'
+        status: 'rejected'
       })
       .eq('id', userId)
     
