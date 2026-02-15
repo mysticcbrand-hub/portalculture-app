@@ -186,7 +186,7 @@ export default function Cuestionario() {
     }
 
     checkAuth()
-  }, [router, supabase.auth])
+  }, [router, supabase])
 
   // Handle input changes
   const updateField = (field: keyof FormData, value: any) => {

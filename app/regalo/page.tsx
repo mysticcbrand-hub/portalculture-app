@@ -51,7 +51,7 @@ export default function RegaloPage() {
       setUserId(user.id)
     }
     checkAuth()
-  }, [])
+  }, [router, supabase])
 
   // Update field
   const updateField = (field: keyof FormData, value: any) => {

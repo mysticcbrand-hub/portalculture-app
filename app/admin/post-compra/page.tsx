@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
@@ -31,28 +31,7 @@ export default function AdminPostCompraPage() {
   const [responses, setResponses] = useState<PostCompraResponse[]>([])
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  useEffect(() => {
-    checkAuthAndLoad()
-  }, [])
-
-  const checkAuthAndLoad = async () => {
-    try {
-      // Check if user is admin
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user || user.email !== 'mysticcbrand@gmail.com') {
-        router.push('/dashboard')
-        return
-      }
-
-      await loadResponses()
-    } catch (error) {
-      console.error('Error:', error)
-      router.push('/dashboard')
-    }
-  }
-
-  const loadResponses = async () => {
+  const loadResponses = useCallback(async () => {
     setLoading(true)
     
     try {
@@ -95,7 +74,28 @@ export default function AdminPostCompraPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
+
+  const checkAuthAndLoad = useCallback(async () => {
+    try {
+      // Check if user is admin
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user || user.email !== 'mysticcbrand@gmail.com') {
+        router.push('/dashboard')
+        return
+      }
+
+      await loadResponses()
+    } catch (error) {
+      console.error('Error:', error)
+      router.push('/dashboard')
+    }
+  }, [router, loadResponses, supabase])
+
+  useEffect(() => {
+    checkAuthAndLoad()
+  }, [checkAuthAndLoad])
 
   const getValorColor = (valor: number) => {
     if (valor === 0) return 'text-red-400'

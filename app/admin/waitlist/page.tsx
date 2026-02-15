@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
@@ -84,17 +84,7 @@ export default function AdminWaitlistPage() {
   const router = useRouter()
   const supabase = createClient()
 
-  useEffect(() => {
-    checkAdmin()
-  }, [])
-
-  useEffect(() => {
-    if (!loading) {
-      loadEntries()
-    }
-  }, [filter, loading])
-
-  const checkAdmin = async () => {
+  const checkAdmin = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user || user.email !== 'mysticcbrand@gmail.com') {
@@ -103,9 +93,9 @@ export default function AdminWaitlistPage() {
     }
     
     setLoading(false)
-  }
+  }, [router, supabase])
 
-  const loadEntries = async () => {
+  const loadEntries = useCallback(async () => {
     let query = supabase
       .from('waitlist')
       .select('*')
@@ -123,7 +113,17 @@ export default function AdminWaitlistPage() {
     }
 
     setEntries(data || [])
-  }
+  }, [filter, supabase])
+
+  useEffect(() => {
+    checkAdmin()
+  }, [checkAdmin])
+
+  useEffect(() => {
+    if (!loading) {
+      loadEntries()
+    }
+  }, [filter, loading, loadEntries])
 
   const handleApprove = async (entry: WaitlistEntry) => {
     setProcessing(entry.id)
