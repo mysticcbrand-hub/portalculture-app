@@ -28,26 +28,8 @@ export default function SeleccionarAcceso() {
   }, [router, supabase.auth])
 
   const handleFastPass = () => {
-    // Trigger fade to black transition
-    const fadeOverlay = document.createElement('div')
-    fadeOverlay.className = 'fixed inset-0 bg-black z-[9999] transition-opacity duration-1000'
-    fadeOverlay.style.opacity = '0'
-    fadeOverlay.style.transitionTimingFunction = 'cubic-bezier(0.16, 1, 0.3, 1)'
-    document.body.appendChild(fadeOverlay)
-    
-    // Force reflow
-    fadeOverlay.offsetHeight
-    fadeOverlay.style.opacity = '1'
-    
-    // Navigate after 1 second
-    setTimeout(() => {
-      window.open('https://whop.com/portalculture/acceso-inmediato', '_blank')
-      // Fade out
-      setTimeout(() => {
-        fadeOverlay.style.opacity = '0'
-        setTimeout(() => document.body.removeChild(fadeOverlay), 1000)
-      }, 100)
-    }, 1000)
+    // Direct navigation - more reliable on mobile
+    window.location.href = 'https://whop.com/portalculture/acceso-inmediato'
   }
 
   const handleWaitlist = () => {
