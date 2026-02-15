@@ -214,8 +214,8 @@ export default function Cuestionario() {
         const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)
         const rawPhone = getRawPhoneNumber(formData.telefono)
         const country = countryCodes.find(c => c.code === formData.codigoPais)
-        const minPhoneLength = country ? Math.floor(country.maxLength * 0.7) : 6
-        return formData.nombre.trim() && emailValid && rawPhone.length >= minPhoneLength
+        const requiredPhoneLength = country ? country.maxLength : 9
+        return formData.nombre.trim() && emailValid && rawPhone.length === requiredPhoneLength
       case 2:
         return formData.edad !== ''
       case 3:
