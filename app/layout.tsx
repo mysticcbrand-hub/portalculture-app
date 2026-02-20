@@ -4,15 +4,15 @@ import { NotificationProvider } from "@/components/AppleNotification";
 import PageTransition from "@/components/PageTransition";
 
 export const metadata: Metadata = {
-  title: "Portal Culture - Dashboard",
-  description: "Comunidad exclusiva de desarrollo personal y crecimiento",
+  title: "Portal Culture — App",
+  description: "Portal Culture: acceso exclusivo a tu evolución personal",
   icons: {
     icon: [
-      { url: '/favicon.ico' },
-      { url: '/favicon.ico', sizes: '16x16', type: 'image/x-icon' },
-      { url: '/favicon.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/este_logo.ico' },
+      { url: '/este_logo.ico', sizes: '16x16', type: 'image/x-icon' },
+      { url: '/este_logo.ico', sizes: '32x32', type: 'image/x-icon' },
     ],
-    apple: '/favicon.ico',
+    apple: '/logo.png',
   },
 };
 
