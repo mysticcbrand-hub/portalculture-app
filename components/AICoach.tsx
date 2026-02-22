@@ -22,6 +22,7 @@ interface UsageStats {
   messageCount: number;
   remaining: number;
   limit: number;
+  isUnlimited?: boolean;
 }
 
 export default function AICoach() {
@@ -135,6 +136,13 @@ export default function AICoach() {
     setInput('');
     setInputRows(1);
     setIsLoading(true);
+
+    // Optimistic update — decrement counter immediately
+    setUsage(prev => prev && !prev.isUnlimited ? {
+      ...prev,
+      remaining: Math.max(0, prev.remaining - 1),
+      messageCount: prev.messageCount + 1,
+    } : prev);
 
     // Haptic
     if (typeof window !== 'undefined' && 'vibrate' in navigator) {
@@ -430,9 +438,9 @@ export default function AICoach() {
 
               {/* Right actions */}
               <div className="flex items-center gap-1 flex-shrink-0">
-                {usage && (
+                {usage && !usage.isUnlimited && (
                   <div
-                    className="text-[11px] px-2.5 py-1 rounded-full transition-all duration-300"
+                    className="text-[11px] px-2.5 py-1 rounded-full transition-all duration-500"
                     style={usage.remaining <= 2
                       ? { color: '#FF6B6B', background: 'rgba(255,107,107,0.08)', border: '1px solid rgba(255,107,107,0.2)' }
                       : usage.remaining <= 5
