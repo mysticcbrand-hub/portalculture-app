@@ -219,8 +219,6 @@ export default function AICoach() {
       if (typeof window !== 'undefined' && 'vibrate' in navigator) {
         navigator.vibrate([5, 30, 5]);
       }
-
-      loadUsage();
     } catch (error: any) {
       console.error('Chat error:', error);
       setMessages(prev => [...prev, {
