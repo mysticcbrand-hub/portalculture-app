@@ -1,8 +1,8 @@
 'use client';
 
 /**
- * AI Coach Chat Component
- * Premium Liquid Glass UI for NOVA AI Coach
+ * NOVA AI Coach - Premium Mobile Chat
+ * Fixed: scroll conflict, clipped messages, polished UX
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -30,47 +30,67 @@ export default function AICoach() {
   const [isLoading, setIsLoading] = useState(false);
   const [usage, setUsage] = useState<UsageStats | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [inputRows, setInputRows] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const supabase = createClient();
 
   const quickActions = [
     'Plan de 30 días para disciplina',
-    'Rutina express para ganar energía',
+    'Rutina para ganar energía',
     'Mejora tu carisma hoy',
-    'Cómo vencer la procrastinación'
+    'Vencer la procrastinación',
   ];
 
-  // Auto-scroll to bottom
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // Lock body scroll when open on mobile
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.touchAction = 'none';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.touchAction = '';
+    };
+  }, [isOpen]);
+
+  // Scroll to bottom within messages container only
+  const scrollToBottom = useCallback(() => {
+    if (messagesContainerRef.current) {
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, []);
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
-  // Load chat history and usage on open
+  // Auto-resize textarea
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setInput(e.target.value);
+    const lines = e.target.value.split('\n').length;
+    setInputRows(Math.min(lines, 4));
+  };
+
   const loadHistory = useCallback(async () => {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-
       const response = await fetch('/api/ai/history', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
-
       if (response.ok) {
         const data = await response.json();
-        const formattedMessages: Message[] = data.messages.map((msg: any) => ({
+        setMessages(data.messages.map((msg: any) => ({
           id: msg.id,
           role: msg.role,
           content: msg.content,
           timestamp: new Date(msg.created_at),
-        }));
-        setMessages(formattedMessages);
+        })));
       }
     } catch (error) {
       console.error('Failed to load history:', error);
@@ -81,13 +101,9 @@ export default function AICoach() {
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-
       const response = await fetch('/api/ai/usage', {
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
-
       if (response.ok) {
         const data = await response.json();
         setUsage(data);
@@ -116,15 +132,18 @@ export default function AICoach() {
 
     setMessages(prev => [...prev, userMessage]);
     setInput('');
+    setInputRows(1);
     setIsLoading(true);
+
+    // Haptic
+    if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(8);
+    }
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
+      if (!session) throw new Error('Not authenticated');
 
-      // Get conversation history (last 6 messages)
       const conversationHistory = messages.slice(-6).map(msg => ({
         role: msg.role,
         content: msg.content,
@@ -136,21 +155,15 @@ export default function AICoach() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          message: userMessage.content,
-          conversationHistory,
-        }),
+        body: JSON.stringify({ message: userMessage.content, conversationHistory }),
       });
 
       if (!response.ok) {
         const errorPayload = await response.json().catch(() => null);
-        if (response.status === 429) {
-          throw new Error(errorPayload?.message || 'Rate limit exceeded');
-        }
-        throw new Error(errorPayload?.detail || errorPayload?.error || 'Failed to get response');
+        if (response.status === 429) throw new Error(errorPayload?.message || 'Límite alcanzado');
+        throw new Error(errorPayload?.detail || errorPayload?.error || 'Error al conectar con NOVA');
       }
 
-      // Handle streaming response
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
       let assistantMessage: Message = {
@@ -166,17 +179,11 @@ export default function AICoach() {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-
           const chunk = decoder.decode(value);
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
+          for (const line of chunk.split('\n')) {
             if (line.startsWith('data: ')) {
               const data = line.slice(6);
-              if (data === '[DONE]') {
-                break;
-              }
-
+              if (data === '[DONE]') break;
               try {
                 const parsed = JSON.parse(data);
                 if (parsed.content) {
@@ -187,26 +194,26 @@ export default function AICoach() {
                     return newMessages;
                   });
                 }
-              } catch (e) {
-                // Skip invalid JSON
-              }
+              } catch (e) {}
             }
           }
         }
       }
 
-      // Refresh usage stats
-      loadUsage();
+      // Success haptic
+      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([5, 30, 5]);
+      }
 
+      loadUsage();
     } catch (error: any) {
       console.error('Chat error:', error);
-      const errorMessage: Message = {
+      setMessages(prev => [...prev, {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: error.message || 'Lo siento, hubo un error. Inténtalo de nuevo.',
         timestamp: new Date(),
-      };
-      setMessages(prev => [...prev, errorMessage]);
+      }]);
     } finally {
       setIsLoading(false);
     }
@@ -221,260 +228,444 @@ export default function AICoach() {
 
   const handleQuickAction = (text: string) => {
     setInput(text);
-    inputRef.current?.focus();
+    setTimeout(() => inputRef.current?.focus(), 100);
   };
 
   const clearHistory = async () => {
     if (!confirm('¿Seguro que quieres borrar todo el historial?')) return;
-
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-
       const response = await fetch('/api/ai/history', {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-        },
+        headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
-
-      if (response.ok) {
-        setMessages([]);
-      }
+      if (response.ok) setMessages([]);
     } catch (error) {
       console.error('Failed to clear history:', error);
     }
   };
 
+  // ── CLOSED STATE ──────────────────────────────────────────────────────────
   if (!isOpen) {
     return (
       <>
-        {/* Mobile dock */}
+        {/* Mobile dock pill */}
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
         >
-          <div className="relative rounded-3xl border border-white/10 bg-white/5 backdrop-blur-2xl px-4 py-3 shadow-[0_12px_40px_rgba(0,0,0,0.35)]">
-            <div className="flex items-center gap-3">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 p-[1px]">
-                <div className="w-full h-full rounded-2xl bg-black/60 flex items-center justify-center">
-                  <Image src="/ai.png" alt="NOVA" width={34} height={34} className="rounded-xl" />
+          <div
+            className="relative rounded-2xl overflow-hidden"
+            style={{
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%)',
+              backdropFilter: 'blur(24px)',
+              border: '1px solid rgba(255,255,255,0.12)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
+            }}
+          >
+            <div className="flex items-center gap-3 px-4 py-3">
+              {/* Avatar with pulse */}
+              <div className="relative flex-shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1.5px]">
+                  <div className="w-full h-full rounded-[10px] bg-black/70 flex items-center justify-center overflow-hidden">
+                    <Image src="/ai.png" alt="NOVA" width={32} height={32} className="rounded-lg" />
+                  </div>
                 </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-black" />
               </div>
-              <div className="flex-1 text-left">
-                <p className="text-sm text-white/90 font-semibold">NOVA™ en tu bolsillo</p>
-                <p className="text-xs text-white/45">Abrir coach privado →</p>
+
+              <div className="flex-1 text-left min-w-0">
+                <p className="text-sm font-semibold text-white leading-none mb-0.5">NOVA™ AI Coach</p>
+                <p className="text-xs text-white/40 truncate">Pregúntame lo que quieras →</p>
               </div>
-              <div className="text-xs text-white/60 px-3 py-1 rounded-full border border-white/10 bg-white/5">Abrir</div>
+
+              {/* Animated indicator */}
+              <div className="flex gap-1 flex-shrink-0">
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+              </div>
             </div>
+
+            {/* Gradient shimmer line at bottom */}
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
           </div>
         </button>
 
         {/* Desktop FAB */}
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group hidden md:block"
+          className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group hidden md:flex items-center justify-center"
         >
           <div className="relative">
-            <div className="liquid-glass-fab p-4 md:p-5">
-              <svg className="w-7 h-7 md:w-8 md:h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            {/* Glow ring */}
+            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 opacity-60 blur-md group-hover:opacity-90 transition-opacity" />
+            <div
+              className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, rgba(168,85,247,0.9), rgba(59,130,246,0.9))',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.2)',
+              }}
+            >
+              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
               </svg>
             </div>
           </div>
-          <div className="absolute -top-12 right-0 liquid-glass-chip opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-            <span className="text-sm text-white font-medium">Habla con NOVA 🔥</span>
+          <div
+            className="absolute -top-11 right-0 px-3 py-1.5 rounded-xl text-sm text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+            style={{
+              background: 'rgba(255,255,255,0.1)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255,255,255,0.15)',
+            }}
+          >
+            Habla con NOVA 🔥
           </div>
         </button>
       </>
     );
   }
 
+  // ── OPEN STATE ────────────────────────────────────────────────────────────
   return (
-    <div className="fixed inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[450px] md:h-[700px] z-50 flex flex-col">
-      {/* Mobile backdrop */}
+    <>
+      {/* Full-screen overlay - captures all touch/scroll events */}
       <div
-        className="md:hidden absolute inset-0 bg-black/60"
-        onClick={() => setIsOpen(false)}
-      />
+        className="fixed inset-0 z-50"
+        style={{ touchAction: 'none' }}
+      >
+        {/* Backdrop blur for desktop */}
+        <div
+          className="absolute inset-0 md:bg-black/40 md:backdrop-blur-sm"
+          onClick={() => setIsOpen(false)}
+        />
 
-      {/* Liquid Glass container */}
-      <div className="relative flex-1 md:flex-none md:h-full liquid-glass md:rounded-3xl shadow-2xl flex flex-col overflow-hidden md:mt-0 mt-auto rounded-t-3xl border border-white/10">
-        {/* Header */}
-        <div className="relative border-b border-white/20 p-4">
-          {/* Mobile grabber */}
-          <div className="md:hidden flex justify-center mb-3">
-            <div className="h-1.5 w-12 rounded-full bg-white/10" />
-          </div>
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-blue-500/20" />
-          <div className="relative flex items-center justify-between z-10">
+        {/* Chat panel - mobile: full screen, desktop: floating */}
+        <div
+          className="absolute inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl flex flex-col overflow-hidden"
+          style={{
+            background: 'linear-gradient(160deg, rgba(15,15,20,0.97) 0%, rgba(10,10,15,0.99) 100%)',
+            backdropFilter: 'blur(40px)',
+            border: '1px solid rgba(255,255,255,0.08)',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+
+          {/* ── HEADER ─────────────────────────────────────────────────── */}
+          <div
+            className="flex-shrink-0 relative px-4 pt-3 pb-3"
+            style={{
+              background: 'linear-gradient(180deg, rgba(168,85,247,0.12) 0%, transparent 100%)',
+              borderBottom: '1px solid rgba(255,255,255,0.07)',
+            }}
+          >
+            {/* Mobile grabber */}
+            <div className="md:hidden flex justify-center mb-2">
+              <div className="h-1 w-10 rounded-full bg-white/15" />
+            </div>
+
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center overflow-hidden">
-                <Image
-                  src="/ai.png"
-                  alt="NOVA AI"
-                  width={40}
-                  height={40}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="text-white font-bold">NOVA™ AI Coach</h3>
-                <p className="text-xs text-white/50">Tu mentor de transformación</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {usage && (
-                <div className="text-xs text-white/50">
-                  {usage.remaining}/{usage.limit} 💬
+              {/* Avatar */}
+              <div className="relative flex-shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1.5px]">
+                  <div className="w-full h-full rounded-[10px] bg-black/60 overflow-hidden">
+                    <Image src="/ai.png" alt="NOVA" width={36} height={36} className="w-full h-full object-cover" />
+                  </div>
                 </div>
-              )}
-              <button
-                onClick={clearHistory}
-                className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-                title="Limpiar historial"
-              >
-                <svg className="w-4 h-4 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-black" />
+              </div>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-white font-bold text-sm">NOVA™</h3>
+                  <span className="text-[10px] text-emerald-400 font-medium px-1.5 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20">online</span>
+                </div>
+                <p className="text-[11px] text-white/40 truncate">Tu coach de élite personal</p>
+              </div>
+
+              {/* Right actions */}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {usage && (
+                  <div
+                    className="text-[11px] text-white/40 px-2.5 py-1 rounded-full"
+                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    {usage.remaining}/{usage.limit} 💬
+                  </div>
+                )}
+                <button
+                  onClick={clearHistory}
+                  className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
+                  title="Limpiar historial"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+                <button
+                  onClick={() => setIsOpen(false)}
+                  className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                >
+                  <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Mobile Spotlight card */}
-        <div className="md:hidden px-4 pt-4">
-          <div className="relative rounded-3xl border border-white/10 bg-gradient-to-br from-white/10 via-white/5 to-transparent p-4 backdrop-blur-2xl">
-            <div className="absolute inset-0 rounded-3xl bg-[radial-gradient(circle_at_20%_20%,rgba(168,85,247,0.18),transparent_55%),radial-gradient(circle_at_80%_0%,rgba(59,130,246,0.18),transparent_50%)]" />
-            <div className="relative flex items-center gap-3">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-500 p-[1px]">
-                <div className="w-full h-full rounded-2xl bg-black/60 flex items-center justify-center">
-                  <Image src="/ai.png" alt="NOVA" width={36} height={36} className="rounded-xl" />
+          {/* ── MESSAGES ───────────────────────────────────────────────── */}
+          <div
+            ref={messagesContainerRef}
+            className="flex-1 overflow-y-auto overflow-x-hidden"
+            style={{
+              touchAction: 'pan-y',
+              WebkitOverflowScrolling: 'touch',
+              overscrollBehavior: 'contain',
+              padding: '12px 16px',
+            }}
+          >
+            {/* Empty state */}
+            {messages.length === 0 && (
+              <div className="h-full flex flex-col items-center justify-center text-center px-4 py-8 space-y-6">
+                {/* NOVA avatar grande */}
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500 to-blue-600 p-[2px]">
+                    <div className="w-full h-full rounded-[22px] bg-black/70 overflow-hidden">
+                      <Image src="/ai.png" alt="NOVA" width={80} height={80} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-400 border-2 border-black flex items-center justify-center text-xs">
+                    ✓
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="text-white font-bold text-xl mb-1">Hola, soy NOVA™</h3>
+                  <p className="text-white/40 text-sm max-w-[260px] mx-auto leading-relaxed">
+                    Tu coach de élite personal. Pregúntame sobre disciplina, carisma, energía, mentalidad o productividad.
+                  </p>
+                </div>
+
+                {/* Quick actions en empty state */}
+                <div className="w-full space-y-2">
+                  {quickActions.map((action) => (
+                    <button
+                      key={action}
+                      onClick={() => handleQuickAction(action)}
+                      className="w-full text-left px-4 py-3 rounded-2xl text-sm text-white/70 hover:text-white transition-all active:scale-[0.98]"
+                      style={{
+                        background: 'rgba(255,255,255,0.04)',
+                        border: '1px solid rgba(255,255,255,0.08)',
+                      }}
+                    >
+                      <span className="mr-2">⚡</span>{action}
+                    </button>
+                  ))}
                 </div>
               </div>
-              <div>
-                <p className="text-sm text-white/80 uppercase tracking-[0.2em]">NOVA™</p>
-                <p className="text-lg font-semibold text-white">Tu coach privado</p>
-                <p className="text-xs text-white/45">Respuestas claras, acción inmediata</p>
-              </div>
-            </div>
-          </div>
+            )}
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {quickActions.map((action) => (
-              <button
-                key={action}
-                onClick={() => handleQuickAction(action)}
-                className="rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs text-white/70 transition-all active:scale-95"
-              >
-                {action}
-              </button>
-            ))}
-          </div>
-        </div>
+            {/* Messages */}
+            <div className="space-y-3">
+              {messages.map((msg, idx) => (
+                <div
+                  key={msg.id}
+                  className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}
+                  style={{ animation: 'msgIn 0.25s ease-out both', animationDelay: `${Math.min(idx * 20, 200)}ms` }}
+                >
+                  {/* NOVA avatar on messages */}
+                  {msg.role === 'assistant' && (
+                    <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1px] mb-0.5">
+                      <div className="w-full h-full rounded-[10px] bg-black/60 overflow-hidden">
+                        <Image src="/ai.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
+                      </div>
+                    </div>
+                  )}
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
-          {messages.length === 0 && (
-            <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 flex items-center justify-center text-2xl">
-                🔥
-              </div>
-              <h3 className="text-white font-bold mb-2">¡Hola! Soy NOVA</h3>
-              <p className="text-white/50 text-sm max-w-xs mx-auto">
-                Tu coach de élite. Pregúntame sobre fitness, nutrición, mentalidad, carisma o productividad.
-              </p>
-            </div>
-          )}
-
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              <div
-                className={`max-w-[80%] rounded-2xl p-4 ${
-                  msg.role === 'user'
-                    ? 'liquid-glass-bubble user'
-                    : 'liquid-glass-bubble assistant'
-                }`}
-              >
-                <div className="text-sm prose prose-invert prose-sm max-w-none">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      // Custom styles for markdown elements
-                      p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
-                      strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
-                      em: ({ children }) => <em className="italic">{children}</em>,
-                      ul: ({ children }) => <ul className="list-disc list-inside mb-2 space-y-1">{children}</ul>,
-                      ol: ({ children }) => <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>,
-                      li: ({ children }) => <li className="ml-2">{children}</li>,
-                      code: ({ children }) => <code className="bg-white/10 px-1.5 py-0.5 rounded text-sm">{children}</code>,
-                      pre: ({ children }) => <pre className="bg-white/10 p-3 rounded-lg overflow-x-auto mb-2">{children}</pre>,
-                      h1: ({ children }) => <h1 className="text-lg font-bold mb-2">{children}</h1>,
-                      h2: ({ children }) => <h2 className="text-base font-bold mb-2">{children}</h2>,
-                      h3: ({ children }) => <h3 className="text-sm font-bold mb-1">{children}</h3>,
-                      a: ({ href, children }) => (
-                        <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
-                          {children}
-                        </a>
-                      ),
+                  {/* Bubble */}
+                  <div
+                    className={`rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      msg.role === 'user'
+                        ? 'rounded-br-md max-w-[78%]'
+                        : 'rounded-bl-md max-w-[85%]'
+                    }`}
+                    style={msg.role === 'user' ? {
+                      background: 'linear-gradient(135deg, rgba(168,85,247,0.7) 0%, rgba(59,130,246,0.7) 100%)',
+                      border: '1px solid rgba(168,85,247,0.3)',
+                      color: 'rgba(255,255,255,0.95)',
+                    } : {
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.09)',
+                      color: 'rgba(255,255,255,0.88)',
                     }}
                   >
-                    {msg.content}
-                  </ReactMarkdown>
+                    {msg.role === 'assistant' ? (
+                      <div className="prose prose-invert prose-sm max-w-none">
+                        <ReactMarkdown
+                          remarkPlugins={[remarkGfm]}
+                          components={{
+                            p: ({ children }) => <p className="mb-2 last:mb-0 text-white/85 leading-relaxed">{children}</p>,
+                            strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
+                            em: ({ children }) => <em className="italic text-white/70">{children}</em>,
+                            ul: ({ children }) => <ul className="list-none mb-3 space-y-1.5">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1.5">{children}</ol>,
+                            li: ({ children }) => (
+                              <li className="flex gap-2 text-white/80">
+                                <span className="text-purple-400 mt-0.5 flex-shrink-0">▸</span>
+                                <span>{children}</span>
+                              </li>
+                            ),
+                            h1: ({ children }) => <h1 className="text-base font-bold text-white mb-2 mt-3 first:mt-0">{children}</h1>,
+                            h2: ({ children }) => <h2 className="text-sm font-bold text-white/90 mb-2 mt-3 first:mt-0">{children}</h2>,
+                            h3: ({ children }) => <h3 className="text-sm font-semibold text-white/80 mb-1.5 mt-2 first:mt-0">{children}</h3>,
+                            code: ({ children }) => <code className="bg-white/10 px-1.5 py-0.5 rounded-md text-xs font-mono text-purple-300">{children}</code>,
+                            pre: ({ children }) => <pre className="bg-white/5 p-3 rounded-xl overflow-x-auto mb-2 border border-white/10">{children}</pre>,
+                            blockquote: ({ children }) => (
+                              <blockquote className="border-l-2 border-purple-500/60 pl-3 my-2 text-white/60 italic">
+                                {children}
+                              </blockquote>
+                            ),
+                            a: ({ href, children }) => (
+                              <a href={href} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:text-blue-300 underline underline-offset-2">
+                                {children}
+                              </a>
+                            ),
+                            hr: () => <hr className="border-white/10 my-3" />,
+                          }}
+                        >
+                          {msg.content}
+                        </ReactMarkdown>
+                      </div>
+                    ) : (
+                      <span>{msg.content}</span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}
 
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="liquid-glass-bubble assistant p-4">
-                <div className="flex gap-2">
-                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-white/70 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+              {/* Typing indicator */}
+              {isLoading && (
+                <div className="flex items-end gap-2">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1px]">
+                    <div className="w-full h-full rounded-[10px] bg-black/60 overflow-hidden">
+                      <Image src="/ai.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                  <div
+                    className="px-4 py-3 rounded-2xl rounded-bl-md"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      border: '1px solid rgba(255,255,255,0.09)',
+                    }}
+                  >
+                    <div className="flex gap-1.5 items-center h-4">
+                      <div className="w-2 h-2 rounded-full bg-purple-400/80" style={{ animation: 'typingDot 1.2s ease-in-out infinite' }} />
+                      <div className="w-2 h-2 rounded-full bg-blue-400/80" style={{ animation: 'typingDot 1.2s ease-in-out 0.2s infinite' }} />
+                      <div className="w-2 h-2 rounded-full bg-purple-400/80" style={{ animation: 'typingDot 1.2s ease-in-out 0.4s infinite' }} />
+                    </div>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-          )}
 
-          <div ref={messagesEndRef} />
-        </div>
+            <div ref={messagesEndRef} className="h-2" />
+          </div>
 
-        {/* Input - Liquid Glass */}
-        <div className="border-t border-white/20 p-4 backdrop-blur-xl bg-black/30">
-          <div className="flex gap-3">
-            <textarea
-              ref={inputRef}
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Escribe tu mensaje..."
-              className="flex-1 liquid-glass-input resize-none"
-              rows={1}
-              disabled={isLoading}
-            />
-            <button
-              onClick={handleSend}
-              disabled={isLoading || !input.trim()}
-              className="liquid-glass-primary px-6 py-3 rounded-xl font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+          {/* ── INPUT BAR ──────────────────────────────────────────────── */}
+          <div
+            className="flex-shrink-0 px-3 py-3"
+            style={{
+              borderTop: '1px solid rgba(255,255,255,0.07)',
+              background: 'rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(20px)',
+            }}
+          >
+            {/* Quick actions (when there are messages) */}
+            {messages.length > 0 && messages.length < 3 && (
+              <div className="flex gap-2 mb-3 overflow-x-auto scrollbar-hide pb-0.5"
+                style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              >
+                {quickActions.map((action) => (
+                  <button
+                    key={action}
+                    onClick={() => handleQuickAction(action)}
+                    className="flex-shrink-0 text-xs text-white/50 hover:text-white/80 px-3 py-1.5 rounded-full transition-all active:scale-95"
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                  >
+                    {action}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <div
+              className="flex items-end gap-2 rounded-2xl px-3 py-2"
+              style={{
+                background: 'rgba(255,255,255,0.06)',
+                border: '1px solid rgba(255,255,255,0.1)',
+              }}
             >
-              <span className="relative z-10">{isLoading ? '...' : '→'}</span>
-            </button>
+              <textarea
+                ref={inputRef}
+                value={input}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+                placeholder="Escribe tu mensaje..."
+                className="flex-1 bg-transparent text-white text-sm placeholder:text-white/30 resize-none outline-none py-1 leading-relaxed"
+                rows={inputRows}
+                disabled={isLoading}
+                style={{
+                  maxHeight: '96px',
+                  touchAction: 'pan-y',
+                }}
+              />
+              <button
+                onClick={handleSend}
+                disabled={isLoading || !input.trim()}
+                className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90"
+                style={{
+                  background: input.trim() && !isLoading
+                    ? 'linear-gradient(135deg, rgba(168,85,247,0.9), rgba(59,130,246,0.9))'
+                    : 'rgba(255,255,255,0.06)',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  marginBottom: '1px',
+                }}
+              >
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white/70 rounded-full animate-spin" />
+                ) : (
+                  <svg className={`w-4 h-4 transition-colors ${input.trim() ? 'text-white' : 'text-white/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                  </svg>
+                )}
+              </button>
+            </div>
+
+            {/* Safe area for mobile */}
+            <div className="h-safe-bottom md:hidden" />
           </div>
         </div>
       </div>
-    </div>
+
+      <style jsx>{`
+        @keyframes msgIn {
+          from { opacity: 0; transform: translateY(6px) scale(0.98); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        @keyframes typingDot {
+          0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
+          30% { transform: translateY(-4px); opacity: 1; }
+        }
+      `}</style>
+    </>
   );
 }
