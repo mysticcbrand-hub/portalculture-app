@@ -30,6 +30,7 @@ export default function AICoach() {
   const [isLoading, setIsLoading] = useState(false);
   const [usage, setUsage] = useState<UsageStats | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const [inputRows, setInputRows] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -250,7 +251,7 @@ export default function AICoach() {
   if (!isOpen) {
     return (
       <>
-        {/* Mobile dock pill */}
+        {/* ── MOBILE dock pill ── */}
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
@@ -259,16 +260,19 @@ export default function AICoach() {
           <div
             className="relative rounded-2xl overflow-hidden"
             style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.04) 100%)',
-              backdropFilter: 'blur(24px)',
-              border: '1px solid rgba(255,255,255,0.12)',
-              boxShadow: '0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04)',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.07) 0%, rgba(255,255,255,0.03) 100%)',
+              backdropFilter: 'blur(28px) saturate(180%)',
+              border: '1px solid rgba(255,200,87,0.18)',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,200,87,0.06), inset 0 1px 0 rgba(255,255,255,0.08)',
             }}
           >
+            {/* Glow top edge */}
+            <div className="absolute top-0 left-1/4 right-1/4 h-[1px] bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent" />
+
             <div className="flex items-center gap-3 px-4 py-3">
-              {/* Avatar with pulse */}
+              {/* Avatar */}
               <div className="relative flex-shrink-0">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1.5px]">
+                <div className="w-10 h-10 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                   <div className="w-full h-full rounded-[10px] bg-black/70 flex items-center justify-center overflow-hidden">
                     <Image src="/ai.png" alt="NOVA" width={32} height={32} className="rounded-lg" />
                   </div>
@@ -278,52 +282,75 @@ export default function AICoach() {
 
               <div className="flex-1 text-left min-w-0">
                 <p className="text-sm font-semibold text-white leading-none mb-0.5">NOVA™ AI Coach</p>
-                <p className="text-xs text-white/40 truncate">Pregúntame lo que quieras →</p>
+                <p className="text-xs text-white/40 truncate">Tu mentor de transformación →</p>
               </div>
 
-              {/* Animated indicator */}
-              <div className="flex gap-1 flex-shrink-0">
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-bounce" style={{ animationDelay: '300ms' }} />
+              {/* Animated dots in gold */}
+              <div className="flex gap-1 flex-shrink-0 items-center">
+                <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#FFC857', animationDelay: '0ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#FFAD3B', animationDelay: '150ms' }} />
+                <div className="w-1.5 h-1.5 rounded-full animate-bounce" style={{ background: '#FF9632', animationDelay: '300ms' }} />
               </div>
             </div>
 
-            {/* Gradient shimmer line at bottom */}
-            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" />
+            {/* Gold shimmer line at bottom */}
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent" />
           </div>
         </button>
 
-        {/* Desktop FAB */}
+        {/* ── DESKTOP pill (premium glassmorphism) ── */}
         <button
           onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 group hidden md:flex items-center justify-center"
+          className="fixed bottom-8 right-8 z-50 hidden md:block group"
+          style={{ WebkitTapHighlightColor: 'transparent' }}
         >
-          <div className="relative">
-            {/* Glow ring */}
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 opacity-60 blur-md group-hover:opacity-90 transition-opacity" />
-            <div
-              className="relative w-16 h-16 rounded-2xl flex items-center justify-center"
-              style={{
-                background: 'linear-gradient(135deg, rgba(168,85,247,0.9), rgba(59,130,246,0.9))',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.2)',
-              }}
-            >
-              <svg className="w-7 h-7 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-              </svg>
-            </div>
-          </div>
+          {/* Outer glow */}
           <div
-            className="absolute -top-11 right-0 px-3 py-1.5 rounded-xl text-sm text-white font-medium opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+            className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl"
+            style={{ background: 'linear-gradient(135deg, rgba(255,200,87,0.4), rgba(255,150,50,0.3))' }}
+          />
+
+          <div
+            className="relative rounded-2xl overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]"
             style={{
-              background: 'rgba(255,255,255,0.1)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255,255,255,0.15)',
+              background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.03) 60%, rgba(255,200,87,0.04) 100%)',
+              backdropFilter: 'blur(32px) saturate(200%)',
+              border: '1px solid rgba(255,200,87,0.2)',
+              boxShadow: '0 12px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,200,87,0.08), inset 0 1px 0 rgba(255,255,255,0.1)',
             }}
           >
-            Habla con NOVA 🔥
+            {/* Shimmer top edge */}
+            <div className="absolute top-0 left-6 right-6 h-[1px] bg-gradient-to-r from-transparent via-yellow-300/50 to-transparent" />
+
+            <div className="flex items-center gap-3 px-5 py-3.5">
+              {/* Avatar with gold ring */}
+              <div className="relative flex-shrink-0">
+                <div className="w-11 h-11 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
+                  <div className="w-full h-full rounded-[10px] bg-black/75 overflow-hidden">
+                    <Image src="/ai.png" alt="NOVA" width={44} height={44} className="w-full h-full object-cover" />
+                  </div>
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-black" />
+              </div>
+
+              <div className="text-left">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-sm font-bold text-white">NOVA™</span>
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>AI Coach</span>
+                </div>
+                <p className="text-xs text-white/40 group-hover:text-white/60 transition-colors">Habla con tu mentor →</p>
+              </div>
+
+              {/* Arrow icon */}
+              <div className="ml-2 flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all duration-300 group-hover:scale-110" style={{ background: 'linear-gradient(135deg, rgba(255,200,87,0.2), rgba(255,150,50,0.15))', border: '1px solid rgba(255,200,87,0.2)' }}>
+                <svg className="w-4 h-4" style={{ color: '#FFC857' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+              </div>
+            </div>
+
+            {/* Gold shimmer line at bottom */}
+            <div className="h-[1px] w-full bg-gradient-to-r from-transparent via-yellow-400/25 to-transparent" />
           </div>
         </button>
       </>
@@ -344,14 +371,18 @@ export default function AICoach() {
           onClick={() => setIsOpen(false)}
         />
 
-        {/* Chat panel - mobile: full screen, desktop: floating */}
+        {/* Chat panel - mobile: full screen, desktop: floating or fullscreen */}
         <div
-          className="absolute inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl flex flex-col overflow-hidden"
+          className={`absolute flex flex-col overflow-hidden ${
+            isFullscreen
+              ? 'inset-4 rounded-3xl'
+              : 'inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl'
+          }`}
           style={{
-            background: 'linear-gradient(160deg, rgba(15,15,20,0.97) 0%, rgba(10,10,15,0.99) 100%)',
+            background: 'linear-gradient(160deg, rgba(12,12,16,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             backdropFilter: 'blur(40px)',
-            border: '1px solid rgba(255,255,255,0.08)',
-            boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.08)',
+            border: '1px solid rgba(255,200,87,0.1)',
+            boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -360,20 +391,23 @@ export default function AICoach() {
           <div
             className="flex-shrink-0 relative px-4 pt-3 pb-3"
             style={{
-              background: 'linear-gradient(180deg, rgba(168,85,247,0.12) 0%, transparent 100%)',
-              borderBottom: '1px solid rgba(255,255,255,0.07)',
+              background: 'linear-gradient(180deg, rgba(255,200,87,0.08) 0%, transparent 100%)',
+              borderBottom: '1px solid rgba(255,200,87,0.08)',
             }}
           >
+            {/* Shimmer top edge */}
+            <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent" />
+
             {/* Mobile grabber */}
             <div className="md:hidden flex justify-center mb-2">
               <div className="h-1 w-10 rounded-full bg-white/15" />
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Avatar */}
+              {/* Avatar with gold ring */}
               <div className="relative flex-shrink-0">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1.5px]">
-                  <div className="w-full h-full rounded-[10px] bg-black/60 overflow-hidden">
+                <div className="w-9 h-9 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
+                  <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
                     <Image src="/ai.png" alt="NOVA" width={36} height={36} className="w-full h-full object-cover" />
                   </div>
                 </div>
@@ -383,7 +417,7 @@ export default function AICoach() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2">
                   <h3 className="text-white font-bold text-sm">NOVA™</h3>
-                  <span className="text-[10px] text-emerald-400 font-medium px-1.5 py-0.5 rounded-full bg-emerald-400/10 border border-emerald-400/20">online</span>
+                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>online</span>
                 </div>
                 <p className="text-[11px] text-white/40 truncate">Tu coach de élite personal</p>
               </div>
@@ -393,11 +427,29 @@ export default function AICoach() {
                 {usage && (
                   <div
                     className="text-[11px] text-white/40 px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: 'rgba(255,200,87,0.06)', border: '1px solid rgba(255,200,87,0.12)' }}
                   >
                     {usage.remaining}/{usage.limit} 💬
                   </div>
                 )}
+
+                {/* Fullscreen toggle - desktop only */}
+                <button
+                  onClick={() => setIsFullscreen(f => !f)}
+                  className="hidden md:flex p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
+                  title={isFullscreen ? 'Ventana flotante' : 'Pantalla completa'}
+                >
+                  {isFullscreen ? (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 9V4.5M9 9H4.5M9 9L3.75 3.75M9 15v4.5M9 15H4.5M9 15l-5.25 5.25M15 9h4.5M15 9V4.5M15 9l5.25-5.25M15 15h4.5M15 15v4.5m0-4.5l5.25 5.25" />
+                    </svg>
+                  ) : (
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15" />
+                    </svg>
+                  )}
+                </button>
+
                 <button
                   onClick={clearHistory}
                   className="p-2 rounded-xl text-white/30 hover:text-white/60 hover:bg-white/5 transition-all"
@@ -435,8 +487,8 @@ export default function AICoach() {
               <div className="h-full flex flex-col items-center justify-center text-center px-4 py-8 space-y-6">
                 {/* NOVA avatar grande */}
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-purple-500 to-blue-600 p-[2px]">
-                    <div className="w-full h-full rounded-[22px] bg-black/70 overflow-hidden">
+                  <div className="w-20 h-20 rounded-3xl p-[2px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
+                    <div className="w-full h-full rounded-[22px] bg-black/80 overflow-hidden">
                       <Image src="/ai.png" alt="NOVA" width={80} height={80} className="w-full h-full object-cover" />
                     </div>
                   </div>
@@ -481,8 +533,8 @@ export default function AICoach() {
                 >
                   {/* NOVA avatar on messages */}
                   {msg.role === 'assistant' && (
-                    <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1px] mb-0.5">
-                      <div className="w-full h-full rounded-[10px] bg-black/60 overflow-hidden">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-xl p-[1px] mb-0.5" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
+                      <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
                         <Image src="/ai.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
                       </div>
                     </div>
@@ -496,8 +548,8 @@ export default function AICoach() {
                         : 'rounded-bl-md max-w-[85%]'
                     }`}
                     style={msg.role === 'user' ? {
-                      background: 'linear-gradient(135deg, rgba(168,85,247,0.7) 0%, rgba(59,130,246,0.7) 100%)',
-                      border: '1px solid rgba(168,85,247,0.3)',
+                      background: 'linear-gradient(135deg, rgba(255,200,87,0.25) 0%, rgba(255,150,50,0.2) 100%)',
+                      border: '1px solid rgba(255,200,87,0.25)',
                       color: 'rgba(255,255,255,0.95)',
                     } : {
                       background: 'rgba(255,255,255,0.06)',
@@ -517,17 +569,17 @@ export default function AICoach() {
                             ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1.5">{children}</ol>,
                             li: ({ children }) => (
                               <li className="flex gap-2 text-white/80">
-                                <span className="text-purple-400 mt-0.5 flex-shrink-0">▸</span>
+                                <span className="mt-0.5 flex-shrink-0" style={{ color: '#FFC857' }}>▸</span>
                                 <span>{children}</span>
                               </li>
                             ),
                             h1: ({ children }) => <h1 className="text-base font-bold text-white mb-2 mt-3 first:mt-0">{children}</h1>,
                             h2: ({ children }) => <h2 className="text-sm font-bold text-white/90 mb-2 mt-3 first:mt-0">{children}</h2>,
                             h3: ({ children }) => <h3 className="text-sm font-semibold text-white/80 mb-1.5 mt-2 first:mt-0">{children}</h3>,
-                            code: ({ children }) => <code className="bg-white/10 px-1.5 py-0.5 rounded-md text-xs font-mono text-purple-300">{children}</code>,
+                            code: ({ children }) => <code className="bg-white/10 px-1.5 py-0.5 rounded-md text-xs font-mono" style={{ color: '#FFC857' }}>{children}</code>,
                             pre: ({ children }) => <pre className="bg-white/5 p-3 rounded-xl overflow-x-auto mb-2 border border-white/10">{children}</pre>,
                             blockquote: ({ children }) => (
-                              <blockquote className="border-l-2 border-purple-500/60 pl-3 my-2 text-white/60 italic">
+                              <blockquote className="border-l-2 pl-3 my-2 text-white/60 italic" style={{ borderColor: 'rgba(255,200,87,0.5)' }}>
                                 {children}
                               </blockquote>
                             ),
@@ -552,22 +604,22 @@ export default function AICoach() {
               {/* Typing indicator */}
               {isLoading && (
                 <div className="flex items-end gap-2">
-                  <div className="flex-shrink-0 w-7 h-7 rounded-xl bg-gradient-to-br from-purple-500 to-blue-600 p-[1px]">
-                    <div className="w-full h-full rounded-[10px] bg-black/60 overflow-hidden">
+                  <div className="flex-shrink-0 w-7 h-7 rounded-xl p-[1px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
+                    <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
                       <Image src="/ai.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
                     </div>
                   </div>
                   <div
                     className="px-4 py-3 rounded-2xl rounded-bl-md"
                     style={{
-                      background: 'rgba(255,255,255,0.06)',
-                      border: '1px solid rgba(255,255,255,0.09)',
+                      background: 'rgba(255,200,87,0.05)',
+                      border: '1px solid rgba(255,200,87,0.12)',
                     }}
                   >
                     <div className="flex gap-1.5 items-center h-4">
-                      <div className="w-2 h-2 rounded-full bg-purple-400/80" style={{ animation: 'typingDot 1.2s ease-in-out infinite' }} />
-                      <div className="w-2 h-2 rounded-full bg-blue-400/80" style={{ animation: 'typingDot 1.2s ease-in-out 0.2s infinite' }} />
-                      <div className="w-2 h-2 rounded-full bg-purple-400/80" style={{ animation: 'typingDot 1.2s ease-in-out 0.4s infinite' }} />
+                      <div className="w-2 h-2 rounded-full" style={{ background: '#FFC857', opacity: 0.8, animation: 'typingDot 1.2s ease-in-out infinite' }} />
+                      <div className="w-2 h-2 rounded-full" style={{ background: '#FFAD3B', opacity: 0.8, animation: 'typingDot 1.2s ease-in-out 0.2s infinite' }} />
+                      <div className="w-2 h-2 rounded-full" style={{ background: '#FF9632', opacity: 0.8, animation: 'typingDot 1.2s ease-in-out 0.4s infinite' }} />
                     </div>
                   </div>
                 </div>
@@ -634,7 +686,7 @@ export default function AICoach() {
                 className="flex-shrink-0 w-8 h-8 rounded-xl flex items-center justify-center transition-all active:scale-90"
                 style={{
                   background: input.trim() && !isLoading
-                    ? 'linear-gradient(135deg, rgba(168,85,247,0.9), rgba(59,130,246,0.9))'
+                    ? 'linear-gradient(135deg, #FFC857, #FF9632)'
                     : 'rgba(255,255,255,0.06)',
                   border: '1px solid rgba(255,255,255,0.1)',
                   marginBottom: '1px',
@@ -643,7 +695,7 @@ export default function AICoach() {
                 {isLoading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white/70 rounded-full animate-spin" />
                 ) : (
-                  <svg className={`w-4 h-4 transition-colors ${input.trim() ? 'text-white' : 'text-white/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className={`w-4 h-4 transition-colors ${input.trim() ? 'text-black' : 'text-white/30'}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
                 )}
