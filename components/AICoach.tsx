@@ -274,7 +274,7 @@ export default function AICoach() {
               <div className="relative flex-shrink-0">
                 <div className="w-10 h-10 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                   <div className="w-full h-full rounded-[10px] bg-black/70 flex items-center justify-center overflow-hidden">
-                    <Image src="/ai.png" alt="NOVA" width={32} height={32} className="rounded-lg" />
+                    <Image src="/novamejor.png" alt="NOVA" width={32} height={32} className="rounded-lg" />
                   </div>
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-black" />
@@ -327,7 +327,7 @@ export default function AICoach() {
               <div className="relative flex-shrink-0">
                 <div className="w-11 h-11 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                   <div className="w-full h-full rounded-[10px] bg-black/75 overflow-hidden">
-                    <Image src="/ai.png" alt="NOVA" width={44} height={44} className="w-full h-full object-cover" />
+                    <Image src="/novamejor.png" alt="NOVA" width={44} height={44} className="w-full h-full object-cover" />
                   </div>
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-black" />
@@ -408,7 +408,7 @@ export default function AICoach() {
               <div className="relative flex-shrink-0">
                 <div className="w-9 h-9 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                   <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
-                    <Image src="/ai.png" alt="NOVA" width={36} height={36} className="w-full h-full object-cover" />
+                    <Image src="/novamejor.png" alt="NOVA" width={36} height={36} className="w-full h-full object-cover" />
                   </div>
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-black" />
@@ -489,7 +489,7 @@ export default function AICoach() {
                 <div className="relative">
                   <div className="w-20 h-20 rounded-3xl p-[2px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                     <div className="w-full h-full rounded-[22px] bg-black/80 overflow-hidden">
-                      <Image src="/ai.png" alt="NOVA" width={80} height={80} className="w-full h-full object-cover" />
+                      <Image src="/novamejor.png" alt="NOVA" width={80} height={80} className="w-full h-full object-cover" />
                     </div>
                   </div>
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-400 border-2 border-black flex items-center justify-center text-xs">
@@ -535,7 +535,7 @@ export default function AICoach() {
                   {msg.role === 'assistant' && (
                     <div className="flex-shrink-0 w-7 h-7 rounded-xl p-[1px] mb-0.5" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                       <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
-                        <Image src="/ai.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
+                        <Image src="/novamejor.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
                       </div>
                     </div>
                   )}
@@ -606,7 +606,7 @@ export default function AICoach() {
                 <div className="flex items-end gap-2">
                   <div className="flex-shrink-0 w-7 h-7 rounded-xl p-[1px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
                     <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
-                      <Image src="/ai.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
+                      <Image src="/novamejor.png" alt="N" width={28} height={28} className="w-full h-full object-cover" />
                     </div>
                   </div>
                   <div

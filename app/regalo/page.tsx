@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import Image from 'next/image'
-
 // ─── TYPES ────────────────────────────────────────────────────────────────────
 type Phase = 'form' | 'faceid' | 'unlocked' | 'guide'
 type FaceIdStage = 'scanning' | 'success' | 'done'
@@ -336,12 +334,6 @@ export default function RegaloPage() {
 
           {selectedOS === 'ios' && (
             <div className="animate-fadeInUp space-y-8">
-              <div className="flex justify-center mb-8">
-                <div className="relative w-64 h-auto">
-                  <Image src="/iphone15pro.png" alt="iPhone 15 Pro" width={300} height={600} className="w-full h-auto" />
-                </div>
-              </div>
-
               <div className="space-y-6">
                 {[
                   { num: 1, title: 'Abre Safari', desc: <>Ve a <span className="text-orange-400 font-mono">app.portalculture.com</span> desde Safari (no Chrome ni otros navegadores)</> },
