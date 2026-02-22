@@ -54,6 +54,10 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Admin accounts — no daily limit
+    const UNLIMITED_EMAILS = ['mysticcbrand@gmail.com'];
+    const isUnlimited = UNLIMITED_EMAILS.includes(user.email ?? '');
+
     // Check rate limit — atomic read
     const today = new Date().toISOString().split('T')[0];
     const { data: usage, error: usageError } = await supabase
@@ -65,12 +69,11 @@ export async function POST(request: NextRequest) {
     
     if (usageError) {
       console.error('Chat usage query error:', usageError);
-      // Don't block user on DB read error — log and continue
     }
 
     const currentCount = usage?.message_count ?? 0;
 
-    if (currentCount >= DAILY_MESSAGE_LIMIT) {
+    if (!isUnlimited && currentCount >= DAILY_MESSAGE_LIMIT) {
       const resetTime = new Date();
       resetTime.setHours(24, 0, 0, 0);
       const hoursLeft = Math.ceil((resetTime.getTime() - Date.now()) / 1000 / 3600);

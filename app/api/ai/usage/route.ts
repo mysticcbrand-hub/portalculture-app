@@ -35,6 +35,10 @@ export async function GET(request: NextRequest) {
       );
     }
     
+    // Admin accounts — unlimited
+    const UNLIMITED_EMAILS = ['mysticcbrand@gmail.com'];
+    const isUnlimited = UNLIMITED_EMAILS.includes(user.email ?? '');
+
     // Get today's usage
     const today = new Date().toISOString().split('T')[0];
     const { data: usage } = await supabase
@@ -42,17 +46,19 @@ export async function GET(request: NextRequest) {
       .select('message_count, tokens_used')
       .eq('user_id', user.id)
       .eq('date', today)
-      .single();
+      .maybeSingle();
     
     const messageCount = usage?.message_count || 0;
     const tokensUsed = usage?.tokens_used || 0;
-    const remaining = Math.max(0, DAILY_MESSAGE_LIMIT - messageCount);
+    const effectiveLimit = isUnlimited ? 9999 : DAILY_MESSAGE_LIMIT;
+    const remaining = isUnlimited ? 9999 : Math.max(0, DAILY_MESSAGE_LIMIT - messageCount);
     
     return NextResponse.json({
       messageCount,
       tokensUsed,
       remaining,
-      limit: DAILY_MESSAGE_LIMIT,
+      limit: effectiveLimit,
+      isUnlimited,
       resetTime: new Date(new Date().setHours(24, 0, 0, 0)).toISOString(),
     });
     
