@@ -13,7 +13,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim();
 
 // Rate limiting
-const DAILY_MESSAGE_LIMIT = 20;
+const DAILY_MESSAGE_LIMIT = 10;
 
 export async function POST(request: NextRequest) {
   try {
@@ -54,25 +54,33 @@ export async function POST(request: NextRequest) {
       );
     }
     
-    // Check rate limit
+    // Check rate limit — atomic read
     const today = new Date().toISOString().split('T')[0];
     const { data: usage, error: usageError } = await supabase
       .from('chat_usage')
-      .select('message_count')
+      .select('id, message_count')
       .eq('user_id', user.id)
       .eq('date', today)
-      .single();
+      .maybeSingle();
     
-    if (usageError && usageError.code !== 'PGRST116') {
+    if (usageError) {
       console.error('Chat usage query error:', usageError);
+      // Don't block user on DB read error — log and continue
     }
 
-    if (usage && usage.message_count >= DAILY_MESSAGE_LIMIT) {
+    const currentCount = usage?.message_count ?? 0;
+
+    if (currentCount >= DAILY_MESSAGE_LIMIT) {
+      const resetTime = new Date();
+      resetTime.setHours(24, 0, 0, 0);
+      const hoursLeft = Math.ceil((resetTime.getTime() - Date.now()) / 1000 / 3600);
       return NextResponse.json(
         { 
           error: 'Daily message limit reached',
           limit: DAILY_MESSAGE_LIMIT,
-          message: `Has alcanzado tu límite diario de ${DAILY_MESSAGE_LIMIT} mensajes. Vuelve mañana para continuar. 💪`
+          used: currentCount,
+          resetIn: hoursLeft,
+          message: `Has alcanzado tu límite diario de ${DAILY_MESSAGE_LIMIT} mensajes. Se restablece en ${hoursLeft}h. 💪`
         },
         { status: 429 }
       );
@@ -119,9 +127,11 @@ export async function POST(request: NextRequest) {
             controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: chunk })}\n\n`));
           }
           
-          // Save assistant response and update usage
+          // Save assistant response and update usage atomically
           const tokensUsed = Math.ceil(fullResponse.length / 4);
-          const [insertAssistantResult, usageResult] = await Promise.all([
+          const newCount = currentCount + 1;
+
+          const [insertAssistantResult, usageUpsertResult] = await Promise.all([
             supabase
               .from('chat_messages')
               .insert({
@@ -129,22 +139,32 @@ export async function POST(request: NextRequest) {
                 role: 'assistant',
                 content: fullResponse,
                 context_used: contextChunks.map(c => c.id),
-                tokens_used: tokensUsed, // Rough estimate
+                tokens_used: tokensUsed,
               }),
-            
-            supabase.rpc('increment_chat_usage', {
-              p_user_id: user.id,
-              p_message_count: 1,
-              p_tokens_used: tokensUsed,
-            }),
+            // Atomic upsert: create row if not exists, or increment count
+            usage?.id
+              ? supabase
+                  .from('chat_usage')
+                  .update({
+                    message_count: newCount,
+                    tokens_used: (usage as any).tokens_used ?? 0 + tokensUsed,
+                  })
+                  .eq('id', usage.id)
+              : supabase
+                  .from('chat_usage')
+                  .insert({
+                    user_id: user.id,
+                    date: today,
+                    message_count: 1,
+                    tokens_used: tokensUsed,
+                  }),
           ]);
 
           if (insertAssistantResult.error) {
             console.error('Assistant message insert error:', insertAssistantResult.error);
           }
-
-          if (usageResult.error) {
-            console.error('Chat usage increment error:', usageResult.error);
+          if (usageUpsertResult.error) {
+            console.error('Chat usage upsert error:', usageUpsertResult.error);
           }
           
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));

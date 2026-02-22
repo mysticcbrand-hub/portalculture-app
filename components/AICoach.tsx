@@ -161,7 +161,13 @@ export default function AICoach() {
 
       if (!response.ok) {
         const errorPayload = await response.json().catch(() => null);
-        if (response.status === 429) throw new Error(errorPayload?.message || 'Límite alcanzado');
+        if (response.status === 429) {
+          const hoursLeft = errorPayload?.resetIn ?? '??';
+          throw new Error(
+            errorPayload?.message ||
+            `Has alcanzado tu límite diario de 10 mensajes. Se restablece en ${hoursLeft}h. 💪`
+          );
+        }
         throw new Error(errorPayload?.detail || errorPayload?.error || 'Error al conectar con NOVA');
       }
 
@@ -426,8 +432,13 @@ export default function AICoach() {
               <div className="flex items-center gap-1 flex-shrink-0">
                 {usage && (
                   <div
-                    className="text-[11px] text-white/40 px-2.5 py-1 rounded-full"
-                    style={{ background: 'rgba(255,200,87,0.06)', border: '1px solid rgba(255,200,87,0.12)' }}
+                    className="text-[11px] px-2.5 py-1 rounded-full transition-all duration-300"
+                    style={usage.remaining <= 2
+                      ? { color: '#FF6B6B', background: 'rgba(255,107,107,0.08)', border: '1px solid rgba(255,107,107,0.2)' }
+                      : usage.remaining <= 5
+                      ? { color: '#FFAD3B', background: 'rgba(255,173,59,0.08)', border: '1px solid rgba(255,173,59,0.2)' }
+                      : { color: 'rgba(255,255,255,0.4)', background: 'rgba(255,200,87,0.06)', border: '1px solid rgba(255,200,87,0.12)' }
+                    }
                   >
                     {usage.remaining}/{usage.limit} 💬
                   </div>

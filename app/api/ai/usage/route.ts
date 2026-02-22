@@ -8,7 +8,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const DAILY_MESSAGE_LIMIT = 20;
+const DAILY_MESSAGE_LIMIT = 10;
 
 // Force dynamic rendering for this API route
 export const dynamic = 'force-dynamic';
