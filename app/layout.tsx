@@ -8,9 +8,9 @@ export const metadata: Metadata = {
   description: "Portal Culture: acceso exclusivo a tu evolución personal",
   icons: {
     icon: [
-      { url: '/este_logo.ico' },
-      { url: '/este_logo.ico', sizes: '16x16', type: 'image/x-icon' },
-      { url: '/este_logo.ico', sizes: '32x32', type: 'image/x-icon' },
+      { url: '/favicon.ico', rel: 'shortcut icon' },
+      { url: '/favicon.ico', type: 'image/x-icon' },
+      { url: '/este_logo.ico', sizes: '256x256', type: 'image/x-icon' },
     ],
     apple: '/logo.png',
   },
