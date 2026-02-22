@@ -1,8 +1,14 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
+import Image from 'next/image'
+
+// ─── TYPES ────────────────────────────────────────────────────────────────────
+type Phase = 'form' | 'faceid' | 'unlocked' | 'guide'
+type FaceIdStage = 'scanning' | 'success' | 'done'
+type OS = 'ios' | 'android' | null
 
 // Types
 interface FormData {
@@ -22,9 +28,12 @@ export default function RegaloPage() {
   const supabase = createClient()
   
   const [step, setStep] = useState(1)
-  const [isComplete, setIsComplete] = useState(false)
+  const [phase, setPhase] = useState<Phase>('form')
+  const [faceIdStage, setFaceIdStage] = useState<FaceIdStage>('scanning')
+  const [selectedOS, setSelectedOS] = useState<OS>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userId, setUserId] = useState<string | null>(null)
+  const [showGuide, setShowGuide] = useState(false)
   
   const [formData, setFormData] = useState<FormData>({
     valorMensual: 25,
@@ -129,7 +138,23 @@ export default function RegaloPage() {
         throw new Error('Error al enviar respuestas')
       }
 
-      setIsComplete(true)
+      // Haptic
+      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+        navigator.vibrate([10, 50, 10])
+      }
+      // Face ID animation sequence
+      setPhase('faceid')
+      setFaceIdStage('scanning')
+      setTimeout(() => {
+        setFaceIdStage('success')
+        if (typeof window !== 'undefined' && 'vibrate' in navigator) {
+          navigator.vibrate([5, 30, 5, 30, 5])
+        }
+      }, 2000)
+      setTimeout(() => {
+        setFaceIdStage('done')
+        setTimeout(() => setPhase('unlocked'), 800)
+      }, 3500)
     } catch (error: any) {
       console.error('Error submitting:', error)
       alert('Error al enviar. Por favor intenta de nuevo.')
@@ -156,137 +181,198 @@ export default function RegaloPage() {
     'Audios',
   ]
 
-  // Completion screen
-  if (isComplete) {
+  // FACE ID ANIMATION
+  if (phase === 'faceid') {
     return (
       <main className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
-        {/* Background premium */}
-        <div className="fixed inset-0 -z-10">
-          <div className="absolute inset-0" style={{
-            background: `
-              radial-gradient(circle at 20% 30%, rgba(255, 200, 87, 0.15) 0%, transparent 40%),
-              radial-gradient(circle at 80% 70%, rgba(255, 150, 50, 0.12) 0%, transparent 45%),
-              radial-gradient(ellipse 120% 80% at 50% 50%, rgba(255, 165, 60, 0.08) 0%, transparent 70%),
-              #000000
-            `
-          }} />
+        <div className="fixed inset-0 -z-10 bg-black" />
+        
+        <div className="relative">
+          {faceIdStage === 'scanning' && (
+            <div className="animate-fadeIn">
+              <div className="relative w-48 h-48 mx-auto mb-8">
+                <svg className="w-full h-full" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="2" />
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="url(#gradient)" strokeWidth="2" strokeLinecap="round" strokeDasharray="283" strokeDashoffset="283" transform="rotate(-90 50 50)" style={{ animation: 'drawCircleScan 2s ease-out infinite' }} />
+                  <defs>
+                    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stopColor="#FFC857" />
+                      <stop offset="100%" stopColor="#FF9632" />
+                    </linearGradient>
+                  </defs>
+                </svg>
+                
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <svg className="w-20 h-20 text-white/80" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+              </div>
+              
+              <p className="text-white text-xl font-medium text-center animate-pulse">Verificando...</p>
+            </div>
+          )}
           
-          {/* Animated orbs */}
+          {faceIdStage === 'success' && (
+            <div className="animate-fadeIn">
+              <div className="w-48 h-48 mx-auto mb-8 relative">
+                <div className="absolute inset-0 rounded-full opacity-50" style={{ background: 'radial-gradient(circle, rgba(34, 197, 94, 0.4) 0%, transparent 70%)', filter: 'blur(30px)' }} />
+                
+                <svg className="w-full h-full relative z-10" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="rgb(34, 197, 94)" strokeWidth="3" strokeDasharray="283" strokeDashoffset="0" style={{ animation: 'drawCircleSuccess 0.6s ease-out forwards' }} />
+                  <path fill="none" stroke="rgb(34, 197, 94)" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" d="M30 50 L45 65 L70 35" strokeDasharray="60" strokeDashoffset="60" style={{ animation: 'drawCheck 0.4s 0.6s ease-out forwards' }} />
+                </svg>
+              </div>
+              
+              <p className="text-green-400 text-xl font-semibold text-center">¡Verificado!</p>
+            </div>
+          )}
+        </div>
+
+        <style jsx>{`
+          @keyframes drawCircleScan { 0% { strokeDashoffset: 283; } 100% { strokeDashoffset: 0; } }
+          @keyframes drawCircleSuccess { from { strokeDashoffset: 283; } to { strokeDashoffset: 0; } }
+          @keyframes drawCheck { to { strokeDashoffset: 0; } }
+          @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+          .animate-fadeIn { animation: fadeIn 0.4s ease-out forwards; }
+        `}</style>
+      </main>
+    )
+  }
+
+  // UNLOCKED - REGALO
+  if (phase === 'unlocked') {
+    return (
+      <main className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 20% 30%, rgba(255, 200, 87, 0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(255, 150, 50, 0.12) 0%, transparent 45%), #000000` }} />
           <div className="absolute inset-0 overflow-hidden">
-            <div 
-              className="absolute top-[20%] left-[15%] w-[500px] h-[500px] rounded-full opacity-20"
-              style={{
-                background: 'radial-gradient(circle, rgba(255, 200, 87, 0.5) 0%, transparent 70%)',
-                filter: 'blur(80px)',
-                animation: 'float 20s ease-in-out infinite',
-              }}
-            />
-            <div 
-              className="absolute top-[60%] right-[20%] w-[400px] h-[400px] rounded-full opacity-15"
-              style={{
-                background: 'radial-gradient(circle, rgba(255, 150, 50, 0.5) 0%, transparent 70%)',
-                filter: 'blur(70px)',
-                animation: 'float 25s ease-in-out infinite reverse',
-              }}
-            />
+            <div className="absolute top-[20%] left-[15%] w-[500px] h-[500px] rounded-full opacity-20" style={{ background: 'radial-gradient(circle, rgba(255, 200, 87, 0.5) 0%, transparent 70%)', filter: 'blur(80px)', animation: 'float 20s ease-in-out infinite' }} />
+            <div className="absolute top-[60%] right-[20%] w-[400px] h-[400px] rounded-full opacity-15" style={{ background: 'radial-gradient(circle, rgba(255, 150, 50, 0.5) 0%, transparent 70%)', filter: 'blur(70px)', animation: 'float 25s ease-in-out infinite reverse' }} />
           </div>
         </div>
 
-        <div className="text-center animate-fadeIn space-y-8 max-w-2xl">
-          {/* Checkmark animado */}
+        <div className="text-center animate-scaleIn space-y-8 max-w-2xl">
           <div className="w-24 h-24 mx-auto mb-8 relative">
-            <div 
-              className="absolute inset-0 rounded-full"
-              style={{
-                background: 'linear-gradient(135deg, rgba(255, 200, 87, 0.3) 0%, rgba(255, 150, 50, 0.3) 100%)',
-                filter: 'blur(20px)',
-              }}
-            />
-            <svg 
-              className="w-24 h-24 text-white relative z-10"
-              viewBox="0 0 52 52"
-            >
-              <circle 
-                cx="26" cy="26" r="24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeDasharray="150"
-                strokeDashoffset="0"
-                style={{
-                  animation: 'drawCircle 0.6s ease-out forwards'
-                }}
-              />
-              <path 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M14 27l7 7 16-16"
-                strokeDasharray="40"
-                strokeDashoffset="40"
-                style={{
-                  animation: 'drawCheck 0.4s 0.6s ease-out forwards'
-                }}
-              />
+            <div className="absolute inset-0 rounded-full" style={{ background: 'linear-gradient(135deg, rgba(255, 200, 87, 0.3) 0%, rgba(255, 150, 50, 0.3) 100%)', filter: 'blur(20px)' }} />
+            <svg className="w-24 h-24 text-white relative z-10" viewBox="0 0 52 52">
+              <circle cx="26" cy="26" r="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeDasharray="150" strokeDashoffset="0" style={{ animation: 'drawCircle 0.6s ease-out forwards' }} />
+              <path fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" d="M14 27l7 7 16-16" strokeDasharray="40" strokeDashoffset="40" style={{ animation: 'drawCheck 0.4s 0.6s ease-out forwards' }} />
             </svg>
           </div>
 
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            ¡Gracias por tu{' '}
-            <span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">
-              tiempo
-            </span>
-            !
+            ¡Gracias por tu{' '}<span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">tiempo</span>!
           </h1>
 
-          <div 
-            className="p-8 rounded-2xl"
-            style={{
-              background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
-              backdropFilter: 'blur(30px)',
-              border: '1px solid rgba(255, 200, 100, 0.2)',
-            }}
-          >
-            <p className="text-white/80 text-lg leading-relaxed mb-6">
-              Tus respuestas son oro para nosotros. Nos ayudan a crear el mejor Portal Culture posible.
-            </p>
-            
-            <p className="text-white font-semibold text-xl mb-4">
-              Aquí está tu regalo 🎁
-            </p>
-            
-            <a
-              href="#"
-              className="inline-block px-8 py-4 bg-gradient-to-r from-yellow-300 via-orange-400 to-amber-500 text-black font-bold rounded-xl hover:shadow-2xl hover:shadow-orange-400/30 hover:scale-105 transition-all duration-300"
-            >
-              Acceder al regalo →
-            </a>
+          <div className="p-8 rounded-2xl" style={{ background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)', backdropFilter: 'blur(30px)', border: '1px solid rgba(255, 200, 100, 0.2)' }}>
+            <p className="text-white/80 text-lg leading-relaxed mb-6">Tus respuestas son oro para nosotros. Nos ayudan a crear el mejor Portal Culture posible.</p>
+            <p className="text-white font-semibold text-xl mb-4">Aquí está tu regalo 🎁</p>
+            <p className="text-white/70 text-base mb-6">Ya puedes instalar la app oficial de Portal Culture en tu móvil</p>
+            <button onClick={() => setPhase('guide')} className="inline-block px-8 py-4 bg-gradient-to-r from-yellow-300 via-orange-400 to-amber-500 text-black font-bold rounded-xl hover:shadow-2xl hover:shadow-orange-400/30 hover:scale-105 transition-all duration-300">
+              Ver cómo instalar →
+            </button>
           </div>
 
-          <button
-            onClick={() => router.push('/dashboard')}
-            className="text-white/50 hover:text-white/80 text-sm transition-colors"
-          >
-            Volver al dashboard
-          </button>
+          <button onClick={() => router.push('/dashboard')} className="text-white/50 hover:text-white/80 text-sm transition-colors">Volver al dashboard</button>
         </div>
 
         <style jsx>{`
-          @keyframes drawCircle {
-            to { strokeDashoffset: 0; }
-          }
-          @keyframes drawCheck {
-            to { strokeDashoffset: 0; }
-          }
-          @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(10px, -10px) scale(1.05); }
-            50% { transform: translate(-5px, 10px) scale(0.95); }
-            75% { transform: translate(-10px, -5px) scale(1.02); }
-          }
+          @keyframes scaleIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+          .animate-scaleIn { animation: scaleIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+          @keyframes float { 0%, 100% { transform: translate(0, 0) scale(1); } 25% { transform: translate(10px, -10px) scale(1.05); } 50% { transform: translate(-5px, 10px) scale(0.95); } 75% { transform: translate(-10px, -5px) scale(1.02); } }
+          @keyframes drawCircle { to { strokeDashoffset: 0; } }
+          @keyframes drawCheck { to { strokeDashoffset: 0; } }
+        `}</style>
+      </main>
+    )
+  }
+
+  // INSTALLATION GUIDE
+  if (phase === 'guide') {
+    return (
+      <main className="min-h-screen bg-black text-white py-12 px-4 relative overflow-hidden">
+        <div className="fixed inset-0 -z-10">
+          <div className="absolute inset-0" style={{ background: `radial-gradient(circle at 20% 30%, rgba(255, 200, 87, 0.12) 0%, transparent 35%), radial-gradient(circle at 80% 70%, rgba(255, 150, 50, 0.10) 0%, transparent 40%), #000000` }} />
+        </div>
+
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Instala la{' '}<span className="bg-gradient-to-r from-yellow-300 via-orange-400 to-amber-500 bg-clip-text text-transparent">App</span></h1>
+            <p className="text-white/60">Lleva Portal Culture siempre contigo</p>
+          </div>
+
+          {!selectedOS && (
+            <div className="grid md:grid-cols-2 gap-6 max-w-2xl mx-auto">
+              <button onClick={() => setSelectedOS('ios')} className="group p-8 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                <div className="text-6xl mb-4">📱</div>
+                <h3 className="text-2xl font-bold mb-2">iPhone / iPad</h3>
+                <p className="text-white/50 text-sm">Safari</p>
+              </button>
+              
+              <button onClick={() => setSelectedOS('android')} className="group p-8 rounded-2xl border border-white/10 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                <div className="text-6xl mb-4">🤖</div>
+                <h3 className="text-2xl font-bold mb-2">Android</h3>
+                <p className="text-white/50 text-sm">Chrome</p>
+              </button>
+            </div>
+          )}
+
+          {selectedOS === 'ios' && (
+            <div className="animate-fadeInUp space-y-8">
+              <div className="flex justify-center mb-8">
+                <div className="relative w-64 h-auto">
+                  <Image src="/iphone15pro.png" alt="iPhone 15 Pro" width={300} height={600} className="w-full h-auto" />
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                {[
+                  { num: 1, title: 'Abre Safari', desc: <>Ve a <span className="text-orange-400 font-mono">app.portalculture.com</span> desde Safari (no Chrome ni otros navegadores)</> },
+                  { num: 2, title: 'Toca el botón de compartir', desc: <>Es el icono <span className="text-2xl">↗️</span> en la parte inferior (iPhone) o superior (iPad)</> },
+                  { num: 3, title: 'Añadir a pantalla de inicio', desc: <>Desplázate y selecciona <strong>&quot;Añadir a pantalla de inicio&quot;</strong></> },
+                  { num: 4, title: '¡Listo!', desc: 'Confirma y encontrarás el icono de Portal Culture en tu pantalla de inicio ✨' }
+                ].map((s) => (
+                  <div key={s.num} className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <div className="flex gap-4">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 flex items-center justify-center text-black font-bold">{s.num}</div>
+                      <div><h3 className="text-xl font-semibold mb-2">{s.title}</h3><p className="text-white/60">{s.desc}</p></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {selectedOS === 'android' && (
+            <div className="animate-fadeInUp space-y-8">
+              <div className="space-y-6">
+                {[
+                  { num: 1, title: 'Abre Chrome', desc: <>Ve a <span className="text-orange-400 font-mono">app.portalculture.com</span> desde Chrome</> },
+                  { num: 2, title: 'Abre el menú', desc: <>Toca los tres puntos <span className="text-xl">⋮</span> en la esquina superior derecha</> },
+                  { num: 3, title: 'Instalar app', desc: <>Selecciona <strong>&quot;Añadir a pantalla de inicio&quot;</strong> o <strong>&quot;Instalar app&quot;</strong></> },
+                  { num: 4, title: '¡Listo!', desc: 'Confirma y la app aparecerá en tu pantalla de inicio 🚀' }
+                ].map((s) => (
+                  <div key={s.num} className="p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <div className="flex gap-4">
+                      <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-yellow-300 to-orange-400 flex items-center justify-center text-black font-bold">{s.num}</div>
+                      <div><h3 className="text-xl font-semibold mb-2">{s.title}</h3><p className="text-white/60">{s.desc}</p></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="mt-12 flex flex-col sm:flex-row gap-4 justify-center">
+            {selectedOS && <button onClick={() => setSelectedOS(null)} className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl transition-all duration-200">← Cambiar sistema</button>}
+            <button onClick={() => router.push('/dashboard')} className="px-8 py-3 bg-gradient-to-r from-yellow-300 via-orange-400 to-amber-500 text-black font-bold rounded-xl hover:shadow-xl hover:shadow-orange-400/20 hover:scale-105 transition-all duration-300">Ir al Dashboard</button>
+          </div>
+        </div>
+
+        <style jsx>{`
+          @keyframes fadeInUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+          .animate-fadeInUp { animation: fadeInUp 0.4s ease-out forwards; }
         `}</style>
       </main>
     )
