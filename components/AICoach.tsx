@@ -436,17 +436,19 @@ export default function AICoach() {
 
               {/* Right actions */}
               <div className="flex items-center gap-1 flex-shrink-0">
-                {usage && !usage.isUnlimited && (
+                {usage && (
                   <div
                     className="text-[11px] px-2.5 py-1 rounded-full transition-all duration-500"
-                    style={usage.remaining <= 2
+                    style={usage.isUnlimited
+                      ? { color: '#FFC857', background: 'rgba(255,200,87,0.08)', border: '1px solid rgba(255,200,87,0.2)' }
+                      : usage.remaining <= 2
                       ? { color: '#FF6B6B', background: 'rgba(255,107,107,0.08)', border: '1px solid rgba(255,107,107,0.2)' }
                       : usage.remaining <= 5
                       ? { color: '#FFAD3B', background: 'rgba(255,173,59,0.08)', border: '1px solid rgba(255,173,59,0.2)' }
                       : { color: 'rgba(255,255,255,0.4)', background: 'rgba(255,200,87,0.06)', border: '1px solid rgba(255,200,87,0.12)' }
                     }
                   >
-                    {usage.remaining}/{usage.limit} 💬
+                    {usage.isUnlimited ? '∞ mensajes' : `${usage.remaining}/${usage.limit} 💬`}
                   </div>
                 )}
 
