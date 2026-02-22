@@ -49,7 +49,7 @@ export default function RegaloPage() {
 
   const totalSteps = 8
 
-  // Check auth
+  // Check auth + si ya completó el cuestionario
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { user } } = await supabase.auth.getUser()
@@ -58,6 +58,17 @@ export default function RegaloPage() {
         return
       }
       setUserId(user.id)
+
+      // Comprobar si ya envió respuestas → saltar directo al regalo
+      const { data: existing } = await supabase
+        .from('post_compra_responses')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      if (existing) {
+        setPhase('unlocked')
+      }
     }
     checkAuth()
   }, [router, supabase])
@@ -134,6 +145,11 @@ export default function RegaloPage() {
         })
       })
 
+      if (response.status === 409) {
+        // Ya completó el cuestionario → llevar al regalo directamente
+        setPhase('unlocked')
+        return
+      }
       if (!response.ok) {
         throw new Error('Error al enviar respuestas')
       }
