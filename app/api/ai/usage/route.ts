@@ -35,9 +35,19 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Admin accounts — unlimited
-    const UNLIMITED_EMAILS = ['mysticcbrand@gmail.com'];
-    const isUnlimited = UNLIMITED_EMAILS.includes(user.email ?? '');
+    // Check unlimited: admin hardcoded OR paid user in premium_users
+    const ADMIN_EMAILS = ['mysticcbrand@gmail.com'];
+    let isUnlimited = ADMIN_EMAILS.includes(user.email ?? '');
+    if (!isUnlimited) {
+      const { data: premiumRecord } = await supabase
+        .from('premium_users')
+        .select('id')
+        .eq('user_id', user.id)
+        .eq('access_granted', true)
+        .eq('payment_status', 'active')
+        .maybeSingle();
+      isUnlimited = !!premiumRecord;
+    }
 
     // Get today's usage
     const today = new Date().toISOString().split('T')[0];

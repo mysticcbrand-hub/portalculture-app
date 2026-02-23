@@ -70,7 +70,7 @@ export default function SeleccionarAcceso() {
   }, [])
 
   const handleFastPass = () => {
-    window.location.href = 'https://whop.com/portalculture/acceso-inmediato'
+    window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
   }
   const handleWaitlist = () => { router.push('/cuestionario') }
   const handleLogout = async () => {
@@ -97,9 +97,10 @@ export default function SeleccionarAcceso() {
         {/* Layer 1: gradients suaves */}
         <div className="absolute inset-0" style={{
           background: `
-            radial-gradient(ellipse 80% 70% at 15% 30%, rgba(220,38,38,0.13) 0%, rgba(185,28,28,0.04) 50%, transparent 70%),
-            radial-gradient(ellipse 70% 65% at 85% 70%, rgba(37,99,235,0.09) 0%, rgba(29,78,216,0.03) 50%, transparent 70%),
-            radial-gradient(ellipse 60% 50% at 50% 5%,  rgba(109,40,217,0.07) 0%, transparent 60%)
+            radial-gradient(ellipse 90% 75% at 10% 25%, rgba(220,38,38,0.28) 0%, rgba(185,28,28,0.10) 40%, transparent 70%),
+            radial-gradient(ellipse 80% 70% at 90% 75%, rgba(37,99,235,0.22) 0%, rgba(29,78,216,0.08) 40%, transparent 70%),
+            radial-gradient(ellipse 60% 50% at 50% 0%,  rgba(139,92,246,0.12) 0%, transparent 55%),
+            radial-gradient(ellipse 40% 40% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0.45) 100%)
           `
         }} />
         {/* Layer 2: noise dithering para eliminar banding en pantallas grandes */}
@@ -152,6 +153,7 @@ export default function SeleccionarAcceso() {
         <div
           ref={el => { cardRefs.current[0] = el }}
           className="relative flex-1 cursor-pointer"
+          onClick={handleFastPass}
           style={{
             transform: `perspective(1000px) rotateX(${transforms[0].rotateX}deg) rotateY(${transforms[0].rotateY}deg) translateY(${hoveredCard === 0 ? '-8px' : '-3px'}) scale(${hoveredCard === 0 ? 1.025 : 1.008})`,
             transition: hoveredCard === 0
@@ -276,6 +278,7 @@ export default function SeleccionarAcceso() {
         <div
           ref={el => { cardRefs.current[1] = el }}
           className="relative flex-1 cursor-pointer"
+          onClick={handleWaitlist}
           style={{
             transform: `perspective(1000px) rotateX(${transforms[1].rotateX}deg) rotateY(${transforms[1].rotateY}deg) translateY(${hoveredCard === 1 ? '-4px' : '0px'}) scale(${hoveredCard === 1 ? 1.01 : 1})`,
             transition: hoveredCard === 1
