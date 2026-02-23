@@ -162,7 +162,7 @@ export async function GET(request: Request) {
       type: 'magiclink',
       email: email,
       options: {
-        redirectTo: `${appUrl}/auth/callback?next=/dashboard`
+        redirectTo: `${appUrl}/auth/magic-link?next=/dashboard`
       }
     })
 
