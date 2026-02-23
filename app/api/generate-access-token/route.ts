@@ -70,11 +70,28 @@ export async function GET(request: Request) {
 
     console.log('🔐 Generating access token for:', email)
 
-    // 1. Buscar o crear el usuario en auth
-    const { data: existingUsers } = await supabase.auth.admin.listUsers()
-    let user = existingUsers?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
+    // 1. Buscar usuario por email usando filter (no listUsers — escala mal)
+    const { data: usersData } = await supabase.auth.admin.listUsers({ perPage: 1000 })
+    let user = usersData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
 
-    // 2. Si no existe el usuario en auth, crearlo automáticamente
+    // Fallback: buscar directamente por email via REST si no se encontró
+    if (!user) {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
+        {
+          headers: {
+            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+          }
+        }
+      )
+      if (res.ok) {
+        const data = await res.json()
+        user = data?.users?.[0] ?? null
+      }
+    }
+
+    // 2. Si no existe en absoluto, crearlo
     if (!user) {
       console.log('🆕 Creating user account for:', email)
       const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
@@ -86,10 +103,29 @@ export async function GET(request: Request) {
         }
       })
       if (createError) {
-        console.error('❌ Error creating user:', createError)
-        throw new Error('No se pudo crear la cuenta')
+        // Si el error es "already exists", buscarlo de nuevo
+        if (createError.message?.includes('already') || createError.code === '23505') {
+          const retry = await fetch(
+            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
+            {
+              headers: {
+                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+              }
+            }
+          )
+          if (retry.ok) {
+            const retryData = await retry.json()
+            user = retryData?.users?.[0] ?? null
+          }
+        }
+        if (!user) {
+          console.error('❌ Error creating user:', createError)
+          throw new Error(`No se pudo crear la cuenta: ${createError.message}`)
+        }
+      } else {
+        user = newUser.user
       }
-      user = newUser.user
     }
 
     // 3. Garantizar que el usuario tiene acceso premium en premium_users
