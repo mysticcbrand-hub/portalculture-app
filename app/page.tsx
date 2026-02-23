@@ -1,9 +1,8 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, useEffect, useRef, useCallback, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import MeshGradient from '@/components/MeshGradient'
 
 // Premium Loading Component
 function PremiumLoader() {
@@ -45,9 +44,31 @@ function HomePageContent() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [oauthLoading, setOauthLoading] = useState<'google' | 'discord' | null>(null)
+  const [cardRotate, setCardRotate] = useState({ x: 0, y: 0 })
+  const [mouseGlow, setMouseGlow] = useState({ x: 50, y: 50 })
+  const [isHoveringCard, setIsHoveringCard] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
+
+  const handleCardMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const card = cardRef.current
+    if (!card) return
+    const rect = card.getBoundingClientRect()
+    const x = e.clientX - rect.left
+    const y = e.clientY - rect.top
+    const cx = rect.width / 2
+    const cy = rect.height / 2
+    setCardRotate({ x: ((y - cy) / cy) * -6, y: ((x - cx) / cx) * 6 })
+    setMouseGlow({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 })
+  }, [])
+
+  const handleCardMouseLeave = useCallback(() => {
+    setIsHoveringCard(false)
+    setCardRotate({ x: 0, y: 0 })
+    setMouseGlow({ x: 50, y: 50 })
+  }, [])
 
   // Check for invite link parameters and existing session
   useEffect(() => {
@@ -259,18 +280,27 @@ function HomePageContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-start sm:items-center justify-center px-4 py-10 sm:py-12 relative overflow-hidden">
-      {/* Premium Mesh Gradient Background - darker like landing */}
-      <MeshGradient variant="midnight" intensity="high" />
-      <div
-        className="absolute inset-0 -z-10"
-        style={{
-          background: `radial-gradient(ellipse 90% 70% at 20% 10%, rgba(30, 64, 175, 0.18) 0%, rgba(30, 58, 138, 0.10) 35%, transparent 70%),
-          radial-gradient(ellipse 80% 70% at 85% 75%, rgba(109, 40, 217, 0.16) 0%, rgba(88, 28, 135, 0.09) 40%, transparent 75%),
-          radial-gradient(ellipse 70% 60% at 50% 30%, rgba(30, 64, 175, 0.12) 0%, rgba(30, 58, 138, 0.07) 45%, transparent 75%),
-          linear-gradient(180deg, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.30) 45%, rgba(0,0,0,0.65) 100%)`
-        }}
-      />
+    <div className="min-h-screen flex items-start sm:items-center justify-center px-4 py-10 sm:py-12 relative overflow-hidden" style={{ background: '#000' }}>
+      {/* ── Fondo deband premium ── */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        background: `
+          radial-gradient(ellipse 110% 80% at 15% 20%, rgba(139,92,246,0.22) 0%, rgba(109,40,217,0.08) 40%, transparent 70%),
+          radial-gradient(ellipse 100% 80% at 85% 80%, rgba(37,99,235,0.18) 0%, rgba(29,78,216,0.06) 40%, transparent 70%),
+          radial-gradient(ellipse 80% 60% at 50% 5%,  rgba(168,85,247,0.12) 0%, transparent 55%),
+          radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,0,0,0.6) 0%, transparent 70%)
+        `
+      }} />
+      {/* Noise anti-banding */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        backgroundSize: '160px 160px',
+        opacity: 0.022,
+        mixBlendMode: 'overlay',
+      }} />
+      {/* Vignette */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        background: `radial-gradient(ellipse 85% 85% at 50% 50%, transparent 35%, rgba(0,0,0,0.6) 100%)`
+      }} />
 
       {/* Toast notification - Premium style */}
       {toast && (
@@ -410,57 +440,57 @@ function HomePageContent() {
           </div>
         ) : (
           /* Main Auth Card */
-          <div className="relative group animate-scale-in">
-            {/* Subtle outer glow - solo en hover */}
-            <div 
-              className="absolute -inset-3 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+          <div
+            ref={cardRef}
+            className="relative animate-scale-in"
+            onMouseMove={handleCardMouseMove}
+            onMouseEnter={() => setIsHoveringCard(true)}
+            onMouseLeave={handleCardMouseLeave}
+            style={{
+              transform: `perspective(1000px) rotateX(${cardRotate.x}deg) rotateY(${cardRotate.y}deg)`,
+              transition: isHoveringCard
+                ? 'transform 0.1s cubic-bezier(0.16,1,0.3,1)'
+                : 'transform 0.6s cubic-bezier(0.16,1,0.3,1)',
+              transformStyle: 'preserve-3d',
+              willChange: 'transform',
+            }}
+          >
+            {/* Ambient glow exterior */}
+            <div className="absolute -inset-4 rounded-[32px] pointer-events-none transition-opacity duration-700"
               style={{
-                background: `radial-gradient(ellipse 115% 105% at 50% 50%, rgba(147,197,253,0.08) 0%, rgba(96,165,250,0.04) 40%, transparent 70%)`,
-                filter: 'blur(20px)',
+                background: `radial-gradient(ellipse 120% 110% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.18) 0%, rgba(37,99,235,0.10) 50%, transparent 70%)`,
+                filter: 'blur(24px)',
+                opacity: isHoveringCard ? 1 : 0.3,
               }}
             />
-            
-            {/* Liquid Glass Card - interactúa con el fondo */}
-            <div 
-              className={`
-                relative backdrop-blur-xl backdrop-saturate-150 border rounded-3xl p-6 sm:p-8 
-                shadow-[0_8px_32px_rgba(0,0,0,0.4),0_1px_2px_rgba(255,255,255,0.05)]
-                transition-all duration-700 ease-out
-                group-hover:backdrop-blur-2xl
-                group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.5),0_1px_2px_rgba(255,255,255,0.08)]
-                ${mode === 'register' ? 'pb-8 sm:pb-10' : ''}
-              `}
+
+            {/* Gradient border */}
+            <div className="absolute -inset-[1px] rounded-3xl pointer-events-none"
               style={{
-                background: `
-                  linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.08) 0%,
-                    rgba(255, 255, 255, 0.05) 50%,
-                    rgba(255, 255, 255, 0.03) 100%
-                  )
-                `,
-                borderColor: 'rgba(255, 255, 255, 0.10)',
-                WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+                background: `linear-gradient(135deg, rgba(139,92,246,${isHoveringCard ? 0.5 : 0.2}), rgba(37,99,235,${isHoveringCard ? 0.4 : 0.15}), rgba(255,255,255,0.05))`,
+                borderRadius: '24px',
+              }}
+            />
+
+            {/* Card */}
+            <div
+              className={`relative backdrop-blur-xl rounded-3xl p-6 sm:p-8 overflow-hidden ${mode === 'register' ? 'pb-8 sm:pb-10' : ''}`}
+              style={{
+                background: 'linear-gradient(160deg, rgba(18,12,36,0.97) 0%, rgba(10,8,24,0.98) 100%)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                boxShadow: `0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)`,
               }}
             >
-              {/* Specular highlight sutil en top */}
-              <div 
-                className="absolute top-0 left-12 right-12 h-px opacity-60"
+              {/* Mouse spotlight */}
+              <div className="absolute inset-0 rounded-3xl pointer-events-none transition-opacity duration-300"
                 style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+                  background: `radial-gradient(circle 200px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.08) 0%, transparent 70%)`,
+                  opacity: isHoveringCard ? 1 : 0,
                 }}
               />
-              
-              {/* Corner indicators minimalistas */}
-              <div className="absolute top-3 left-3 w-8 h-8 border-l border-t border-white/10 rounded-tl-lg opacity-50" />
-              <div className="absolute top-3 right-3 w-8 h-8 border-r border-t border-white/10 rounded-tr-lg opacity-50" />
-              
-              {/* Sutil inner light desde arriba */}
-              <div 
-                className="absolute inset-x-0 top-0 h-20 rounded-t-3xl pointer-events-none opacity-40"
-                style={{
-                  background: 'linear-gradient(180deg, rgba(255,255,255,0.04) 0%, transparent 100%)',
-                }}
+              {/* Shimmer top */}
+              <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.4), rgba(37,99,235,0.3), transparent)' }}
               />
               
               {/* Login Form */}

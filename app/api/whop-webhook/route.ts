@@ -138,7 +138,30 @@ export async function POST(request: Request) {
 
       console.log('✅ Premium access granted to:', userEmail)
 
-      // 4. Generar token de acceso único (magic link)
+      // 4. Añadir a MailerLite grupo de pago (approved)
+      try {
+        const MAILERLITE_API_KEY = process.env.MAILERLITE_API_KEY
+        const PAID_GROUP_ID = process.env.MAILERLITE_PAID_GROUP_ID || '180221278017292151'
+        if (MAILERLITE_API_KEY) {
+          await fetch('https://connect.mailerlite.com/api/subscribers', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${MAILERLITE_API_KEY}`,
+              'Accept': 'application/json',
+            },
+            body: JSON.stringify({
+              email: userEmail,
+              fields: { name: userName || '' },
+              groups: [PAID_GROUP_ID],
+            }),
+          })
+        }
+      } catch (error) {
+        console.error('⚠️ MailerLite paid group error:', error)
+      }
+
+      // 5. Generar token de acceso único (magic link)
       const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
         type: 'magiclink',
         email: userEmail,
