@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
@@ -9,26 +9,36 @@ export default function SeleccionarAcceso() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [hoveredCard, setHoveredCard] = useState<number | null>(null)
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const [cardGlow, setCardGlow] = useState<{ x: number; y: number }[]>([
+    { x: 50, y: 50 }, { x: 50, y: 50 }, { x: 50, y: 50 }
+  ])
   const supabase = createClient()
 
   useEffect(() => {
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        router.push('/')
-        return
-      }
-      
+      if (!user) { router.push('/'); return }
       setUser(user)
       setLoading(false)
     }
-    
     getUser()
   }, [router, supabase.auth])
 
+  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>, index: number) => {
+    const card = cardRefs.current[index]
+    if (!card) return
+    const rect = card.getBoundingClientRect()
+    const x = ((e.clientX - rect.left) / rect.width) * 100
+    const y = ((e.clientY - rect.top) / rect.height) * 100
+    setCardGlow(prev => {
+      const next = [...prev]
+      next[index] = { x, y }
+      return next
+    })
+  }, [])
+
   const handleFastPass = () => {
-    // Direct navigation - more reliable on mobile
     window.location.href = 'https://whop.com/portalculture/acceso-inmediato'
   }
 
@@ -36,23 +46,93 @@ export default function SeleccionarAcceso() {
     router.push('/cuestionario')
   }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
-      </div>
-    )
-  }
-
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/')
   }
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="relative">
+          <div className="w-12 h-12 rounded-full border-2 border-white/5" />
+          <div className="absolute inset-0 w-12 h-12 rounded-full border-2 border-transparent border-t-white/60 animate-spin" />
+        </div>
+      </div>
+    )
+  }
+
+  // Card config
+  const cards = [
+    {
+      index: 0,
+      tag: 'Acceso Inmediato',
+      tagColor: '#FF4444',
+      price: '7€',
+      priceLabel: 'pago único',
+      accent: 'red',
+      // gradient border colors
+      borderFrom: 'rgba(239,68,68,0.6)',
+      borderTo: 'rgba(220,38,38,0.2)',
+      glowColor: 'rgba(239,68,68,0.15)',
+      glowHover: 'rgba(239,68,68,0.28)',
+      badgeBg: 'rgba(239,68,68,0.12)',
+      badgeBorder: 'rgba(239,68,68,0.3)',
+      badgeText: '#FF6B6B',
+      btnFrom: '#DC2626',
+      btnTo: '#991B1B',
+      btnGlow: 'rgba(220,38,38,0.45)',
+      isPrimary: true,
+      badge: '⚡ Más popular',
+      features: [
+        'Acceso completo inmediato',
+        'Sin espera ni aprobación',
+        '5 Templos desbloqueados',
+        'NOVA AI Coach ilimitado',
+        'Discord exclusivo',
+        'Actualizaciones de por vida',
+      ],
+      featureColor: '#FCA5A5',
+      checkColor: '#FF4444',
+      cta: 'Entrar ahora — 7€',
+      onClick: handleFastPass,
+    },
+    {
+      index: 1,
+      tag: 'Lista de Espera',
+      tagColor: '#3B82F6',
+      price: 'Gratis',
+      priceLabel: 'Tras aprobación manual',
+      accent: 'blue',
+      borderFrom: 'rgba(59,130,246,0.4)',
+      borderTo: 'rgba(37,99,235,0.1)',
+      glowColor: 'rgba(59,130,246,0.08)',
+      glowHover: 'rgba(59,130,246,0.18)',
+      badgeBg: 'rgba(59,130,246,0.1)',
+      badgeBorder: 'rgba(59,130,246,0.25)',
+      badgeText: '#93C5FD',
+      btnFrom: '#2563EB',
+      btnTo: '#1D4ED8',
+      btnGlow: 'rgba(37,99,235,0.35)',
+      isPrimary: false,
+      badge: null,
+      features: [
+        'Aprobación con cuestionario',
+        'Templos progresivos',
+        'NOVA AI Coach (10 msg/día)',
+        'Discord exclusivo',
+      ],
+      featureColor: '#93C5FD',
+      checkColor: '#3B82F6',
+      cta: 'Continuar gratis',
+      onClick: handleWaitlist,
+    },
+  ]
+
   return (
-    <div className="min-h-screen text-white flex items-center justify-center p-4 sm:p-6 relative overflow-hidden" style={{ backgroundColor: '#000000' }}>
-      
-      {/* Logout button - Top right */}
+    <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden" style={{ backgroundColor: '#000000' }}>
+
+      {/* Logout */}
       <button
         onClick={handleLogout}
         className="fixed top-4 sm:top-6 right-4 sm:right-6 z-50 group"
@@ -63,419 +143,199 @@ export default function SeleccionarAcceso() {
             <svg className="w-4 h-4 text-white/60 group-hover:text-white/90 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
             </svg>
-            <span className="text-sm font-medium text-white/60 group-hover:text-white/90 transition-colors hidden sm:inline">
-              Cerrar sesión
-            </span>
+            <span className="text-sm font-medium text-white/60 group-hover:text-white/90 transition-colors hidden sm:inline">Cerrar sesión</span>
           </div>
         </div>
       </button>
-      
-      {/* Gradientes cinematográficos - Balance perfecto */}
-      <div 
-        className="fixed inset-0"
-        style={{
-          background: `
-            radial-gradient(circle 900px at 20% 30%, rgba(37, 99, 235, 0.18), transparent 65%),
-            radial-gradient(circle 800px at 80% 70%, rgba(124, 58, 237, 0.15), transparent 60%),
-            radial-gradient(circle 700px at 50% 45%, rgba(79, 70, 229, 0.12), transparent 58%),
-            radial-gradient(circle 600px at 15% 78%, rgba(220, 38, 38, 0.14), transparent 55%),
-            radial-gradient(circle 650px at 85% 22%, rgba(5, 150, 105, 0.13), transparent 58%)
-          `,
-        }}
-      />
-      
-      {/* Noise texture para suavizar */}
-      <div 
-        className="fixed inset-0 pointer-events-none"
-        style={{
-          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 250 250' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
-          backgroundSize: '250px 250px',
-          opacity: 0.05,
-          mixBlendMode: 'overlay',
-        }}
-      />
-      
-      {/* Vignette cinematográfico */}
-      <div 
-        className="fixed inset-0"
-        style={{
-          background: `
-            radial-gradient(ellipse 78% 68% at 50% 50%, transparent 0%, rgba(0,0,0,0.5) 72%, rgba(0,0,0,0.85) 100%),
-            linear-gradient(180deg, rgba(0,0,0,0.25) 0%, transparent 25%, transparent 75%, rgba(0,0,0,0.3) 100%)
-          `,
-        }}
-      />
-      
-      <div className="max-w-6xl w-full relative z-10">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white via-white to-white/60 bg-clip-text text-transparent">
-            Elige tu Acceso
-          </h1>
-          <p className="text-white/60 text-base sm:text-lg max-w-2xl mx-auto">
-            Ambas opciones dan acceso completo de por vida. Elige la que mejor se adapte a ti.
-          </p>
+
+      {/* Ambient background */}
+      <div className="fixed inset-0 pointer-events-none" style={{
+        background: `
+          radial-gradient(ellipse 70% 60% at 20% 35%, rgba(220,38,38,0.12) 0%, transparent 65%),
+          radial-gradient(ellipse 60% 55% at 80% 65%, rgba(37,99,235,0.10) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 50% at 50% 10%, rgba(109,40,217,0.08) 0%, transparent 65%)
+        `
+      }} />
+
+      {/* Noise */}
+      <div className="fixed inset-0 pointer-events-none opacity-[0.04]" style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        backgroundSize: '200px 200px',
+        mixBlendMode: 'overlay',
+      }} />
+
+      {/* Header */}
+      <div className="relative z-10 text-center mb-10 md:mb-14">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-xs font-medium tracking-widest uppercase"
+          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.4)' }}>
+          <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-pulse" />
+          Elige tu acceso
         </div>
-
-        {/* Mobile tactile selector */}
-        <div className="md:hidden space-y-4 max-w-md mx-auto">
-          <div className="text-center text-xs uppercase tracking-[0.3em] text-white/35">Selecciona tu acceso</div>
-          
-          <button
-            onClick={handleFastPass}
-            className="group relative w-full text-left rounded-3xl border border-red-500/25 bg-gradient-to-br from-red-500/20 via-red-600/10 to-transparent p-5 backdrop-blur-2xl transition-all duration-300 active:scale-[0.98]"
-          >
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative flex items-center justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-red-500/30 bg-red-500/15 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-red-200">
-                  Premium
-                </div>
-                <h3 className="mt-3 text-xl font-semibold text-white">Acceso inmediato</h3>
-                <p className="text-sm text-white/60">Sin esperas · Discord + NOVA + 5 Templos</p>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-white">17€</div>
-                <div className="text-xs text-white/50">pago único</div>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="text-sm text-white/80">Acceder ahora</span>
-              <span className="text-white/60">→</span>
-            </div>
-          </button>
-
-          <button
-            onClick={handleWaitlist}
-            className="group relative w-full text-left rounded-3xl border border-blue-500/20 bg-gradient-to-br from-blue-500/10 via-blue-600/5 to-transparent p-5 backdrop-blur-2xl transition-all duration-300 active:scale-[0.98]"
-          >
-            <div className="relative flex items-center justify-between">
-              <div>
-                <div className="inline-flex items-center gap-2 rounded-full border border-blue-500/25 bg-blue-500/10 px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-blue-200">
-                  Gratis
-                </div>
-                <h3 className="mt-3 text-xl font-semibold text-white">Lista de espera</h3>
-                <p className="text-sm text-white/60">Mismo acceso · Aprobación manual</p>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-white">0€</div>
-                <div className="text-xs text-white/50">sin coste</div>
-              </div>
-            </div>
-            <div className="mt-4 flex items-center justify-between rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <span className="text-sm text-white/80">Unirme</span>
-              <span className="text-white/60">→</span>
-            </div>
-          </button>
-        </div>
-
-        {/* Cards Grid (desktop) */}
-        <div className="hidden md:grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-          
-          {/* CARD 1: PAGO (PREMIUM) - Apple-style polish */}
-          <div
-            onMouseEnter={() => setHoveredCard(1)}
-            onMouseLeave={() => setHoveredCard(null)}
-            onClick={handleFastPass}
-            className="relative cursor-pointer group order-1"
-            style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
-          >
-            {/* Outer glow premium - Sin banding */}
-            <div 
-              className="absolute -inset-[20px] rounded-[40px] opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse 100% 100% at 50% 50%, rgba(239,68,68,0.0) 0%, rgba(239,68,68,0.08) 30%, rgba(239,68,68,0.14) 45%, rgba(239,68,68,0.18) 55%, rgba(220,38,38,0.15) 65%, rgba(220,38,38,0.10) 75%, rgba(185,28,28,0.05) 85%, transparent 95%)',
-                filter: 'blur(32px)',
-                zIndex: -1,
-              }}
-            />
-            
-            {/* Card con gradiente premium - Cinematic depth */}
-            <div 
-              className="relative h-full p-6 sm:p-8 rounded-3xl border overflow-hidden backdrop-blur-xl backdrop-saturate-150"
-              style={{
-                background: hoveredCard === 1
-                  ? `
-                    linear-gradient(135deg, 
-                      rgba(239,68,68,0.16) 0%, 
-                      rgba(220,38,38,0.11) 40%, 
-                      rgba(185,28,28,0.08) 100%
-                    )
-                  `
-                  : `
-                    linear-gradient(135deg, 
-                      rgba(239,68,68,0.10) 0%, 
-                      rgba(220,38,38,0.06) 40%, 
-                      rgba(185,28,28,0.04) 100%
-                    )
-                  `,
-                borderColor: hoveredCard === 1 ? 'rgba(239,68,68,0.40)' : 'rgba(239,68,68,0.20)',
-                transform: hoveredCard === 1 ? 'translateY(-8px) scale(1.02)' : 'translateY(0) scale(1)',
-                boxShadow: hoveredCard === 1 
-                  ? '0 40px 80px -20px rgba(239,68,68,0.35), 0 20px 40px -15px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.15), inset 0 0 40px rgba(255,255,255,0.02)' 
-                  : '0 10px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
-                transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              {/* Shimmer effect loop - Premium ultra suave y lento */}
-              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden rounded-3xl">
-                <div 
-                  className="absolute inset-0"
-                  style={{
-                    background: 'linear-gradient(110deg, transparent 0%, transparent 40%, rgba(255,255,255,0.06) 47%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 53%, transparent 60%, transparent 100%)',
-                    transform: 'translateX(-100%) skewX(-12deg)',
-                    width: '200%',
-                    animation: hoveredCard === 1 ? 'shimmer 3.5s cubic-bezier(0.4, 0, 0.2, 1) infinite' : 'none',
-                  }}
-                />
-              </div>
-              
-              {/* Radial highlight on hover */}
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-3xl"
-                style={{
-                  background: 'radial-gradient(circle 200px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08) 0%, transparent 100%)',
-                }}
-              />
-              
-              {/* Tag PREMIUM */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-500/20 to-red-600/20 border border-red-500/30 mb-6">
-                <svg className="w-3.5 h-3.5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
-                </svg>
-                <span className="text-xs text-red-200 font-semibold uppercase tracking-wider">Premium</span>
-              </div>
-
-              {/* Price */}
-              <div className="mb-6">
-                <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-5xl sm:text-6xl font-bold text-white">17€</span>
-                  <span className="text-white/40 text-sm">una vez</span>
-                </div>
-                <p className="text-red-200/70 text-sm font-medium">Acceso inmediato sin esperas</p>
-              </div>
-
-              {/* Features - PREMIUM */}
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/90 text-sm sm:text-base font-medium">⚡ Acceso instantáneo</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/90 text-sm sm:text-base">5 Templos desbloqueados</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/90 text-sm sm:text-base">Acceso a NOVA AI</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/90 text-sm sm:text-base">Rol Deluxe Discord</span>
-                </li>
-              </ul>
-
-              {/* Button Premium - Apple polish */}
-              <a
-                href="https://whop.com/portalculture/acceso-inmediato"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="relative block w-full py-4 bg-gradient-to-br from-red-500 via-red-600 to-red-700 text-white text-sm font-bold rounded-2xl text-center overflow-hidden group/btn"
-                style={{
-                  boxShadow: '0 4px 14px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.25)',
-                  transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
-                  e.currentTarget.style.boxShadow = '0 12px 40px rgba(239,68,68,0.45), 0 6px 20px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.3)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(239,68,68,0.25), inset 0 1px 0 rgba(255,255,255,0.25)'
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(0.98)'
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-2px) scale(1.02)'
-                }}
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Acceder ahora
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-                {/* Subtle shimmer on hover */}
-                <div 
-                  className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity duration-300"
-                  style={{
-                    background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%)',
-                  }}
-                />
-              </a>
-            </div>
-          </div>
-
-          {/* CARD 2: GRATIS (SUBTLE) - Apple-style minimal */}
-          <div
-            onMouseEnter={() => setHoveredCard(2)}
-            onMouseLeave={() => setHoveredCard(null)}
-            onClick={handleWaitlist}
-            className="relative cursor-pointer group order-2"
-            style={{ isolation: 'isolate', transform: 'translateZ(0)', willChange: 'transform' }}
-          >
-            {/* Outer glow gratis - Sin banding */}
-            <div 
-              className="absolute -inset-2 rounded-[32px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-              style={{
-                background: 'radial-gradient(ellipse 110% 110% at 50% 50%, rgba(59,130,246,0.15) 0%, rgba(59,130,246,0.12) 20%, rgba(59,130,246,0.10) 35%, rgba(37,99,235,0.08) 50%, rgba(37,99,235,0.05) 62%, rgba(29,78,216,0.03) 72%, transparent 85%)',
-                filter: 'blur(26px)',
-                zIndex: -1,
-              }}
-            />
-            
-            {/* Card con gradiente azul sutil - Cinematic subtle */}
-            <div 
-              className="relative h-full p-6 sm:p-8 rounded-3xl border backdrop-blur-xl backdrop-saturate-150 overflow-hidden"
-              style={{
-                background: hoveredCard === 2
-                  ? `
-                    linear-gradient(135deg, 
-                      rgba(59,130,246,0.08) 0%, 
-                      rgba(37,99,235,0.05) 40%, 
-                      rgba(29,78,216,0.03) 100%
-                    )
-                  `
-                  : `
-                    linear-gradient(135deg, 
-                      rgba(59,130,246,0.04) 0%, 
-                      rgba(37,99,235,0.02) 40%, 
-                      rgba(29,78,216,0.01) 100%
-                    )
-                  `,
-                borderColor: hoveredCard === 2 ? 'rgba(59,130,246,0.25)' : 'rgba(59,130,246,0.15)',
-                transform: hoveredCard === 2 ? 'translateY(-4px) scale(1.01)' : 'translateY(0) scale(1)',
-                boxShadow: hoveredCard === 2 
-                  ? '0 25px 50px -15px rgba(59,130,246,0.18), 0 12px 25px -10px rgba(59,130,246,0.12), inset 0 1px 0 rgba(255,255,255,0.10), inset 0 0 30px rgba(255,255,255,0.01)' 
-                  : '0 10px 40px -10px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)',
-                transition: 'all 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
-              }}
-            >
-              {/* Subtle radial highlight on hover */}
-              <div 
-                className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none rounded-3xl"
-                style={{
-                  background: 'radial-gradient(circle 180px at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.04) 0%, transparent 100%)',
-                }}
-              />
-              {/* Tag */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-6">
-                <div className="w-2 h-2 rounded-full bg-blue-400"></div>
-                <span className="text-xs text-blue-200/80 font-medium uppercase tracking-wider">Lista de espera</span>
-              </div>
-
-              {/* Price */}
-              <div className="mb-6">
-                <div className="flex items-baseline gap-2 mb-2">
-                  <span className="text-5xl sm:text-6xl font-bold text-white">Gratis</span>
-                </div>
-                <p className="text-blue-200/60 text-sm">Tras aprobación manual</p>
-              </div>
-
-              {/* Features - GRATIS */}
-              <ul className="space-y-3 mb-8">
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Aprobación con prueba de acceso</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Templos progresivos</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Acceso a NOVA AI</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <svg className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-                  </svg>
-                  <span className="text-white/75 text-sm sm:text-base">Acceso Discord</span>
-                </li>
-              </ul>
-
-              {/* Button Gratis - Subtle minimal */}
-              <button
-                onClick={handleWaitlist}
-                className="relative w-full py-4 bg-gradient-to-br from-blue-600/90 via-blue-700/90 to-blue-800/90 text-white text-sm font-semibold rounded-2xl text-center overflow-hidden group/btn2"
-                style={{
-                  boxShadow: '0 3px 10px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.15)',
-                  transition: 'all 0.3s cubic-bezier(0.32, 0.72, 0, 1)',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)'
-                  e.currentTarget.style.boxShadow = '0 8px 28px rgba(59,130,246,0.28), 0 4px 14px rgba(59,130,246,0.2), inset 0 1px 0 rgba(255,255,255,0.2)'
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)'
-                  e.currentTarget.style.boxShadow = '0 3px 10px rgba(59,130,246,0.18), inset 0 1px 0 rgba(255,255,255,0.15)'
-                }}
-                onMouseDown={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0) scale(0.99)'
-                }}
-                onMouseUp={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-1px) scale(1.01)'
-                }}
-              >
-                <span className="relative z-10 flex items-center justify-center gap-2">
-                  Continuar gratis
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                  </svg>
-                </span>
-              </button>
-            </div>
-          </div>
-
-        </div>
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 tracking-tight">
+          Bienvenido a<br />
+          <span style={{ background: 'linear-gradient(135deg, #fff 0%, rgba(255,255,255,0.6) 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            Portal Culture
+          </span>
+        </h1>
+        <p className="text-white/40 text-sm sm:text-base max-w-md mx-auto">
+          Elige cómo quieres empezar tu transformación
+        </p>
       </div>
+
+      {/* Cards */}
+      <div className="relative z-10 w-full max-w-3xl flex flex-col md:flex-row gap-4 md:gap-5 items-stretch">
+        {cards.map((card) => {
+          const isHovered = hoveredCard === card.index
+          const glow = cardGlow[card.index]
+
+          return (
+            <div
+              key={card.index}
+              ref={el => { cardRefs.current[card.index] = el }}
+              className="relative flex-1 rounded-3xl cursor-pointer transition-all duration-500"
+              style={{
+                transform: isHovered
+                  ? card.isPrimary ? 'translateY(-6px) scale(1.02)' : 'translateY(-3px) scale(1.01)'
+                  : card.isPrimary ? 'translateY(-2px) scale(1.005)' : 'translateY(0) scale(1)',
+                transition: 'transform 0.4s cubic-bezier(0.16,1,0.3,1)',
+              }}
+              onMouseEnter={() => setHoveredCard(card.index)}
+              onMouseLeave={() => setHoveredCard(null)}
+              onMouseMove={(e) => handleMouseMove(e, card.index)}
+            >
+              {/* Outer glow */}
+              <div className="absolute -inset-[1px] rounded-3xl transition-opacity duration-500 pointer-events-none"
+                style={{
+                  background: `radial-gradient(ellipse at ${glow.x}% ${glow.y}%, ${isHovered ? card.glowHover : card.glowColor} 0%, transparent 70%)`,
+                  filter: 'blur(12px)',
+                  opacity: isHovered ? 1 : card.isPrimary ? 0.6 : 0.3,
+                }} />
+
+              {/* Gradient border */}
+              <div className="absolute -inset-[1px] rounded-3xl pointer-events-none transition-opacity duration-500"
+                style={{
+                  background: `linear-gradient(135deg, ${card.borderFrom}, ${card.borderTo}, transparent)`,
+                  opacity: isHovered ? 1 : card.isPrimary ? 0.7 : 0.35,
+                  padding: '1px',
+                }} />
+
+              {/* Card body */}
+              <div className="relative rounded-3xl p-6 sm:p-8 h-full flex flex-col overflow-hidden"
+                style={{
+                  background: isHovered
+                    ? `radial-gradient(ellipse at ${glow.x}% ${glow.y}%, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 50%, rgba(0,0,0,0.6) 100%)`
+                    : 'linear-gradient(160deg, rgba(255,255,255,0.04) 0%, rgba(0,0,0,0.55) 100%)',
+                  backdropFilter: 'blur(24px) saturate(140%)',
+                  border: `1px solid ${isHovered ? card.borderFrom : 'rgba(255,255,255,0.07)'}`,
+                  transition: 'background 0.4s ease, border-color 0.4s ease',
+                }}>
+
+                {/* Shimmer top */}
+                <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
+                  style={{ background: `linear-gradient(90deg, transparent, ${card.borderFrom}, transparent)`, opacity: isHovered ? 0.8 : card.isPrimary ? 0.5 : 0.2 }} />
+
+                {/* Badge popular */}
+                {card.badge && (
+                  <div className="absolute top-4 right-4">
+                    <div className="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide"
+                      style={{ background: card.badgeBg, border: `1px solid ${card.badgeBorder}`, color: card.badgeText }}>
+                      {card.badge}
+                    </div>
+                  </div>
+                )}
+
+                {/* Tag */}
+                <div className="inline-flex items-center gap-2 mb-5">
+                  <div className="w-2 h-2 rounded-full" style={{ background: card.tagColor }} />
+                  <span className="text-xs font-semibold uppercase tracking-widest" style={{ color: card.tagColor }}>
+                    {card.tag}
+                  </span>
+                </div>
+
+                {/* Price */}
+                <div className="mb-6">
+                  <div className="flex items-baseline gap-2 mb-1">
+                    <span className="text-5xl sm:text-6xl font-bold text-white">{card.price}</span>
+                  </div>
+                  <p className="text-sm" style={{ color: 'rgba(255,255,255,0.35)' }}>{card.priceLabel}</p>
+                </div>
+
+                {/* Divider */}
+                <div className="w-full h-[1px] mb-6" style={{ background: `linear-gradient(90deg, ${card.borderFrom}, transparent)`, opacity: 0.3 }} />
+
+                {/* Features */}
+                <ul className="space-y-3 mb-8 flex-1">
+                  {card.features.map((feature, i) => (
+                    <li key={i} className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
+                        style={{ background: `${card.checkColor}20`, border: `1px solid ${card.checkColor}40` }}>
+                        <svg className="w-2.5 h-2.5" fill="none" stroke={card.checkColor} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-sm" style={{ color: 'rgba(255,255,255,0.7)' }}>{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA Button */}
+                <button
+                  onClick={card.onClick}
+                  className="relative w-full py-4 rounded-2xl text-sm font-semibold text-white overflow-hidden group/btn"
+                  style={{
+                    background: `linear-gradient(135deg, ${card.btnFrom}, ${card.btnTo})`,
+                    boxShadow: isHovered
+                      ? `0 8px 32px ${card.btnGlow}, 0 2px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.2)`
+                      : `0 4px 16px ${card.btnGlow.replace('0.45', '0.25').replace('0.35', '0.2')}, inset 0 1px 0 rgba(255,255,255,0.15)`,
+                    transition: 'box-shadow 0.3s ease',
+                  }}
+                >
+                  {/* Shimmer sweep on hover */}
+                  <span
+                    className="absolute inset-0 pointer-events-none"
+                    style={{
+                      background: 'linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%)',
+                      transform: isHovered ? 'translateX(100%)' : 'translateX(-100%)',
+                      transition: 'transform 0.6s cubic-bezier(0.16,1,0.3,1)',
+                    }}
+                  />
+                  <span className="relative z-10 flex items-center justify-center gap-2">
+                    {card.cta}
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{
+                      transform: isHovered ? 'translateX(3px)' : 'translateX(0)',
+                      transition: 'transform 0.3s ease',
+                    }}>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </span>
+                </button>
+
+                {/* Footer note for paid */}
+                {card.isPrimary && (
+                  <p className="text-center text-[11px] mt-3" style={{ color: 'rgba(255,255,255,0.25)' }}>
+                    Pago seguro vía Whop · Sin suscripción
+                  </p>
+                )}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Bottom trust */}
+      <div className="relative z-10 mt-8 md:mt-10 flex items-center gap-6 text-[11px]" style={{ color: 'rgba(255,255,255,0.2)' }}>
+        <span className="flex items-center gap-1.5">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+          </svg>
+          Pago seguro
+        </span>
+        <span className="w-[1px] h-3 bg-white/10" />
+        <span>Sin compromisos</span>
+        <span className="w-[1px] h-3 bg-white/10" />
+        <span>Acceso inmediato</span>
+      </div>
+
     </div>
   )
-}
-
-// Keyframes for shimmer animation - Apple style
-const shimmerStyles = `
-  @keyframes shimmer {
-    0% {
-      transform: translateX(-100%) skewX(-15deg);
-    }
-    100% {
-      transform: translateX(100%) skewX(-15deg);
-    }
-  }
-`;
-
-// Inject styles
-if (typeof document !== 'undefined') {
-  const styleSheet = document.createElement('style');
-  styleSheet.textContent = shimmerStyles;
-  if (!document.head.querySelector('style[data-shimmer]')) {
-    styleSheet.setAttribute('data-shimmer', 'true');
-    document.head.appendChild(styleSheet);
-  }
 }
