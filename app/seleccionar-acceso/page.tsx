@@ -212,7 +212,7 @@ export default function SeleccionarAcceso() {
             {/* Price — ACTUALIZAR con el precio real */}
             <div className="mb-6">
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-5xl sm:text-6xl font-bold text-white">—€</span>
+                <span className="text-5xl sm:text-6xl font-bold text-white">17€</span>
               </div>
               <p className="text-sm text-white/30">pago único · sin suscripción</p>
             </div>
@@ -221,14 +221,13 @@ export default function SeleccionarAcceso() {
             <div className="w-full h-[1px] mb-6" style={{ background: 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' }} />
 
             {/* Features */}
-            <ul className="space-y-3 mb-8 flex-1">
+            <ul className="space-y-3 mb-auto flex-1">
               {[
                 'Acceso completo inmediato',
                 'Sin espera ni aprobación',
                 '5 Templos desbloqueados',
                 'NOVA AI Coach ilimitado',
                 'Discord exclusivo',
-                'Actualizaciones de por vida',
               ].map((f, i) => (
                 <li key={i} className="flex items-center gap-3">
                   <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
@@ -245,7 +244,7 @@ export default function SeleccionarAcceso() {
             {/* CTA Button — rojo premium */}
             <button
               onClick={handleFastPass}
-              className="relative w-full py-4 rounded-2xl text-sm font-semibold text-white overflow-hidden"
+              className="relative w-full py-4 rounded-2xl text-sm font-semibold text-white overflow-hidden mt-8"
               style={{
                 background: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
                 boxShadow: hoveredCard === 0
@@ -336,7 +335,7 @@ export default function SeleccionarAcceso() {
             <div className="w-full h-[1px] mb-6" style={{ background: 'linear-gradient(90deg, rgba(59,130,246,0.25), transparent)' }} />
 
             {/* Features — menos enfatizadas */}
-            <ul className="space-y-3 mb-8 flex-1">
+            <ul className="space-y-3 mb-auto flex-1">
               {[
                 'Aprobación con cuestionario',
                 'Templos progresivos',
@@ -358,7 +357,7 @@ export default function SeleccionarAcceso() {
             {/* CTA Button — azul más apagado */}
             <button
               onClick={handleWaitlist}
-              className="relative w-full py-4 rounded-2xl text-sm font-semibold overflow-hidden"
+              className="relative w-full py-4 rounded-2xl text-sm font-semibold overflow-hidden mt-8"
               style={{
                 background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
                 border: '1px solid rgba(59,130,246,0.25)',
