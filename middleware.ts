@@ -85,12 +85,17 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
+    // Check user_metadata fallback first (no DB/RLS dependency)
+    if (user.user_metadata?.access_status === 'paid') {
+      return response
+    }
+
     // Check if user is premium (paid via Whop)
     const { data: premiumUser } = await supabase
       .from('premium_users')
       .select('payment_status, access_granted')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     // If premium and active, grant access
     if (premiumUser?.payment_status === 'active' && premiumUser?.access_granted) {
@@ -123,12 +128,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/admin/waitlist', request.url))
     }
 
+    // Check user_metadata fallback first (no DB/RLS dependency)
+    if (user.user_metadata?.access_status === 'paid') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
     // Check if user is premium (paid via Whop)
     const { data: premiumUser } = await supabase
       .from('premium_users')
       .select('payment_status, access_granted')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     // If premium and active, go to dashboard
     if (premiumUser?.payment_status === 'active' && premiumUser?.access_granted) {

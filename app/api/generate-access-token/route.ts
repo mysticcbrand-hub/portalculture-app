@@ -135,7 +135,16 @@ export async function GET(request: Request) {
       }
     }
 
-    // 3. Garantizar que el usuario tiene acceso premium en premium_users
+    // 3. Marcar user_metadata como paid (fallback si RLS bloquea lectura)
+    await supabase.auth.admin.updateUserById(user.id, {
+      user_metadata: {
+        ...(user.user_metadata || {}),
+        access_status: 'paid',
+        source: 'whop_payment',
+      },
+    })
+
+    // 4. Garantizar que el usuario tiene acceso premium en premium_users
     // (puede llegar aquí antes del webhook de Whop — race condition fix)
     const { error: premiumError } = await supabase
       .from('premium_users')
