@@ -209,14 +209,18 @@ export async function GET(request: Request) {
 
     let sessionData = null as null | { access_token: string; refresh_token: string }
 
-    const verifyWithToken = async (token: string) => {
+    const verifyWithToken = async (token: string, useAnon = false) => {
+      const headers: Record<string, string> = {
+        apikey: useAnon ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! : process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        'Content-Type': 'application/json',
+      }
+      if (!useAnon) {
+        headers.Authorization = `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`
+      }
+
       const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
         method: 'POST',
-        headers: {
-          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-          'Content-Type': 'application/json',
-        },
+        headers,
         body: JSON.stringify({
           type: 'magiclink',
           email,
@@ -232,21 +236,29 @@ export async function GET(request: Request) {
             refresh_token: verifyData.refresh_token,
           }
         }
+        return true
       }
+
+      return false
     }
 
+    // Primero probamos token del action_link, luego email_otp
     if (actionToken) {
-      await verifyWithToken(actionToken)
+      const ok = await verifyWithToken(actionToken)
+      if (!ok) await verifyWithToken(actionToken, true)
     }
 
     if (!sessionData && emailOtp) {
-      await verifyWithToken(emailOtp)
+      const ok = await verifyWithToken(emailOtp)
+      if (!ok) await verifyWithToken(emailOtp, true)
     }
 
-    if (sessionData) {
-      const confirmUrl = `${appUrl}/confirm-email?next=/dashboard#access_token=${sessionData.access_token}&refresh_token=${sessionData.refresh_token}&type=magiclink`
-      accessLink = confirmUrl
+    if (!sessionData) {
+      throw new Error('No se pudo validar el token de acceso (magiclink).')
     }
+
+    const confirmUrl = `${appUrl}/confirm-email?next=/dashboard#access_token=${sessionData.access_token}&refresh_token=${sessionData.refresh_token}&type=magiclink`
+    accessLink = confirmUrl
 
     console.log('✅ Access link generated for:', email)
 
