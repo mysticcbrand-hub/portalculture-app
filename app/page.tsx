@@ -44,7 +44,6 @@ function HomePageContent() {
   const [showForgotPassword, setShowForgotPassword] = useState(false)
   const [forgotEmail, setForgotEmail] = useState('')
   const [oauthLoading, setOauthLoading] = useState<'google' | 'discord' | null>(null)
-  const [cardRotate, setCardRotate] = useState({ x: 0, y: 0 })
   const [mouseGlow, setMouseGlow] = useState({ x: 50, y: 50 })
   const [isHoveringCard, setIsHoveringCard] = useState(false)
   const cardRef = useRef<HTMLDivElement>(null)
@@ -58,15 +57,11 @@ function HomePageContent() {
     const rect = card.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
-    const cx = rect.width / 2
-    const cy = rect.height / 2
-    setCardRotate({ x: ((y - cy) / cy) * -6, y: ((x - cx) / cx) * 6 })
     setMouseGlow({ x: (x / rect.width) * 100, y: (y / rect.height) * 100 })
   }, [])
 
   const handleCardMouseLeave = useCallback(() => {
     setIsHoveringCard(false)
-    setCardRotate({ x: 0, y: 0 })
     setMouseGlow({ x: 50, y: 50 })
   }, [])
 
@@ -284,10 +279,10 @@ function HomePageContent() {
       {/* ── Fondo deband premium ── */}
       <div className="fixed inset-0 pointer-events-none" style={{
         background: `
-          radial-gradient(ellipse 110% 80% at 15% 20%, rgba(139,92,246,0.22) 0%, rgba(109,40,217,0.08) 40%, transparent 70%),
-          radial-gradient(ellipse 100% 80% at 85% 80%, rgba(37,99,235,0.18) 0%, rgba(29,78,216,0.06) 40%, transparent 70%),
-          radial-gradient(ellipse 80% 60% at 50% 5%,  rgba(168,85,247,0.12) 0%, transparent 55%),
-          radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,0,0,0.6) 0%, transparent 70%)
+          radial-gradient(ellipse 110% 80% at 15% 20%, rgba(109,40,217,0.16) 0%, rgba(88,28,135,0.06) 40%, transparent 70%),
+          radial-gradient(ellipse 100% 80% at 85% 80%, rgba(29,78,216,0.13) 0%, rgba(23,62,172,0.05) 40%, transparent 70%),
+          radial-gradient(ellipse 80% 60% at 50% 5%,  rgba(139,92,246,0.09) 0%, transparent 55%),
+          radial-gradient(ellipse 60% 60% at 50% 100%, rgba(0,0,0,0.65) 0%, transparent 70%)
         `
       }} />
       {/* Noise anti-banding */}
@@ -446,14 +441,7 @@ function HomePageContent() {
             onMouseMove={handleCardMouseMove}
             onMouseEnter={() => setIsHoveringCard(true)}
             onMouseLeave={handleCardMouseLeave}
-            style={{
-              transform: `perspective(1000px) rotateX(${cardRotate.x}deg) rotateY(${cardRotate.y}deg)`,
-              transition: isHoveringCard
-                ? 'transform 0.1s cubic-bezier(0.16,1,0.3,1)'
-                : 'transform 0.6s cubic-bezier(0.16,1,0.3,1)',
-              transformStyle: 'preserve-3d',
-              willChange: 'transform',
-            }}
+            style={{ willChange: 'auto' }}
           >
             {/* Ambient glow exterior */}
             <div className="absolute -inset-4 rounded-[32px] pointer-events-none transition-opacity duration-700"
@@ -476,7 +464,7 @@ function HomePageContent() {
             <div
               className={`relative backdrop-blur-xl rounded-3xl p-6 sm:p-8 overflow-hidden ${mode === 'register' ? 'pb-8 sm:pb-10' : ''}`}
               style={{
-                background: 'linear-gradient(160deg, rgba(18,12,36,0.97) 0%, rgba(10,8,24,0.98) 100%)',
+                background: 'linear-gradient(160deg, rgba(10,7,22,0.98) 0%, rgba(6,4,16,0.99) 100%)',
                 border: '1px solid rgba(255,255,255,0.07)',
                 boxShadow: `0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)`,
               }}
@@ -504,7 +492,7 @@ function HomePageContent() {
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-5 py-3.5 sm:py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        className="w-full px-5 py-3.5 sm:py-4 bg-white/[0.04] border border-white/[0.08] rounded-2xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-purple-500/40 focus:bg-white/[0.06] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.04),inset_0_0_0_1px_rgba(139,92,246,0.0)]"
                         placeholder="tu@email.com"
                         required
                       />
@@ -523,7 +511,7 @@ function HomePageContent() {
                         type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-5 py-3.5 sm:py-4 pr-12 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                        className="w-full px-5 py-3.5 sm:py-4 pr-12 bg-white/[0.04] border border-white/[0.08] rounded-2xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-purple-500/40 focus:bg-white/[0.06] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]"
                         placeholder="••••••••"
                         required
                       />
@@ -544,10 +532,10 @@ function HomePageContent() {
                           </svg>
                         )}
                       </button>
-                      {/* Focus glow effect */}
-                      <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/20 via-white/5 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                      {/* Subtle shine on top */}
-                      <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                      {/* Focus glow purple */}
+                      <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none"
+                        style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(37,99,235,0.15), transparent)' }} />
+                      <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
                     </div>
                   </div>
 
