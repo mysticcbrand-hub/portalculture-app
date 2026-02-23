@@ -144,7 +144,12 @@ export async function GET(request: Request) {
       // No bloqueamos — seguimos generando el magic link
     }
 
-    // 4. Garantizar perfil en profiles
+    // 4. Garantizar perfil en profiles (limpia duplicados por email)
+    await supabase
+      .from('profiles')
+      .delete()
+      .eq('email', email.toLowerCase())
+
     await supabase
       .from('profiles')
       .upsert({
