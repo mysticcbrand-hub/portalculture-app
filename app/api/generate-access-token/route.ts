@@ -171,9 +171,22 @@ export async function GET(request: Request) {
       throw new Error('No se pudo generar el enlace de acceso')
     }
 
-    // action_link ya incluye token_hash + type + redirect_to
-    // El usuario debe ir directamente a este link para que Supabase establezca la sesión
-    const accessLink = tokenData.properties.action_link
+    // action_link incluye token + redirect_to
+    let accessLink = tokenData.properties.action_link
+
+    // Intento: verificar OTP en servidor para evitar expiración inmediata
+    if (tokenData?.properties?.hashed_token) {
+      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+        type: 'magiclink',
+        token_hash: tokenData.properties.hashed_token,
+      })
+      if (!verifyError && verifyData?.session) {
+        const { access_token, refresh_token } = verifyData.session
+        const confirmUrl = `${appUrl}/confirm-email?next=/dashboard#access_token=${access_token}&refresh_token=${refresh_token}&type=magiclink`
+        accessLink = confirmUrl
+      }
+    }
+
     console.log('✅ Access link generated for:', email)
 
     // 4. Página de éxito con auto-redirect - Estilo premium
