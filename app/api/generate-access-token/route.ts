@@ -175,9 +175,17 @@ export async function GET(request: Request) {
 
     // Intento: verificar OTP en servidor con endpoint /verify (anon key)
     const emailOtp = tokenData?.properties?.email_otp || (tokenData as any)?.email_otp
+    const actionToken = (() => {
+      try {
+        return new URL(accessLink).searchParams.get('token')
+      } catch {
+        return null
+      }
+    })()
+
     let sessionData = null as null | { access_token: string; refresh_token: string }
 
-    if (emailOtp) {
+    const verifyWithToken = async (token: string) => {
       const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
         method: 'POST',
         headers: {
@@ -188,7 +196,7 @@ export async function GET(request: Request) {
         body: JSON.stringify({
           type: 'magiclink',
           email,
-          token: emailOtp,
+          token,
         }),
       })
 
@@ -201,6 +209,14 @@ export async function GET(request: Request) {
           }
         }
       }
+    }
+
+    if (actionToken) {
+      await verifyWithToken(actionToken)
+    }
+
+    if (!sessionData && emailOtp) {
+      await verifyWithToken(emailOtp)
     }
 
     if (sessionData) {
