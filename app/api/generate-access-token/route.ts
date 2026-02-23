@@ -90,6 +90,14 @@ export async function GET(request: Request) {
       }
     }
 
+    // Limpia perfiles duplicados por email antes de crear usuario (evita constraint)
+    if (!user) {
+      await supabase
+        .from('profiles')
+        .delete()
+        .eq('email', email.toLowerCase())
+    }
+
     // 2. Si no existe en absoluto, crearlo
     if (!user) {
       console.log('🆕 Creating user account for:', email)
