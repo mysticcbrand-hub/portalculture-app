@@ -154,27 +154,38 @@ export async function GET(request: Request) {
         created_at: new Date().toISOString(),
       }, { onConflict: 'id' })
 
-    // 3. Generar magic link de acceso
-    // redirectTo debe apuntar al auth/callback para que Supabase gestione la sesión
+    // 3. Generar magic link de acceso (REST admin) para obtener email_otp siempre
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com').trim().replace(/\/$/, '')
-    const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
-      type: 'magiclink',
-      email: email,
-      options: {
-        redirectTo: `${appUrl}/confirm-email?next=/dashboard`
-      }
+    const generateRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/generate_link`, {
+      method: 'POST',
+      headers: {
+        apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+        Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        type: 'magiclink',
+        email,
+        options: { redirectTo: `${appUrl}/confirm-email?next=/dashboard` },
+      }),
     })
 
-    if (tokenError || !tokenData?.properties?.action_link) {
-      console.error('❌ Error generating magic link:', tokenError)
+    if (!generateRes.ok) {
+      const errText = await generateRes.text()
+      console.error('❌ Error generating magic link:', errText)
+      throw new Error('No se pudo generar el enlace de acceso')
+    }
+
+    const tokenData = await generateRes.json()
+    if (!tokenData?.action_link) {
       throw new Error('No se pudo generar el enlace de acceso')
     }
 
     // action_link incluye token + redirect_to
-    let accessLink = tokenData.properties.action_link
+    let accessLink = tokenData.action_link
 
-    // Intento: verificar OTP en servidor con endpoint /verify (anon key)
-    const emailOtp = tokenData?.properties?.email_otp || (tokenData as any)?.email_otp
+    // Intento: verificar OTP en servidor con endpoint /verify
+    const emailOtp = tokenData.email_otp
     const actionToken = (() => {
       try {
         return new URL(accessLink).searchParams.get('token')
