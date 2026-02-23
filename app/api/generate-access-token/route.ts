@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import crypto from 'crypto'
 
 export const dynamic = 'force-dynamic'
 
@@ -175,8 +176,18 @@ export async function GET(request: Request) {
     let accessLink = tokenData.properties.action_link
 
     // Intento: verificar OTP en servidor para evitar expiración inmediata
-    const tokenHash = tokenData?.properties?.hashed_token || (tokenData as any)?.hashed_token
     const emailOtp = tokenData?.properties?.email_otp || (tokenData as any)?.email_otp
+
+    // token_hash correcto: SHA-256 del token que viene en action_link
+    let tokenHash: string | null = null
+    try {
+      const token = new URL(accessLink).searchParams.get('token')
+      if (token) {
+        tokenHash = crypto.createHash('sha256').update(token).digest('hex')
+      }
+    } catch {
+      tokenHash = null
+    }
 
     let sessionData = null as null | { access_token: string; refresh_token: string }
 
