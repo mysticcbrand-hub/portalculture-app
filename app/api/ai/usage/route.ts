@@ -35,9 +35,9 @@ export async function GET(request: NextRequest) {
       );
     }
     
-    // Check unlimited: admin hardcoded OR paid user in premium_users
+    // Check unlimited: admin hardcoded OR paid metadata OR premium_users
     const ADMIN_EMAILS = ['mysticcbrand@gmail.com'];
-    let isUnlimited = ADMIN_EMAILS.includes(user.email ?? '');
+    let isUnlimited = ADMIN_EMAILS.includes(user.email ?? '') || user.user_metadata?.access_status === 'paid';
     if (!isUnlimited) {
       const { data: premiumRecord } = await supabase
         .from('premium_users')
