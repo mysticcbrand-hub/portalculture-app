@@ -199,6 +199,7 @@ export async function GET(request: Request) {
 
     // Intento: verificar OTP en servidor con endpoint /verify
     const emailOtp = tokenData.email_otp
+    const verificationType = tokenData.verification_type || 'magiclink'
     const actionToken = (() => {
       try {
         return new URL(accessLink).searchParams.get('token')
@@ -209,20 +210,15 @@ export async function GET(request: Request) {
 
     let sessionData = null as null | { access_token: string; refresh_token: string }
 
-    const verifyWithToken = async (token: string, useAnon = false) => {
-      const headers: Record<string, string> = {
-        apikey: useAnon ? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY! : process.env.SUPABASE_SERVICE_ROLE_KEY!,
-        'Content-Type': 'application/json',
-      }
-      if (!useAnon) {
-        headers.Authorization = `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`
-      }
-
+    const verifyWithToken = async (token: string) => {
       const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
         method: 'POST',
-        headers,
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
-          type: 'magiclink',
+          type: verificationType,
           email,
           token,
         }),
@@ -235,8 +231,8 @@ export async function GET(request: Request) {
             access_token: verifyData.access_token,
             refresh_token: verifyData.refresh_token,
           }
+          return true
         }
-        return true
       }
 
       return false
@@ -244,13 +240,11 @@ export async function GET(request: Request) {
 
     // Primero probamos token del action_link, luego email_otp
     if (actionToken) {
-      const ok = await verifyWithToken(actionToken)
-      if (!ok) await verifyWithToken(actionToken, true)
+      await verifyWithToken(actionToken)
     }
 
     if (!sessionData && emailOtp) {
-      const ok = await verifyWithToken(emailOtp)
-      if (!ok) await verifyWithToken(emailOtp, true)
+      await verifyWithToken(emailOtp)
     }
 
     if (!sessionData) {
