@@ -394,56 +394,63 @@ function HomePageContent() {
           <p className="text-white/30 text-sm mt-2 tracking-widest uppercase font-light">Desbloquea tu potencial</p>
         </div>
 
-        {/* Forgot Password Modal */}
+        {/* Forgot Password — misma card premium */}
         {showForgotPassword ? (
-          <div className="relative group animate-scale-in">
-            {/* Subtle outer glow - verde temático */}
-            <div 
-              className="absolute -inset-3 rounded-[28px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+          <div
+            className="relative animate-scale-in"
+            onMouseMove={handleCardMouseMove}
+            onMouseEnter={() => setIsHoveringCard(true)}
+            onMouseLeave={handleCardMouseLeave}
+          >
+            {/* Ambient glow */}
+            <div className="absolute -inset-4 rounded-[32px] pointer-events-none transition-opacity duration-700"
               style={{
-                background: `radial-gradient(ellipse 115% 105% at 50% 50%, rgba(167,243,208,0.08) 0%, rgba(110,231,183,0.04) 40%, transparent 70%)`,
-                filter: 'blur(20px)',
+                background: `radial-gradient(ellipse 120% 110% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.18) 0%, rgba(37,99,235,0.10) 50%, transparent 70%)`,
+                filter: 'blur(24px)',
+                opacity: isHoveringCard ? 1 : 0.3,
               }}
             />
-            
-            {/* Liquid Glass Card */}
-            <div 
-              className="relative backdrop-blur-xl backdrop-saturate-150 border rounded-3xl p-8 shadow-[0_8px_32px_rgba(0,0,0,0.4),0_1px_2px_rgba(255,255,255,0.05)] transition-all duration-700 ease-out group-hover:backdrop-blur-2xl group-hover:shadow-[0_12px_48px_rgba(0,0,0,0.5),0_1px_2px_rgba(255,255,255,0.08)]"
+            {/* Gradient border */}
+            <div className="absolute -inset-[1px] rounded-3xl pointer-events-none"
               style={{
-                background: `
-                  linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.08) 0%,
-                    rgba(255, 255, 255, 0.05) 50%,
-                    rgba(255, 255, 255, 0.03) 100%
-                  )
-                `,
-                borderColor: 'rgba(255, 255, 255, 0.10)',
-                WebkitBackdropFilter: 'blur(40px) saturate(150%)',
+                background: `linear-gradient(135deg, rgba(139,92,246,${isHoveringCard ? 0.5 : 0.2}), rgba(37,99,235,${isHoveringCard ? 0.4 : 0.15}), rgba(255,255,255,0.05))`,
+                borderRadius: '24px',
+              }}
+            />
+            {/* Card */}
+            <div className="relative rounded-3xl p-6 sm:p-8 overflow-hidden"
+              style={{
+                background: 'linear-gradient(160deg, rgba(10,7,22,0.98) 0%, rgba(6,4,16,0.99) 100%)',
+                border: '1px solid rgba(255,255,255,0.07)',
+                boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)',
               }}
             >
-              {/* Specular highlight sutil */}
-              <div 
-                className="absolute top-0 left-12 right-12 h-px opacity-60"
+              {/* Mouse spotlight */}
+              <div className="absolute inset-0 rounded-3xl pointer-events-none transition-opacity duration-300"
                 style={{
-                  background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.2) 50%, transparent 100%)',
+                  background: `radial-gradient(circle 200px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.08) 0%, transparent 70%)`,
+                  opacity: isHoveringCard ? 1 : 0,
                 }}
               />
-              
+              {/* Shimmer top */}
+              <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.4), rgba(37,99,235,0.3), transparent)' }}
+              />
+
               <button
                 onClick={() => setShowForgotPassword(false)}
-                className="text-white/40 hover:text-white/80 mb-6 text-sm flex items-center gap-2 transition-all duration-300 hover:-translate-x-1"
+                className="relative text-white/40 hover:text-white/80 mb-6 text-sm flex items-center gap-2 transition-all duration-300 hover:-translate-x-1"
               >
                 <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                 </svg>
                 Volver
               </button>
-              
-              <h2 className="text-xl font-semibold text-white mb-2">Restablecer contraseña</h2>
-              <p className="text-sm text-white/40 mb-8">Te enviaremos un enlace para restablecer tu contraseña</p>
-              
-              <form onSubmit={handleForgotPassword} className="space-y-5">
+
+              <h2 className="relative text-xl font-semibold text-white mb-2">Restablecer contraseña</h2>
+              <p className="relative text-sm text-white/40 mb-8">Te enviaremos un enlace para restablecer tu contraseña</p>
+
+              <form onSubmit={handleForgotPassword} className="relative space-y-5">
                 <div className="relative group/input">
                   <label className="block text-white/50 text-xs font-medium mb-2 ml-1 tracking-wide">Email de recuperación</label>
                   <div className="relative">
@@ -451,26 +458,23 @@ function HomePageContent() {
                       type="email"
                       value={forgotEmail}
                       onChange={(e) => setForgotEmail(e.target.value)}
-                      className="w-full px-5 py-4 bg-white/[0.05] border border-white/[0.10] rounded-2xl text-white text-sm placeholder:text-white/30 focus:outline-none focus:border-white/30 focus:bg-white/[0.08] transition-all duration-500 ease-premium shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]"
+                      className="w-full px-5 py-3.5 sm:py-4 bg-white/[0.04] border border-white/[0.08] rounded-2xl text-white text-sm placeholder:text-white/25 focus:outline-none focus:border-purple-500/40 focus:bg-white/[0.06] transition-all duration-500"
                       placeholder="tu@email.com"
                       required
                     />
-                    {/* Focus glow effect */}
-                    <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-b from-white/20 via-white/5 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                    {/* Subtle shine on top */}
-                    <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                    <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none"
+                      style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.25), rgba(37,99,235,0.15), transparent)' }} />
+                    <div className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
                   </div>
                 </div>
-                
+
                 <button
                   type="submit"
                   disabled={loading}
-                  className="relative w-full py-4 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_50px_rgba(167,243,208,0.3),0_0_80px_rgba(110,231,183,0.15)] hover:scale-[1.02] active:scale-[0.98]"
+                  className="relative w-full py-3.5 sm:py-4 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 hover:shadow-[0_0_50px_rgba(139,92,246,0.3)] hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <span className="relative z-10">{loading ? 'Enviando...' : 'Enviar enlace'}</span>
-                  {/* Enhanced shimmer effect */}
                   <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                  {/* Subtle inner glow */}
                   <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
                 </button>
               </form>
