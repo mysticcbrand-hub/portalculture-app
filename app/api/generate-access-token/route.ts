@@ -176,16 +176,40 @@ export async function GET(request: Request) {
 
     // Intento: verificar OTP en servidor para evitar expiración inmediata
     const tokenHash = tokenData?.properties?.hashed_token || (tokenData as any)?.hashed_token
+    const emailOtp = tokenData?.properties?.email_otp || (tokenData as any)?.email_otp
+
+    let sessionData = null as null | { access_token: string; refresh_token: string }
+
     if (tokenHash) {
       const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
         type: 'magiclink',
         token_hash: tokenHash,
       })
       if (!verifyError && verifyData?.session) {
-        const { access_token, refresh_token } = verifyData.session
-        const confirmUrl = `${appUrl}/confirm-email?next=/dashboard#access_token=${access_token}&refresh_token=${refresh_token}&type=magiclink`
-        accessLink = confirmUrl
+        sessionData = {
+          access_token: verifyData.session.access_token,
+          refresh_token: verifyData.session.refresh_token,
+        }
       }
+    }
+
+    if (!sessionData && emailOtp) {
+      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
+        type: 'magiclink',
+        email,
+        token: emailOtp,
+      })
+      if (!verifyError && verifyData?.session) {
+        sessionData = {
+          access_token: verifyData.session.access_token,
+          refresh_token: verifyData.session.refresh_token,
+        }
+      }
+    }
+
+    if (sessionData) {
+      const confirmUrl = `${appUrl}/confirm-email?next=/dashboard#access_token=${sessionData.access_token}&refresh_token=${sessionData.refresh_token}&type=magiclink`
+      accessLink = confirmUrl
     }
 
     console.log('✅ Access link generated for:', email)
