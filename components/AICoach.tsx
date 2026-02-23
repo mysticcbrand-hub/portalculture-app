@@ -5,7 +5,7 @@
  * Fixed: scroll conflict, clipped messages, polished UX
  */
 
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import Image from 'next/image';
 import { createClient } from '@/utils/supabase/client';
 import ReactMarkdown from 'react-markdown';
@@ -31,6 +31,8 @@ export default function AICoach() {
   const [isLoading, setIsLoading] = useState(false);
   const [usage, setUsage] = useState<UsageStats | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [isVisible, setIsVisible] = useState(false); // controls actual render visibility
+  const [isAnimating, setIsAnimating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [inputRows, setInputRows] = useState(1);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -44,6 +46,29 @@ export default function AICoach() {
     'Mejora tu carisma hoy',
     'Vencer la procrastinación',
   ];
+
+  // Dynamic Island open/close
+  const openNova = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setIsOpen(true);
+    // mount chat immediately, animate in
+    setTimeout(() => setIsVisible(true), 10);
+    setTimeout(() => setIsAnimating(false), 600);
+    if (navigator.vibrate) navigator.vibrate(8);
+  }, [isAnimating]);
+
+  const closeNova = useCallback(() => {
+    if (isAnimating) return;
+    setIsAnimating(true);
+    setIsVisible(false);
+    // wait for exit animation, then unmount chat
+    setTimeout(() => {
+      setIsOpen(false);
+      setIsAnimating(false);
+    }, 450);
+    if (navigator.vibrate) navigator.vibrate(5);
+  }, [isAnimating]);
 
   // Lock body scroll when open on mobile
   useEffect(() => {
@@ -265,7 +290,7 @@ export default function AICoach() {
       <>
         {/* ── MOBILE dock pill ── */}
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={openNova}
           className="fixed bottom-4 left-4 right-4 z-50 md:hidden"
           style={{ WebkitTapHighlightColor: 'transparent' }}
         >
@@ -312,7 +337,7 @@ export default function AICoach() {
 
         {/* ── DESKTOP pill (premium glassmorphism) ── */}
         <button
-          onClick={() => setIsOpen(true)}
+          onClick={openNova}
           className="fixed bottom-8 right-8 z-50 hidden md:block group"
           style={{ WebkitTapHighlightColor: 'transparent' }}
         >
@@ -379,8 +404,12 @@ export default function AICoach() {
       >
         {/* Backdrop blur for desktop */}
         <div
-          className="absolute inset-0 md:bg-black/40 md:backdrop-blur-sm"
-          onClick={() => setIsOpen(false)}
+          className="absolute inset-0 md:backdrop-blur-sm"
+          onClick={closeNova}
+          style={{
+            background: isVisible ? 'rgba(0,0,0,0.4)' : 'rgba(0,0,0,0)',
+            transition: 'background 0.35s ease',
+          }}
         />
 
         {/* Chat panel - mobile: full screen, desktop: floating or fullscreen */}
@@ -395,6 +424,15 @@ export default function AICoach() {
             backdropFilter: 'blur(40px)',
             border: '1px solid rgba(255,200,87,0.1)',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
+            // Dynamic Island animation
+            opacity: isVisible ? 1 : 0,
+            transform: isVisible
+              ? 'scale(1) translateY(0)'
+              : 'scale(0.96) translateY(12px)',
+            transition: isVisible
+              ? 'opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.34,1.26,0.64,1)'
+              : 'opacity 0.3s cubic-bezier(0.4,0,1,1), transform 0.35s cubic-bezier(0.4,0,1,1)',
+            transformOrigin: 'bottom right',
           }}
           onClick={(e) => e.stopPropagation()}
         >
@@ -479,7 +517,7 @@ export default function AICoach() {
                   </svg>
                 </button>
                 <button
-                  onClick={() => setIsOpen(false)}
+                  onClick={closeNova}
                   className="p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
                 >
                   <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
