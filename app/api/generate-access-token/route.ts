@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
-import crypto from 'crypto'
-
 export const dynamic = 'force-dynamic'
 
 // Service role client
@@ -175,45 +173,31 @@ export async function GET(request: Request) {
     // action_link incluye token + redirect_to
     let accessLink = tokenData.properties.action_link
 
-    // Intento: verificar OTP en servidor para evitar expiración inmediata
+    // Intento: verificar OTP en servidor con endpoint /verify (anon key)
     const emailOtp = tokenData?.properties?.email_otp || (tokenData as any)?.email_otp
-
-    // token_hash correcto: SHA-256 del token que viene en action_link
-    let tokenHash: string | null = null
-    try {
-      const token = new URL(accessLink).searchParams.get('token')
-      if (token) {
-        tokenHash = crypto.createHash('sha256').update(token).digest('hex')
-      }
-    } catch {
-      tokenHash = null
-    }
-
     let sessionData = null as null | { access_token: string; refresh_token: string }
 
-    if (tokenHash) {
-      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
-        type: 'magiclink',
-        token_hash: tokenHash,
+    if (emailOtp) {
+      const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
+        method: 'POST',
+        headers: {
+          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          type: 'magiclink',
+          email,
+          token: emailOtp,
+        }),
       })
-      if (!verifyError && verifyData?.session) {
-        sessionData = {
-          access_token: verifyData.session.access_token,
-          refresh_token: verifyData.session.refresh_token,
-        }
-      }
-    }
 
-    if (!sessionData && emailOtp) {
-      const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
-        type: 'magiclink',
-        email,
-        token: emailOtp,
-      })
-      if (!verifyError && verifyData?.session) {
-        sessionData = {
-          access_token: verifyData.session.access_token,
-          refresh_token: verifyData.session.refresh_token,
+      if (verifyRes.ok) {
+        const verifyData = await verifyRes.json()
+        if (verifyData?.access_token && verifyData?.refresh_token) {
+          sessionData = {
+            access_token: verifyData.access_token,
+            refresh_token: verifyData.refresh_token,
+          }
         }
       }
     }
