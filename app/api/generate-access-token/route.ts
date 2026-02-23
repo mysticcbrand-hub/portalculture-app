@@ -181,7 +181,8 @@ export async function GET(request: Request) {
       const verifyRes = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/verify`, {
         method: 'POST',
         headers: {
-          apikey: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
+          Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
