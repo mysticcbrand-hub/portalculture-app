@@ -175,10 +175,11 @@ export async function GET(request: Request) {
     let accessLink = tokenData.properties.action_link
 
     // Intento: verificar OTP en servidor para evitar expiración inmediata
-    if (tokenData?.properties?.hashed_token) {
+    const tokenHash = tokenData?.properties?.hashed_token || (tokenData as any)?.hashed_token
+    if (tokenHash) {
       const { data: verifyData, error: verifyError } = await supabase.auth.verifyOtp({
         type: 'magiclink',
-        token_hash: tokenData.properties.hashed_token,
+        token_hash: tokenHash,
       })
       if (!verifyError && verifyData?.session) {
         const { access_token, refresh_token } = verifyData.session
