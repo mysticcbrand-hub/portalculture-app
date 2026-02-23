@@ -20,8 +20,9 @@ export default function ConfirmEmailPage() {
         const accessToken = params.get('access_token')
         const refreshToken = params.get('refresh_token')
         const type = params.get('type')
+        const next = new URLSearchParams(window.location.search).get('next') ?? '/'
 
-        if (!accessToken || !refreshToken || type !== 'signup') {
+        if (!accessToken || !refreshToken || (type !== 'signup' && type !== 'magiclink')) {
           setStatus('error')
           setMessage('El enlace de confirmación es inválido o expiró.')
           return
@@ -39,8 +40,8 @@ export default function ConfirmEmailPage() {
         }
 
         setStatus('success')
-        setMessage('Email confirmado. Ya puedes iniciar sesión.')
-        setTimeout(() => router.push('/'), 2500)
+        setMessage('Acceso confirmado. Redirigiendo...')
+        setTimeout(() => router.push(next), 800)
       } catch {
         setStatus('error')
         setMessage('Ocurrió un error al confirmar tu email.')
