@@ -46,7 +46,11 @@ function HomePageContent() {
   const [oauthLoading, setOauthLoading] = useState<'google' | 'discord' | null>(null)
   const [mouseGlow, setMouseGlow] = useState({ x: 50, y: 50 })
   const [isHoveringCard, setIsHoveringCard] = useState(false)
+  const [contentVisible, setContentVisible] = useState(true)
+  const [animating, setAnimating] = useState(false)
+  const [cardHeight, setCardHeight] = useState<number | 'auto'>('auto')
   const cardRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
   const supabase = createClient()
@@ -64,6 +68,45 @@ function HomePageContent() {
     setIsHoveringCard(false)
     setMouseGlow({ x: 50, y: 50 })
   }, [])
+
+  // Dynamic Island expand/collapse animation
+  const switchMode = useCallback((newMode: 'login' | 'register') => {
+    if (animating || mode === newMode) return
+    setAnimating(true)
+    setError(null)
+    setPassword('')
+    setConfirmPassword('')
+
+    // 1. Fix current height
+    const currentH = contentRef.current?.offsetHeight ?? 0
+    setCardHeight(currentH)
+
+    // 2. Fade out content
+    setContentVisible(false)
+
+    setTimeout(() => {
+      // 3. Switch mode (content is invisible)
+      setMode(newMode)
+
+      // 4. Wait a tick for new content to render, then measure & animate to new height
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const newH = contentRef.current?.offsetHeight ?? 0
+          setCardHeight(newH)
+
+          // 5. Fade in new content after height starts animating
+          setTimeout(() => {
+            setContentVisible(true)
+            // 6. Release fixed height after animation completes
+            setTimeout(() => {
+              setCardHeight('auto')
+              setAnimating(false)
+            }, 550)
+          }, 200)
+        })
+      })
+    }, 180)
+  }, [animating, mode])
 
   // Check for invite link parameters and existing session
   useEffect(() => {
@@ -462,11 +505,26 @@ function HomePageContent() {
 
             {/* Card */}
             <div
-              className={`relative backdrop-blur-xl rounded-3xl p-6 sm:p-8 overflow-hidden ${mode === 'register' ? 'pb-8 sm:pb-10' : ''}`}
               style={{
                 background: 'linear-gradient(160deg, rgba(10,7,22,0.98) 0%, rgba(6,4,16,0.99) 100%)',
                 border: '1px solid rgba(255,255,255,0.07)',
                 boxShadow: `0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.06)`,
+                height: cardHeight === 'auto' ? 'auto' : `${cardHeight}px`,
+                overflow: 'hidden',
+                transition: 'height 0.5s cubic-bezier(0.34,1.26,0.64,1)',
+                borderRadius: '1.5rem',
+              }}
+            >
+            {/* Content wrapper — measures real height, handles fade */}
+            <div
+              ref={contentRef}
+              className="p-6 sm:p-8"
+              style={{
+                opacity: contentVisible ? 1 : 0,
+                transform: contentVisible ? 'translateY(0)' : 'translateY(6px)',
+                transition: contentVisible
+                  ? 'opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.35s cubic-bezier(0.16,1,0.3,1)'
+                  : 'opacity 0.15s ease, transform 0.15s ease',
               }}
             >
               {/* Mouse spotlight */}
@@ -872,18 +930,15 @@ function HomePageContent() {
                 <p className="text-sm text-white/30">
                   {mode === 'login' ? '¿Aún no tienes cuenta?' : '¿Ya tienes cuenta?'}
                   <button
-                    onClick={() => {
-                      setMode(mode === 'login' ? 'register' : 'login')
-                      setError(null)
-                      setPassword('')
-                      setConfirmPassword('')
-                    }}
+                    onClick={() => switchMode(mode === 'login' ? 'register' : 'login')}
                     className="ml-2 text-white/70 hover:text-white transition-all duration-300 cursor-pointer font-medium hover:underline underline-offset-4 decoration-white/30"
+                    disabled={animating}
                   >
                     {mode === 'login' ? 'Regístrate' : 'Inicia sesión'}
                   </button>
                 </p>
               </div>
+            </div>
             </div>
           </div>
         )}
