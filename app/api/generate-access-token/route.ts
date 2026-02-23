@@ -69,26 +69,14 @@ export async function GET(request: Request) {
 
     console.log('🔐 Generating access token for:', email)
 
-    // 1. Buscar usuario por email usando filter (no listUsers — escala mal)
-    const { data: usersData } = await supabase.auth.admin.listUsers({ perPage: 1000 })
-    let user = usersData?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
+    // 1. Buscar usuario por email directamente en auth.users (DB) con service role
+    const { data: authUser } = await supabase
+      .from('auth.users')
+      .select('id, email')
+      .eq('email', email.toLowerCase())
+      .maybeSingle()
 
-    // Fallback: buscar directamente por email via REST si no se encontró
-    if (!user) {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
-        {
-          headers: {
-            apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-          }
-        }
-      )
-      if (res.ok) {
-        const data = await res.json()
-        user = data?.users?.[0] ?? null
-      }
-    }
+    let user = authUser ? { id: authUser.id, email: authUser.email } as any : null
 
     // Limpia perfiles duplicados por email antes de crear usuario (evita constraint)
     if (!user) {
@@ -110,20 +98,14 @@ export async function GET(request: Request) {
         }
       })
       if (createError) {
-        // Si el error es "already exists", buscarlo de nuevo
         if (createError.message?.includes('already') || createError.code === '23505') {
-          const retry = await fetch(
-            `${process.env.NEXT_PUBLIC_SUPABASE_URL}/auth/v1/admin/users?email=${encodeURIComponent(email)}`,
-            {
-              headers: {
-                apikey: process.env.SUPABASE_SERVICE_ROLE_KEY!,
-                Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY!}`,
-              }
-            }
-          )
-          if (retry.ok) {
-            const retryData = await retry.json()
-            user = retryData?.users?.[0] ?? null
+          const { data: retryUser } = await supabase
+            .from('auth.users')
+            .select('id, email')
+            .eq('email', email.toLowerCase())
+            .maybeSingle()
+          if (retryUser) {
+            user = { id: retryUser.id, email: retryUser.email } as any
           }
         }
         if (!user) {
