@@ -70,77 +70,63 @@ export async function GET(request: Request) {
 
     console.log('🔐 Generating access token for:', email)
 
-    // 1. Verificar si el usuario existe
+    // 1. Buscar o crear el usuario en auth
     const { data: existingUsers } = await supabase.auth.admin.listUsers()
-    let user = existingUsers?.users?.find(u => u.email === email)
+    let user = existingUsers?.users?.find(u => u.email?.toLowerCase() === email.toLowerCase())
 
-    // 2. Si no existe, verificar si tiene acceso premium pendiente
+    // 2. Si no existe el usuario en auth, crearlo automáticamente
     if (!user) {
-      // Verificar en premium_users si hay un registro
-      const { data: premiumRecord } = await supabase
-        .from('premium_users')
-        .select('*')
-        .eq('email', email)
-        .single()
-
-      if (!premiumRecord) {
-        return new Response(
-          `<!DOCTYPE html>
-          <html>
-            <head>
-              <title>No autorizado - Portal Culture</title>
-              <style>
-                body {
-                  background: #000;
-                  color: #fff;
-                  font-family: system-ui;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  min-height: 100vh;
-                  margin: 0;
-                }
-                .container {
-                  text-align: center;
-                  max-width: 500px;
-                  padding: 2rem;
-                }
-                h1 { color: #ef4444; }
-                p { color: #999; }
-                a {
-                  display: inline-block;
-                  margin-top: 2rem;
-                  padding: 1rem 2rem;
-                  background: #3b82f6;
-                  color: white;
-                  text-decoration: none;
-                  border-radius: 0.5rem;
-                }
-              </style>
-            </head>
-            <body>
-              <div class="container">
-                <h1>🚫 Acceso no autorizado</h1>
-                <p>No se encontró una compra asociada a este email.</p>
-                <p>Si acabas de realizar la compra, espera unos minutos e intenta de nuevo.</p>
-                <a href="https://portalculture.com">Volver al inicio</a>
-              </div>
-            </body>
-          </html>`,
-          {
-            status: 403,
-            headers: { 'Content-Type': 'text/html' }
-          }
-        )
+      console.log('🆕 Creating user account for:', email)
+      const { data: newUser, error: createError } = await supabase.auth.admin.createUser({
+        email: email,
+        email_confirm: true,
+        user_metadata: {
+          source: 'whop_payment',
+          created_via_payment: true
+        }
+      })
+      if (createError) {
+        console.error('❌ Error creating user:', createError)
+        throw new Error('No se pudo crear la cuenta')
       }
+      user = newUser.user
     }
 
+    // 3. Garantizar que el usuario tiene acceso premium en premium_users
+    // (puede llegar aquí antes del webhook de Whop — race condition fix)
+    const { error: premiumError } = await supabase
+      .from('premium_users')
+      .upsert({
+        user_id: user.id,
+        email: email.toLowerCase(),
+        payment_status: 'active',
+        access_granted: true,
+        purchased_at: new Date().toISOString(),
+      }, { onConflict: 'user_id' })
+
+    if (premiumError) {
+      console.error('⚠️ Error upserting premium_users:', premiumError)
+      // No bloqueamos — seguimos generando el magic link
+    }
+
+    // 4. Garantizar perfil en profiles
+    await supabase
+      .from('profiles')
+      .upsert({
+        id: user.id,
+        email: email.toLowerCase(),
+        access_status: 'paid',
+        created_at: new Date().toISOString(),
+      }, { onConflict: 'id' })
+
     // 3. Generar magic link de acceso
+    // redirectTo debe apuntar al auth/callback para que Supabase gestione la sesión
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com').trim().replace(/\/$/, '')
     const { data: tokenData, error: tokenError } = await supabase.auth.admin.generateLink({
       type: 'magiclink',
       email: email,
       options: {
-        redirectTo: `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.portalculture.com'}/dashboard`
+        redirectTo: `${appUrl}/auth/callback?next=/dashboard`
       }
     })
 
@@ -149,6 +135,8 @@ export async function GET(request: Request) {
       throw new Error('No se pudo generar el enlace de acceso')
     }
 
+    // action_link ya incluye token_hash + type + redirect_to
+    // El usuario debe ir directamente a este link para que Supabase establezca la sesión
     const accessLink = tokenData.properties.action_link
     console.log('✅ Access link generated for:', email)
 
