@@ -72,6 +72,12 @@ function getFirstName(email: string) {
     (email?.split('@')[0]?.split('.')[0]?.slice(1) ?? '')
 }
 
+function getPreferredName(name?: string | null, fallbackEmail?: string | null) {
+  if (name && name.trim()) return name.trim().split(' ')[0]
+  if (fallbackEmail) return getFirstName(fallbackEmail)
+  return 'ahí'
+}
+
 // ─── Course Card ──────────────────────────────────────────────────────────────
 function CourseCard({ course, index }: { course: Course; index: number }) {
   const [rotate, setRotate] = useState({ x: 0, y: 0 })
@@ -221,6 +227,7 @@ function CourseCard({ course, index }: { course: Course; index: number }) {
 export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [user, setUser] = useState<any>(null)
+  const [displayName, setDisplayName] = useState<string>('')
   const router = useRouter()
   const supabase = createClient()
   const greeting = getGreeting()
@@ -230,6 +237,32 @@ export default function DashboardPage() {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) { router.push('/'); return }
       setUser(user)
+
+      // Prefer name from questionnaire/profile, fallback to Google name
+      let resolvedName: string | null = null
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle()
+
+        resolvedName = profile?.full_name || null
+
+        if (!resolvedName && user.email) {
+          const { data: waitlist } = await supabase
+            .from('waitlist')
+            .select('name')
+            .eq('email', user.email)
+            .maybeSingle()
+          resolvedName = waitlist?.name || null
+        }
+      } catch (e) {
+        console.error('Name resolve error:', e)
+      }
+
+      const googleName = user.user_metadata?.full_name || user.user_metadata?.name || null
+      setDisplayName(getPreferredName(resolvedName || googleName, user.email))
       setLoading(false)
     }
     checkUser()
@@ -257,7 +290,7 @@ export default function DashboardPage() {
     )
   }
 
-  const firstName = getFirstName(user?.email || '')
+  const firstName = displayName || getFirstName(user?.email || '')
 
   return (
     <div className="min-h-screen relative overflow-x-hidden bg-[#050310]">
