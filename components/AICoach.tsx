@@ -600,14 +600,14 @@ export default function AICoach() {
                   borderRight: '1px solid rgba(255,255,255,0.06)'
                 }}
               >
-                <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between mb-3">
                   <h4 className="text-white text-sm font-semibold">Conversaciones</h4>
                   <button onClick={() => setShowConversationsMobile(false)} className="p-2 rounded-lg text-white/40 hover:text-white">
                     <svg className="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
                   </button>
                 </div>
-                <button onClick={createConversation} className="w-full mb-3 px-3 py-2 rounded-xl text-xs text-white/80" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)' }}>+ Nueva conversación</button>
-                <div className="space-y-1 overflow-y-auto" style={{ maxHeight: '70vh' }}>
+                <button onClick={createConversation} className="w-full mb-3 px-3 py-2 rounded-lg text-xs text-white/80" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)' }}>+ Nueva conversación</button>
+                <div className="space-y-1 overflow-y-auto" style={{ maxHeight: '62vh' }}>
                   {conversations.map(c => (
                     <div key={c.id} className="relative">
                       {renamingId === c.id ? (
@@ -621,7 +621,7 @@ export default function AICoach() {
                         />
                       ) : (
                         <div className="flex items-center gap-1">
-                          <button onClick={() => selectConversation(c.id)} className={`flex-1 text-left px-3 py-2 rounded-xl text-xs truncate ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                          <button onClick={() => selectConversation(c.id)} className={`flex-1 text-left px-3 py-2 rounded-lg text-xs truncate ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
                             {c.title}
                           </button>
                           <button onClick={() => startRename(c.id, c.title)} className="p-1.5 rounded-lg text-white/30 hover:text-white hover:bg-white/10 flex-shrink-0">
@@ -751,7 +751,7 @@ export default function AICoach() {
                   <h3 className="text-white font-bold text-sm">NOVA™</h3>
                   <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>online</span>
                   {displayName && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full max-w-[90px] truncate" style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
                       Hola, {displayName}
                     </span>
                   )}
