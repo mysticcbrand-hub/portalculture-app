@@ -99,6 +99,8 @@ export default function AICoach() {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflowX = 'hidden';
+      document.documentElement.style.maxWidth = '100%';
+      document.body.style.maxWidth = '100%';
       document.body.style.width = '100%';
       document.documentElement.style.width = '100%';
       document.body.style.touchAction = 'pan-y';
@@ -595,9 +597,9 @@ export default function AICoach() {
             border: '1px solid rgba(255,200,87,0.1)',
             left: isMobile ? 0 : undefined,
             right: isMobile ? 0 : undefined,
-            width: isMobile ? '100svw' : undefined,
-            maxWidth: isMobile ? '100svw' : undefined,
-            height: isMobile ? '100svh' : undefined,
+            width: isMobile ? '100%' : undefined,
+            maxWidth: isMobile ? '100%' : undefined,
+            height: isMobile ? '100dvh' : undefined,
             minWidth: 0,
             overflowX: 'hidden',
             boxSizing: 'border-box',
