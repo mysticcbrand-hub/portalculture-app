@@ -656,7 +656,7 @@ export default function AICoach() {
                 <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                   <div className="flex items-center justify-between">
                     <h4 className="text-white text-sm font-semibold">
-                      {sidebarExpanded ? 'Conversaciones' : ' '}
+                      {sidebarExpanded ? 'Conversaciones' : ''}
                     </h4>
                     <div className="flex items-center gap-1">
                       <button
@@ -683,7 +683,7 @@ export default function AICoach() {
                     </div>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-3 space-y-1">
+                <div className={`flex-1 overflow-y-auto ${sidebarExpanded ? 'p-3 space-y-1' : 'py-3 px-2 space-y-2'}`}>
                   {conversations.map(c => (
                     <div key={c.id} className="group relative">
                       {renamingId === c.id ? (
@@ -696,11 +696,11 @@ export default function AICoach() {
                           className="w-full px-3 py-2 rounded-xl text-xs text-white bg-white/10 border border-white/20 outline-none"
                         />
                       ) : (
-                        <button onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs truncate pr-16 ${activeConversationId === c.id ? 'text-white' : 'text-white/55'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'transparent', border: '1px solid ' + (activeConversationId === c.id ? 'rgba(255,255,255,0.1)' : 'transparent') }}>
-                          {sidebarExpanded ? c.title : '•'}
+                        <button onClick={() => selectConversation(c.id)} className={`w-full ${sidebarExpanded ? 'text-left px-3 py-2.5 rounded-xl text-xs truncate pr-16' : 'flex items-center justify-center w-10 h-10 rounded-full'} ${activeConversationId === c.id ? 'text-white' : 'text-white/55'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.10)' : 'transparent', border: '1px solid ' + (activeConversationId === c.id ? 'rgba(255,255,255,0.12)' : 'transparent') }}>
+                          {sidebarExpanded ? c.title : <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'rgba(255,255,255,0.55)' }} />}
                         </button>
                       )}
-                      {renamingId !== c.id && (
+                      {renamingId !== c.id && sidebarExpanded && (
                         <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex gap-0.5">
                           <button onClick={() => startRename(c.id, c.title)} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all">
                             <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
