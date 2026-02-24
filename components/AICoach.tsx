@@ -207,6 +207,12 @@ export default function AICoach() {
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
 
+    let convoId = activeConversationId;
+    if (!convoId) {
+      convoId = await createConversation();
+      if (!convoId) return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
@@ -253,8 +259,6 @@ export default function AICoach() {
         content: msg.content,
       }));
 
-      const convoId = activeConversationId;
-      if (!convoId) return;
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: {
@@ -343,10 +347,13 @@ export default function AICoach() {
 
   const createConversation = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
+    if (!session) return null;
     const res = await fetch('/api/ai/conversations', {
       method: 'POST',
-      headers: { 'Authorization': `Bearer ${session.access_token}` },
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({ title: 'Nueva conversación' }),
     });
     if (res.ok) {
@@ -356,7 +363,9 @@ export default function AICoach() {
       setActiveConversationId(convo.id);
       setMessages([]);
       setShowConversationsMobile(false);
+      return convo.id;
     }
+    return null;
   };
 
   const selectConversation = async (id: string) => {
