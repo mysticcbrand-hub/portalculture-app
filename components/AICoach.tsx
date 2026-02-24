@@ -679,7 +679,7 @@ export default function AICoach() {
                         <button onClick={createConversation} className="p-1.5 rounded-full text-[#FFC857]" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)' }} title="Nueva conversación">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                         </button>
-                      )
+                      )}
                     </div>
                   </div>
                 </div>
@@ -697,7 +697,7 @@ export default function AICoach() {
                         />
                       ) : (
                         <button onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs truncate pr-16 ${activeConversationId === c.id ? 'text-white' : 'text-white/55'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'transparent', border: '1px solid ' + (activeConversationId === c.id ? 'rgba(255,255,255,0.1)' : 'transparent') }}>
-                          {c.title}
+                          {sidebarExpanded ? c.title : '•'}
                         </button>
                       )}
                       {renamingId !== c.id && (
