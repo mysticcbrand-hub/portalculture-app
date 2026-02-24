@@ -34,18 +34,12 @@ export async function GET(request: NextRequest) {
     // Get query params
     const { searchParams } = new URL(request.url);
     const limit = parseInt(searchParams.get('limit') || '50');
-    const conversationId = searchParams.get('conversation_id');
-
-    if (!conversationId) {
-      return NextResponse.json({ messages: [] });
-    }
-
-    // Get chat history for conversation
+    
+    // Get chat history
     const { data: messages, error } = await supabase
-      .from('ai_messages')
+      .from('chat_messages')
       .select('id, role, content, created_at')
       .eq('user_id', user.id)
-      .eq('conversation_id', conversationId)
       .order('created_at', { ascending: false })
       .limit(limit);
     
@@ -89,18 +83,11 @@ export async function DELETE(request: NextRequest) {
       );
     }
     
-    const { searchParams } = new URL(request.url);
-    const conversationId = searchParams.get('conversation_id');
-    if (!conversationId) {
-      return NextResponse.json({ error: 'Missing conversation_id' }, { status: 400 });
-    }
-
-    // Delete all messages for this conversation
+    // Delete all messages for this user
     const { error } = await supabase
-      .from('ai_messages')
+      .from('chat_messages')
       .delete()
-      .eq('user_id', user.id)
-      .eq('conversation_id', conversationId);
+      .eq('user_id', user.id);
     
     if (error) {
       throw error;
