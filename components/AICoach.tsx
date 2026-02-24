@@ -772,7 +772,7 @@ export default function AICoach() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-white font-bold text-sm">NOVA™</h3>
                   <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>online</span>
-                  {displayName && (
+                  {displayName && !isMobile && (
                     <span className="text-[10px] px-1.5 py-0.5 rounded-full max-w-[90px] truncate" style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
                       Hola, {displayName}
                     </span>
