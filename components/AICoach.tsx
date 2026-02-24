@@ -57,6 +57,7 @@ export default function AICoach() {
   const [showConversationsMobile, setShowConversationsMobile] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [isMobile, setIsMobile] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -107,6 +108,13 @@ export default function AICoach() {
       document.body.style.touchAction = '';
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    const update = () => setIsMobile(window.innerWidth < 768);
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   // Scroll to bottom within messages container only
   const scrollToBottom = useCallback(() => {
@@ -582,8 +590,8 @@ export default function AICoach() {
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
             opacity: isVisible ? 1 : 0,
             transform: isVisible
-              ? 'scale(1) translateY(0)'
-              : 'scale(0.96) translateY(12px)',
+              ? (isMobile ? 'translateY(0)' : 'scale(1) translateY(0)')
+              : (isMobile ? 'translateY(12px)' : 'scale(0.96) translateY(12px)'),
             transition: isVisible
               ? 'opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.34,1.26,0.64,1)'
               : 'opacity 0.3s cubic-bezier(0.4,0,1,1), transform 0.35s cubic-bezier(0.4,0,1,1)',
@@ -1025,7 +1033,7 @@ export default function AICoach() {
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
                 placeholder="Escribe tu mensaje..."
-                className="flex-1 bg-transparent text-white text-sm placeholder:text-white/30 resize-none outline-none py-1 leading-relaxed"
+                className="flex-1 bg-transparent text-white text-[16px] md:text-sm placeholder:text-white/30 resize-none outline-none py-1 leading-relaxed"
                 rows={inputRows}
                 disabled={isLoading}
                 style={{
