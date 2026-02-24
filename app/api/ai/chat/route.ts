@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
     const today = new Date().toISOString().split('T')[0];
     const { data: usage, error: usageError } = await supabase
       .from('chat_usage')
-      .select('id, message_count')
+      .select('id, message_count, tokens_used')
       .eq('user_id', user.id)
       .eq('date', today)
       .maybeSingle();
@@ -160,7 +160,7 @@ export async function POST(request: NextRequest) {
                   .from('chat_usage')
                   .update({
                     message_count: newCount,
-                    tokens_used: (usage as any).tokens_used ?? 0 + tokensUsed,
+                    tokens_used: ((usage as any).tokens_used ?? 0) + tokensUsed,
                   })
                   .eq('id', usage.id)
               : supabase

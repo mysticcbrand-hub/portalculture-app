@@ -90,35 +90,35 @@ export async function middleware(request: NextRequest) {
       return response
     }
 
-    // Check if user is premium (paid via Whop)
+    // Check user's access status first (avoid extra queries)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('access_status')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const accessStatus = profile?.access_status || 'none'
+
+    if (accessStatus === 'approved' || accessStatus === 'paid') {
+      return response
+    }
+
+    if (accessStatus === 'pending') {
+      return NextResponse.redirect(new URL('/pendiente-aprobacion', request.url))
+    }
+
+    // Fallback: check premium_users only when access_status is none
     const { data: premiumUser } = await supabase
       .from('premium_users')
       .select('payment_status, access_granted')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    // If premium and active, grant access
     if (premiumUser?.payment_status === 'active' && premiumUser?.access_granted) {
       return response
     }
 
-    // Check user's access status in profiles table (for waitlist users)
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('access_status')
-      .eq('id', user.id)
-      .limit(1)
-
-    const accessStatus = profiles?.[0]?.access_status || 'none'
-
-    // Only approved or paid users can access dashboard
-    if (accessStatus !== 'approved' && accessStatus !== 'paid') {
-      // Redirect to appropriate page based on status
-      if (accessStatus === 'pending') {
-        return NextResponse.redirect(new URL('/pendiente-aprobacion', request.url))
-      }
-      return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
-    }
+    return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
   }
 
   // CASE 4: Logged in user on login page → redirect to appropriate page
@@ -133,34 +133,35 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
-    // Check if user is premium (paid via Whop)
+    // Check access status first
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('access_status')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    const accessStatus = profile?.access_status || 'none'
+
+    if (accessStatus === 'approved' || accessStatus === 'paid') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    if (accessStatus === 'pending') {
+      return NextResponse.redirect(new URL('/pendiente-aprobacion', request.url))
+    }
+
+    // Fallback: check premium_users only when access_status is none
     const { data: premiumUser } = await supabase
       .from('premium_users')
       .select('payment_status, access_granted')
       .eq('user_id', user.id)
       .maybeSingle()
 
-    // If premium and active, go to dashboard
     if (premiumUser?.payment_status === 'active' && premiumUser?.access_granted) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
-    // Check if already has access via waitlist
-    const { data: profiles } = await supabase
-      .from('profiles')
-      .select('access_status')
-      .eq('id', user.id)
-      .limit(1)
-
-    const accessStatus = profiles?.[0]?.access_status || 'none'
-
-    if (accessStatus === 'approved' || accessStatus === 'paid') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
-    } else if (accessStatus === 'pending') {
-      return NextResponse.redirect(new URL('/pendiente-aprobacion', request.url))
-    } else {
-      return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
-    }
+    return NextResponse.redirect(new URL('/seleccionar-acceso', request.url))
   }
 
   return response
