@@ -55,6 +55,8 @@ export default function AICoach() {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [showConversationsMobile, setShowConversationsMobile] = useState(false);
+  const [renamingId, setRenamingId] = useState<string | null>(null);
+  const [renameValue, setRenameValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -249,7 +251,12 @@ export default function AICoach() {
     if (convoId) {
       const convo = conversations.find(c => c.id === convoId);
       if (convo && (convo.title === 'Nueva conversación' || convo.title === 'New conversation')) {
-        updateConversationTitle(convoId, userMessage.content.trim());
+        // Auto-title: first 50 chars of message, cut at word boundary
+        const raw = userMessage.content.trim();
+        const autoTitle = raw.length > 50
+          ? raw.slice(0, raw.lastIndexOf(' ', 50) || 50) + '…'
+          : raw;
+        updateConversationTitle(convoId, autoTitle);
       }
       // Move active conversation to top
       setConversations(prev => {
@@ -374,20 +381,76 @@ export default function AICoach() {
     setShowConversationsMobile(false);
   };
 
+  const startRename = (id: string, currentTitle: string) => {
+    setRenamingId(id);
+    setRenameValue(currentTitle);
+  };
+
+  const commitRename = async (id: string) => {
+    const title = renameValue.trim();
+    setRenamingId(null);
+    if (!title) return;
+    await updateConversationTitle(id, title);
+  };
+
+  const deleteConversation = async (id: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/ai/conversations/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+    });
+    if (res.ok) {
+      setConversations(prev => prev.filter(c => c.id !== id));
+      if (activeConversationId === id) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+    }
+  };
+
   const updateConversationTitle = async (id: string, title: string) => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
+    const cleanTitle = title.trim().slice(0, 60) || 'Nueva conversación';
     const res = await fetch(`/api/ai/conversations/${id}`, {
       method: 'PATCH',
       headers: {
         'Authorization': `Bearer ${session.access_token}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title: title.slice(0, 60) }),
+      body: JSON.stringify({ title: cleanTitle }),
     });
     if (res.ok) {
-      setConversations(prev => prev.map(c => c.id === id ? { ...c, title } : c));
+      setConversations(prev => prev.map(c => c.id === id ? { ...c, title: cleanTitle } : c));
     }
+  };
+
+  const deleteConversation = async (id: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/ai/conversations/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+    });
+    if (res.ok) {
+      setConversations(prev => prev.filter(c => c.id !== id));
+      if (activeConversationId === id) {
+        setActiveConversationId(null);
+        setMessages([]);
+      }
+    }
+  };
+
+  const startRename = (id: string, currentTitle: string) => {
+    setRenamingId(id);
+    setRenameValue(currentTitle);
+  };
+
+  const commitRename = async (id: string) => {
+    await updateConversationTitle(id, renameValue);
+    setRenamingId(null);
+    setRenameValue('');
   };
 
   const clearHistory = async () => {
@@ -570,11 +633,32 @@ export default function AICoach() {
                   </button>
                 </div>
                 <button onClick={createConversation} className="w-full mb-3 px-3 py-2 rounded-xl text-xs text-white/80" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)' }}>+ Nueva conversación</button>
-                <div className="space-y-2 overflow-y-auto" style={{ maxHeight: '70vh' }}>
+                <div className="space-y-1 overflow-y-auto" style={{ maxHeight: '70vh' }}>
                   {conversations.map(c => (
-                    <button key={c.id} onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2 rounded-xl text-xs ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      {c.title}
-                    </button>
+                    <div key={c.id} className="relative">
+                      {renamingId === c.id ? (
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onChange={e => setRenameValue(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') commitRename(c.id); if (e.key === 'Escape') setRenamingId(null); }}
+                          onBlur={() => commitRename(c.id)}
+                          className="w-full px-3 py-2 rounded-xl text-xs text-white bg-white/10 border border-white/20 outline-none"
+                        />
+                      ) : (
+                        <div className="flex items-center gap-1">
+                          <button onClick={() => selectConversation(c.id)} className={`flex-1 text-left px-3 py-2 rounded-xl text-xs truncate ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                            {c.title}
+                          </button>
+                          <button onClick={() => startRename(c.id, c.title)} className="p-1.5 rounded-lg text-white/30 hover:text-white hover:bg-white/10 flex-shrink-0">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                          </button>
+                          <button onClick={() => deleteConversation(c.id)} className="p-1.5 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 flex-shrink-0">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </div>
@@ -591,11 +675,34 @@ export default function AICoach() {
                     <button onClick={createConversation} className="px-2 py-1 text-[11px] rounded-lg" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)', color: '#FFC857' }}>+ Nueva</button>
                   </div>
                 </div>
-                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                <div className="flex-1 overflow-y-auto p-3 space-y-1">
                   {conversations.map(c => (
-                    <button key={c.id} onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2 rounded-xl text-xs ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
-                      {c.title}
-                    </button>
+                    <div key={c.id} className="group relative">
+                      {renamingId === c.id ? (
+                        <input
+                          autoFocus
+                          value={renameValue}
+                          onChange={e => setRenameValue(e.target.value)}
+                          onKeyDown={e => { if (e.key === 'Enter') commitRename(c.id); if (e.key === 'Escape') setRenamingId(null); }}
+                          onBlur={() => commitRename(c.id)}
+                          className="w-full px-3 py-2 rounded-xl text-xs text-white bg-white/10 border border-white/20 outline-none"
+                        />
+                      ) : (
+                        <button onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2.5 rounded-xl text-xs truncate pr-16 ${activeConversationId === c.id ? 'text-white' : 'text-white/55'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'transparent', border: '1px solid ' + (activeConversationId === c.id ? 'rgba(255,255,255,0.1)' : 'transparent') }}>
+                          {c.title}
+                        </button>
+                      )}
+                      {renamingId !== c.id && (
+                        <div className="absolute right-1 top-1/2 -translate-y-1/2 hidden group-hover:flex gap-0.5">
+                          <button onClick={() => startRename(c.id, c.title)} className="p-1.5 rounded-lg text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                          </button>
+                          <button onClick={() => deleteConversation(c.id)} className="p-1.5 rounded-lg text-white/40 hover:text-red-400 hover:bg-red-400/10 transition-all">
+                            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   ))}
                 </div>
               </aside>
