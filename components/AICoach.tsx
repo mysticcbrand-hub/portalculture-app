@@ -589,6 +589,7 @@ export default function AICoach() {
               : 'inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl'
           }`}
           style={{
+            minWidth: 0,
             background: 'linear-gradient(160deg, rgba(12,12,16,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             backdropFilter: 'blur(40px)',
             border: '1px solid rgba(255,200,87,0.1)',
@@ -738,7 +739,7 @@ export default function AICoach() {
               </aside>
             )}
 
-            <div className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col min-w-0">
 
 
           {/* ── HEADER ─────────────────────────────────────────────────── */}
