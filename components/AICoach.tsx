@@ -594,8 +594,9 @@ export default function AICoach() {
             border: '1px solid rgba(255,200,87,0.1)',
             left: isMobile ? 0 : undefined,
             right: isMobile ? 0 : undefined,
-            width: isMobile ? '100%' : undefined,
-            maxWidth: isMobile ? '100%' : undefined,
+            width: isMobile ? '100svw' : undefined,
+            maxWidth: isMobile ? '100svw' : undefined,
+            height: isMobile ? '100svh' : undefined,
             minWidth: 0,
             overflowX: 'hidden',
             boxSizing: 'border-box',
@@ -605,8 +606,8 @@ export default function AICoach() {
               ? (isMobile ? 'translate3d(0,0,0)' : 'scale(1) translateY(0)')
               : (isMobile ? 'translate3d(0,12px,0)' : 'scale(0.96) translateY(12px)'),
             transition: isVisible
-              ? 'opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.34,1.26,0.64,1)'
-              : 'opacity 0.3s cubic-bezier(0.4,0,1,1), transform 0.35s cubic-bezier(0.4,0,1,1)',
+              ? (isMobile ? 'opacity 0.25s ease, transform 0.3s ease' : 'opacity 0.35s cubic-bezier(0.16,1,0.3,1), transform 0.5s cubic-bezier(0.34,1.26,0.64,1)')
+              : (isMobile ? 'opacity 0.2s ease, transform 0.25s ease' : 'opacity 0.3s cubic-bezier(0.4,0,1,1), transform 0.35s cubic-bezier(0.4,0,1,1)'),
             transformOrigin: isMobile ? 'center' : 'bottom right',
           }}
           onClick={(e) => e.stopPropagation()}
