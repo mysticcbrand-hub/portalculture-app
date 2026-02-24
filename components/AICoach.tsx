@@ -25,6 +25,13 @@ interface UsageStats {
   isUnlimited?: boolean;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
 function getPreferredName(name?: string | null, email?: string | null) {
   if (name && name.trim()) return name.trim().split(' ')[0]
   if (email) {
@@ -45,6 +52,9 @@ export default function AICoach() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [inputRows, setInputRows] = useState(1);
   const [displayName, setDisplayName] = useState<string>('');
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [showConversationsMobile, setShowConversationsMobile] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -113,11 +123,12 @@ export default function AICoach() {
     setInputRows(Math.min(lines, 4));
   };
 
-  const loadHistory = useCallback(async () => {
+  const loadHistory = useCallback(async (conversationId?: string | null) => {
     try {
+      if (!conversationId) return;
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const response = await fetch('/api/ai/history', {
+      const response = await fetch(`/api/ai/history?conversation_id=${conversationId}`, {
         headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
       if (response.ok) {
@@ -152,7 +163,6 @@ export default function AICoach() {
 
   useEffect(() => {
     if (isOpen) {
-      loadHistory();
       loadUsage();
       (async () => {
         const { data: { user } } = await supabase.auth.getUser();
@@ -172,6 +182,24 @@ export default function AICoach() {
           .maybeSingle();
         const name = waitlistRes.data?.name || profileRes.data?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || '';
         setDisplayName(getPreferredName(name, email));
+
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const convoRes = await fetch('/api/ai/conversations', {
+          headers: { 'Authorization': `Bearer ${session.access_token}` },
+        });
+        if (convoRes.ok) {
+          const convoData = await convoRes.json();
+          const list: Conversation[] = convoData.conversations || [];
+          setConversations(list);
+          const first = list[0];
+          if (first?.id) {
+            setActiveConversationId(first.id);
+            loadHistory(first.id);
+          } else {
+            await createConversation();
+          }
+        }
       })();
     }
   }, [isOpen, loadHistory, loadUsage, supabase]);
@@ -187,6 +215,19 @@ export default function AICoach() {
     };
 
     setMessages(prev => [...prev, userMessage]);
+
+    // Update conversation title on first user message
+    if (activeConversationId) {
+      const convo = conversations.find(c => c.id === activeConversationId);
+      if (convo && (convo.title === 'Nueva conversación' || convo.title === 'New conversation')) {
+        updateConversationTitle(activeConversationId, userMessage.content.trim());
+      }
+      // Move active conversation to top
+      setConversations(prev => {
+        const updated = prev.map(c => c.id === activeConversationId ? { ...c, updated_at: new Date().toISOString() } : c);
+        return updated.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
+      });
+    }
     setInput('');
     setInputRows(1);
     setIsLoading(true);
@@ -212,13 +253,15 @@ export default function AICoach() {
         content: msg.content,
       }));
 
+      const convoId = activeConversationId;
+      if (!convoId) return;
       const response = await fetch('/api/ai/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({ message: userMessage.content, conversationHistory }),
+        body: JSON.stringify({ message: userMessage.content, conversationId: convoId, conversationHistory }),
       });
 
       if (!response.ok) {
@@ -298,12 +341,53 @@ export default function AICoach() {
     setTimeout(() => inputRef.current?.focus(), 100);
   };
 
+  const createConversation = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch('/api/ai/conversations', {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${session.access_token}` },
+      body: JSON.stringify({ title: 'Nueva conversación' }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const convo = data.conversation as Conversation;
+      setConversations(prev => [convo, ...prev]);
+      setActiveConversationId(convo.id);
+      setMessages([]);
+      setShowConversationsMobile(false);
+    }
+  };
+
+  const selectConversation = async (id: string) => {
+    setActiveConversationId(id);
+    await loadHistory(id);
+    setShowConversationsMobile(false);
+  };
+
+  const updateConversationTitle = async (id: string, title: string) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const res = await fetch(`/api/ai/conversations/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title: title.slice(0, 60) }),
+    });
+    if (res.ok) {
+      setConversations(prev => prev.map(c => c.id === id ? { ...c, title } : c));
+    }
+  };
+
   const clearHistory = async () => {
+    if (!activeConversationId) return;
     if (!confirm('¿Seguro que quieres borrar todo el historial?')) return;
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
-      const response = await fetch('/api/ai/history', {
+      const response = await fetch(`/api/ai/history?conversation_id=${activeConversationId}`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${session.access_token}` },
       });
@@ -425,12 +509,9 @@ export default function AICoach() {
 
   // ── OPEN STATE ────────────────────────────────────────────────────────────
   return (
-    <>
+    <div>
       {/* Full-screen overlay - captures all touch/scroll events */}
-      <div
-        className="fixed inset-0 z-50"
-        style={{ touchAction: 'none' }}
-      >
+      <div className="fixed inset-0 z-50" style={{ touchAction: 'none' }}>
         {/* Backdrop blur for desktop */}
         <div
           className="absolute inset-0 md:backdrop-blur-sm"
@@ -443,7 +524,7 @@ export default function AICoach() {
 
         {/* Chat panel - mobile: full screen, desktop: floating or fullscreen */}
         <div
-          className={`absolute flex flex-col overflow-hidden ${
+          className={`absolute flex overflow-hidden ${
             isFullscreen
               ? 'inset-0 md:inset-0 md:rounded-none'
               : 'inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl'
@@ -453,7 +534,6 @@ export default function AICoach() {
             backdropFilter: 'blur(40px)',
             border: '1px solid rgba(255,200,87,0.1)',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
-            // Dynamic Island animation
             opacity: isVisible ? 1 : 0,
             transform: isVisible
               ? 'scale(1) translateY(0)'
@@ -465,6 +545,55 @@ export default function AICoach() {
           }}
           onClick={(e) => e.stopPropagation()}
         >
+          {/* Mobile conversations overlay */}
+          {showConversationsMobile && (
+            <div className="absolute inset-0 z-20 md:hidden" style={{ background: 'rgba(0,0,0,0.6)' }}>
+              <div className="absolute inset-y-0 left-0 w-[85%] max-w-[340px] p-4"
+                style={{
+                  background: 'linear-gradient(180deg, rgba(12,12,18,0.98) 0%, rgba(8,8,12,0.99) 100%)',
+                  borderRight: '1px solid rgba(255,255,255,0.06)'
+                }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <h4 className="text-white text-sm font-semibold">Conversaciones</h4>
+                  <button onClick={() => setShowConversationsMobile(false)} className="p-2 rounded-lg text-white/40 hover:text-white">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+                <button onClick={createConversation} className="w-full mb-3 px-3 py-2 rounded-xl text-xs text-white/80" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)' }}>+ Nueva conversación</button>
+                <div className="space-y-2 overflow-y-auto" style={{ maxHeight: '70vh' }}>
+                  {conversations.map(c => (
+                    <button key={c.id} onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2 rounded-xl text-xs ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {c.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className={`flex-1 flex ${isFullscreen ? 'md:flex-row' : ''} overflow-hidden`}>
+            {/* Sidebar (desktop fullscreen) */}
+            {isFullscreen && (
+              <aside className="hidden md:flex flex-col w-[280px] border-r" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.35)' }}>
+                <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-white text-sm font-semibold">Conversaciones</h4>
+                    <button onClick={createConversation} className="px-2 py-1 text-[11px] rounded-lg" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)', color: '#FFC857' }}>+ Nueva</button>
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto p-3 space-y-2">
+                  {conversations.map(c => (
+                    <button key={c.id} onClick={() => selectConversation(c.id)} className={`w-full text-left px-3 py-2 rounded-xl text-xs ${activeConversationId === c.id ? 'text-white' : 'text-white/60'}`} style={{ background: activeConversationId === c.id ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)' }}>
+                      {c.title}
+                    </button>
+                  ))}
+                </div>
+              </aside>
+            )}
+
+            <div className="flex-1 flex flex-col">
+
 
           {/* ── HEADER ─────────────────────────────────────────────────── */}
           <div
@@ -508,6 +637,15 @@ export default function AICoach() {
 
               {/* Right actions */}
               <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={() => setShowConversationsMobile(v => !v)}
+                  className="md:hidden p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                  title="Conversaciones"
+                >
+                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h10" />
+                  </svg>
+                </button>
                 {usage && (
                   <div
                     className="text-[11px] px-2.5 py-1 rounded-full transition-all duration-500"
@@ -798,6 +936,8 @@ export default function AICoach() {
           </div>
         </div>
       </div>
+    </div>
+    </div>
 
       <style jsx>{`
         @keyframes msgIn {
@@ -809,6 +949,6 @@ export default function AICoach() {
           30% { transform: translateY(-4px); opacity: 1; }
         }
       `}</style>
-    </>
+    </div>
   );
 }

@@ -24,11 +24,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { message, conversationHistory = [] } = await request.json();
+    const { message, conversationHistory = [], conversationId } = await request.json();
     
     if (!message || typeof message !== 'string') {
       return NextResponse.json(
         { error: 'Message is required' },
+        { status: 400 }
+      );
+    }
+
+    if (!conversationId || typeof conversationId !== 'string') {
+      return NextResponse.json(
+        { error: 'conversationId is required' },
         { status: 400 }
       );
     }
@@ -101,8 +108,9 @@ export async function POST(request: NextRequest) {
     
     // Save user message (non-blocking)
     const { error: insertUserError } = await supabase
-      .from('chat_messages')
+      .from('ai_messages')
       .insert({
+        conversation_id: conversationId,
         user_id: user.id,
         role: 'user',
         content: message,
@@ -146,8 +154,9 @@ export async function POST(request: NextRequest) {
 
           const [insertAssistantResult, usageUpsertResult] = await Promise.all([
             supabase
-              .from('chat_messages')
+              .from('ai_messages')
               .insert({
+                conversation_id: conversationId,
                 user_id: user.id,
                 role: 'assistant',
                 content: fullResponse,
