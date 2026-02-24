@@ -123,6 +123,29 @@ export default function AICoach() {
     setInputRows(Math.min(lines, 4));
   };
 
+  const createConversation = useCallback(async (): Promise<string | null> => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return null;
+    const res = await fetch('/api/ai/conversations', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${session.access_token}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title: 'Nueva conversación' }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const convo = data.conversation as Conversation;
+      setConversations(prev => [convo, ...prev]);
+      setActiveConversationId(convo.id);
+      setMessages([]);
+      setShowConversationsMobile(false);
+      return convo.id;
+    }
+    return null;
+  }, [supabase]);
+
   const loadHistory = useCallback(async (conversationId?: string | null) => {
     try {
       if (!conversationId) return;
@@ -202,7 +225,7 @@ export default function AICoach() {
         }
       })();
     }
-  }, [isOpen, loadHistory, loadUsage, supabase]);
+  }, [isOpen, loadHistory, loadUsage, createConversation, supabase]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -223,14 +246,14 @@ export default function AICoach() {
     setMessages(prev => [...prev, userMessage]);
 
     // Update conversation title on first user message
-    if (activeConversationId) {
-      const convo = conversations.find(c => c.id === activeConversationId);
+    if (convoId) {
+      const convo = conversations.find(c => c.id === convoId);
       if (convo && (convo.title === 'Nueva conversación' || convo.title === 'New conversation')) {
-        updateConversationTitle(activeConversationId, userMessage.content.trim());
+        updateConversationTitle(convoId, userMessage.content.trim());
       }
       // Move active conversation to top
       setConversations(prev => {
-        const updated = prev.map(c => c.id === activeConversationId ? { ...c, updated_at: new Date().toISOString() } : c);
+        const updated = prev.map(c => c.id === convoId ? { ...c, updated_at: new Date().toISOString() } : c);
         return updated.sort((a, b) => (b.updated_at || '').localeCompare(a.updated_at || ''));
       });
     }
@@ -343,29 +366,6 @@ export default function AICoach() {
   const handleQuickAction = (text: string) => {
     setInput(text);
     setTimeout(() => inputRef.current?.focus(), 100);
-  };
-
-  const createConversation = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return null;
-    const res = await fetch('/api/ai/conversations', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${session.access_token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title: 'Nueva conversación' }),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      const convo = data.conversation as Conversation;
-      setConversations(prev => [convo, ...prev]);
-      setActiveConversationId(convo.id);
-      setMessages([]);
-      setShowConversationsMobile(false);
-      return convo.id;
-    }
-    return null;
   };
 
   const selectConversation = async (id: string) => {
@@ -943,10 +943,11 @@ export default function AICoach() {
             {/* Safe area for mobile */}
             <div className="h-safe-bottom md:hidden" />
           </div>
-        </div>
-      </div>
-    </div>
-    </div>
+
+          </div>{/* flex-1 flex flex-col */}
+        </div>{/* flex-1 flex (isFullscreen row) */}
+      </div>{/* chat panel absolute */}
+    </div>{/* fixed inset-0 z-50 */}
 
       <style jsx>{`
         @keyframes msgIn {
