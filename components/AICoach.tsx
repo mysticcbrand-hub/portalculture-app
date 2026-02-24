@@ -98,13 +98,16 @@ export default function AICoach() {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
+      document.documentElement.style.overflowX = 'hidden';
       document.body.style.touchAction = 'pan-y';
     } else {
       document.body.style.overflow = '';
+      document.documentElement.style.overflowX = '';
       document.body.style.touchAction = '';
     }
     return () => {
       document.body.style.overflow = '';
+      document.documentElement.style.overflowX = '';
       document.body.style.touchAction = '';
     };
   }, [isOpen]);
@@ -580,15 +583,17 @@ export default function AICoach() {
         <div
           className={`absolute flex overflow-hidden ${
             isFullscreen
-              ? 'inset-0 md:inset-0 md:rounded-none'
-              : 'inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl'
+              ? 'inset-0 md:inset-0 md:rounded-none w-screen'
+              : 'inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl w-screen'
           }`}
           style={{
             background: 'linear-gradient(160deg, rgba(12,12,16,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             backdropFilter: 'blur(40px)',
             border: '1px solid rgba(255,200,87,0.1)',
-            width: isMobile ? '100vw' : '100%',
-            maxWidth: isMobile ? '100vw' : '100%',
+            width: isMobile ? '100%' : '100%',
+            maxWidth: isMobile ? '100%' : '100%',
+            left: isMobile ? 0 : undefined,
+            right: isMobile ? 0 : undefined,
             overflowX: 'hidden',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
             opacity: isVisible ? 1 : 0,
