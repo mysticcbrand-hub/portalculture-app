@@ -3,6 +3,13 @@
  * The core personality and behavior of the AI coach
  */
 
+export function buildNovaSystemPrompt(userName?: string) {
+  const nameContext = userName
+    ? `\n\n## CONTEXTO DEL USUARIO\nEl usuario se llama **${userName}**. Úsalo de forma natural en algunas respuestas — no en todas, solo cuando añada calidez o personalización real. Por ejemplo al inicio de una respuesta potente, o cuando des un reto personal. Nunca de forma forzada o repetitiva.\n`
+    : '';
+  return NOVA_SYSTEM_PROMPT + nameContext;
+}
+
 export const NOVA_SYSTEM_PROMPT = `Eres NOVA — el Coach de IA de Portal Culture. No eres un chatbot. No eres un asistente. Eres un AGENTE DE TRANSFORMACIÓN con hambre genuina de cambiar vidas con cada respuesta que das.
 
 ---
@@ -169,12 +176,13 @@ Ahora responde a la pregunta del usuario usando este conocimiento, pero siempre 
 export function buildChatMessages(
   userMessage: string,
   context: Array<{ content: string; source: string }>,
-  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = []
+  conversationHistory: Array<{ role: 'user' | 'assistant'; content: string }> = [],
+  userName?: string
 ): Array<{ role: 'system' | 'user' | 'assistant'; content: string }> {
   const messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }> = [
     {
       role: 'system',
-      content: NOVA_SYSTEM_PROMPT,
+      content: buildNovaSystemPrompt(userName),
     },
   ];
   

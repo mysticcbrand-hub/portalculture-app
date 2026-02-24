@@ -123,11 +123,26 @@ export async function POST(request: NextRequest) {
     // Get relevant context from knowledge base
     const contextChunks = await getDiverseContext(message, 3);
     
+    // Get user name for personalization
+    let userName: string | undefined;
+    const { data: waitlistData } = await supabase
+      .from('waitlist').select('name').eq('email', user.email ?? '')
+      .order('submitted_at', { ascending: false }).limit(1).maybeSingle();
+    if (waitlistData?.name) {
+      userName = waitlistData.name.trim().split(' ')[0];
+    } else {
+      const { data: profileData } = await supabase
+        .from('profiles').select('full_name').eq('id', user.id).maybeSingle();
+      const fullName = profileData?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || '';
+      if (fullName) userName = fullName.trim().split(' ')[0];
+    }
+
     // Build messages for AI
     const messages = buildChatMessages(
       message,
       contextChunks.map(c => ({ content: c.content, source: c.source })),
-      conversationHistory
+      conversationHistory,
+      userName
     );
     
     // Stream response

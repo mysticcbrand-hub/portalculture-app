@@ -57,6 +57,10 @@ export default function AICoach() {
   const [showConversationsMobile, setShowConversationsMobile] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
+  const [sidebarWidth, setSidebarWidth] = useState(220);
+  const isDragging = useRef(false);
+  const dragStartX = useRef(0);
+  const dragStartWidth = useRef(220);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -381,6 +385,29 @@ export default function AICoach() {
     setShowConversationsMobile(false);
   };
 
+  const onDragStart = useCallback((e: React.MouseEvent) => {
+    isDragging.current = true;
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = sidebarWidth;
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    const onMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return;
+      const delta = ev.clientX - dragStartX.current;
+      const newW = Math.min(360, Math.max(160, dragStartWidth.current + delta));
+      setSidebarWidth(newW);
+    };
+    const onUp = () => {
+      isDragging.current = false;
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  }, [sidebarWidth]);
+
   const startRename = (id: string, currentTitle: string) => {
     setRenamingId(id);
     setRenameValue(currentTitle);
@@ -641,7 +668,20 @@ export default function AICoach() {
           <div className={`flex-1 flex ${isFullscreen ? 'md:flex-row' : ''} overflow-hidden`}>
             {/* Sidebar (desktop fullscreen) */}
             {isFullscreen && (
-              <aside className="hidden md:flex flex-col w-[280px] border-r" style={{ borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.35)' }}>
+              <aside className="hidden md:flex flex-col border-r relative" style={{ width: sidebarWidth, minWidth: 160, maxWidth: 360, flexShrink: 0, borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.35)' }}>
+                {/* Drag handle */}
+                <div
+                  className="absolute top-0 right-0 w-1 h-full cursor-col-resize z-10 group"
+                  onMouseDown={(e) => {
+                    isDragging.current = true;
+                    dragStartX.current = e.clientX;
+                    dragStartWidth.current = sidebarWidth;
+                    e.preventDefault();
+                  }}
+                  style={{ touchAction: 'none' }}
+                >
+                  <div className="w-full h-full opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(255,200,87,0.25)' }} />
+                </div>
                 <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                   <div className="flex items-center justify-between">
                     <h4 className="text-white text-sm font-semibold">Conversaciones</h4>
