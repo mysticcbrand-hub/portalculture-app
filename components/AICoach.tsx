@@ -98,7 +98,7 @@ export default function AICoach() {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.style.touchAction = 'none';
+      document.body.style.touchAction = 'pan-y';
     } else {
       document.body.style.overflow = '';
       document.body.style.touchAction = '';
@@ -587,6 +587,9 @@ export default function AICoach() {
             background: 'linear-gradient(160deg, rgba(12,12,16,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             backdropFilter: 'blur(40px)',
             border: '1px solid rgba(255,200,87,0.1)',
+            width: '100%',
+            maxWidth: '100vw',
+            overflowX: 'hidden',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
             opacity: isVisible ? 1 : 0,
             transform: isVisible
