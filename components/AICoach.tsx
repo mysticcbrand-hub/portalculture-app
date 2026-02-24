@@ -25,6 +25,15 @@ interface UsageStats {
   isUnlimited?: boolean;
 }
 
+function getPreferredName(name?: string | null, email?: string | null) {
+  if (name && name.trim()) return name.trim().split(' ')[0]
+  if (email) {
+    const base = email.split('@')[0].split('.')[0]
+    return base.charAt(0).toUpperCase() + base.slice(1)
+  }
+  return 'ahí'
+}
+
 export default function AICoach() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -35,6 +44,7 @@ export default function AICoach() {
   const [isAnimating, setIsAnimating] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [inputRows, setInputRows] = useState(1);
+  const [displayName, setDisplayName] = useState<string>('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -144,8 +154,27 @@ export default function AICoach() {
     if (isOpen) {
       loadHistory();
       loadUsage();
+      (async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
+        const email = user.email ?? '';
+        const profileRes = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .maybeSingle();
+        const waitlistRes = await supabase
+          .from('waitlist')
+          .select('name')
+          .eq('email', email)
+          .order('submitted_at', { ascending: false })
+          .limit(1)
+          .maybeSingle();
+        const name = waitlistRes.data?.name || profileRes.data?.full_name || user.user_metadata?.full_name || user.user_metadata?.name || '';
+        setDisplayName(getPreferredName(name, email));
+      })();
     }
-  }, [isOpen, loadHistory, loadUsage]);
+  }, [isOpen, loadHistory, loadUsage, supabase]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -468,6 +497,11 @@ export default function AICoach() {
                 <div className="flex items-center gap-2">
                   <h3 className="text-white font-bold text-sm">NOVA™</h3>
                   <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>online</span>
+                  {displayName && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                      Hola, {displayName}
+                    </span>
+                  )}
                 </div>
                 <p className="text-[11px] text-white/40 truncate">Tu coach de élite personal</p>
               </div>
@@ -555,7 +589,7 @@ export default function AICoach() {
                 </div>
 
                 <div>
-                  <h3 className="text-white font-bold text-xl mb-1">Hola, soy NOVA™</h3>
+                  <h3 className="text-white font-bold text-xl mb-1">Hola{displayName ? `, ${displayName}` : ''}. Soy NOVA™</h3>
                   <p className="text-white/40 text-sm max-w-[260px] mx-auto leading-relaxed">
                     Tu coach de élite personal. Pregúntame sobre disciplina, carisma, energía, mentalidad o productividad.
                   </p>
