@@ -57,10 +57,7 @@ export default function AICoach() {
   const [showConversationsMobile, setShowConversationsMobile] = useState(false);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState('');
-  const [sidebarWidth, setSidebarWidth] = useState(220);
-  const isDragging = useRef(false);
-  const dragStartX = useRef(0);
-  const dragStartWidth = useRef(220);
+  const [sidebarExpanded, setSidebarExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -385,29 +382,6 @@ export default function AICoach() {
     setShowConversationsMobile(false);
   };
 
-  const onDragStart = useCallback((e: React.MouseEvent) => {
-    isDragging.current = true;
-    dragStartX.current = e.clientX;
-    dragStartWidth.current = sidebarWidth;
-    document.body.style.cursor = 'col-resize';
-    document.body.style.userSelect = 'none';
-    const onMove = (ev: MouseEvent) => {
-      if (!isDragging.current) return;
-      const delta = ev.clientX - dragStartX.current;
-      const newW = Math.min(360, Math.max(160, dragStartWidth.current + delta));
-      setSidebarWidth(newW);
-    };
-    const onUp = () => {
-      isDragging.current = false;
-      document.body.style.cursor = '';
-      document.body.style.userSelect = '';
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-  }, [sidebarWidth]);
-
   const startRename = (id: string, currentTitle: string) => {
     setRenamingId(id);
     setRenameValue(currentTitle);
@@ -668,24 +642,25 @@ export default function AICoach() {
           <div className={`flex-1 flex ${isFullscreen ? 'md:flex-row' : ''} overflow-hidden`}>
             {/* Sidebar (desktop fullscreen) */}
             {isFullscreen && (
-              <aside className="hidden md:flex flex-col border-r relative" style={{ width: sidebarWidth, minWidth: 160, maxWidth: 360, flexShrink: 0, borderColor: 'rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.35)' }}>
-                {/* Drag handle */}
-                <div
-                  className="absolute top-0 right-0 w-1 h-full cursor-col-resize z-10 group"
-                  onMouseDown={(e) => {
-                    isDragging.current = true;
-                    dragStartX.current = e.clientX;
-                    dragStartWidth.current = sidebarWidth;
-                    e.preventDefault();
-                  }}
-                  style={{ touchAction: 'none' }}
-                >
-                  <div className="w-full h-full opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: 'rgba(255,200,87,0.25)' }} />
-                </div>
+              <aside
+                className="hidden md:flex flex-col border-r relative"
+                style={{
+                  width: sidebarExpanded ? '320px' : '240px',
+                  flexShrink: 0,
+                  borderColor: 'rgba(255,255,255,0.06)',
+                  background: 'rgba(0,0,0,0.35)',
+                  transition: 'width 0.4s cubic-bezier(0.34,1.26,0.64,1)',
+                }}
+              >
                 <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                   <div className="flex items-center justify-between">
                     <h4 className="text-white text-sm font-semibold">Conversaciones</h4>
-                    <button onClick={createConversation} className="px-2 py-1 text-[11px] rounded-lg" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)', color: '#FFC857' }}>+ Nueva</button>
+                    <div className="flex items-center gap-1">
+                      <button onClick={() => setSidebarExpanded(p => !p)} className="px-2 py-1 text-[11px] rounded-lg text-white/60 hover:text-white transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
+                        {sidebarExpanded ? 'Contraer' : 'Expandir'}
+                      </button>
+                      <button onClick={createConversation} className="px-2 py-1 text-[11px] rounded-lg" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)', color: '#FFC857' }}>+ Nueva</button>
+                    </div>
                   </div>
                 </div>
                 <div className="flex-1 overflow-y-auto p-3 space-y-1">

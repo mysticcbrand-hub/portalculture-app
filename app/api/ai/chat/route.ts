@@ -175,7 +175,6 @@ export async function POST(request: NextRequest) {
                 user_id: user.id,
                 role: 'assistant',
                 content: fullResponse,
-                context_used: contextChunks.map(c => c.id),
                 tokens_used: tokensUsed,
               }),
             // Atomic upsert: create row if not exists, or increment count
