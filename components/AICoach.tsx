@@ -645,21 +645,41 @@ export default function AICoach() {
               <aside
                 className="hidden md:flex flex-col border-r relative"
                 style={{
-                  width: sidebarExpanded ? '320px' : '240px',
+                  width: sidebarExpanded ? '320px' : '64px',
                   flexShrink: 0,
                   borderColor: 'rgba(255,255,255,0.06)',
                   background: 'rgba(0,0,0,0.35)',
                   transition: 'width 0.4s cubic-bezier(0.34,1.26,0.64,1)',
+                  overflow: 'hidden',
                 }}
               >
                 <div className="p-4 border-b" style={{ borderColor: 'rgba(255,255,255,0.06)' }}>
                   <div className="flex items-center justify-between">
-                    <h4 className="text-white text-sm font-semibold">Conversaciones</h4>
+                    <h4 className="text-white text-sm font-semibold">
+                      {sidebarExpanded ? 'Conversaciones' : ' '}
+                    </h4>
                     <div className="flex items-center gap-1">
-                      <button onClick={() => setSidebarExpanded(p => !p)} className="px-2 py-1 text-[11px] rounded-lg text-white/60 hover:text-white transition-all" style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)' }}>
-                        {sidebarExpanded ? 'Contraer' : 'Expandir'}
+                      <button
+                        onClick={() => setSidebarExpanded(p => !p)}
+                        className="p-1.5 rounded-full text-white/50 hover:text-white transition-all"
+                        title={sidebarExpanded ? 'Contraer' : 'Expandir'}
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          {sidebarExpanded ? (
+                            <polyline points="15 18 9 12 15 6" />
+                          ) : (
+                            <polyline points="9 18 15 12 9 6" />
+                          )}
+                        </svg>
                       </button>
-                      <button onClick={createConversation} className="px-2 py-1 text-[11px] rounded-lg" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)', color: '#FFC857' }}>+ Nueva</button>
+                      {sidebarExpanded ? (
+                        <button onClick={createConversation} className="px-2 py-1 text-[11px] rounded-lg" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)', color: '#FFC857' }}>+ Nueva</button>
+                      ) : (
+                        <button onClick={createConversation} className="p-1.5 rounded-full text-[#FFC857]" style={{ background: 'rgba(255,200,87,0.12)', border: '1px solid rgba(255,200,87,0.2)' }} title="Nueva conversación">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                        </button>
+                      )
                     </div>
                   </div>
                 </div>
