@@ -5,11 +5,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 async function getUserFromRequest(request: NextRequest) {
+  // Always use service role for DB operations — user is verified via token
   const supabase = createClient(supabaseUrl, supabaseKey);
   const authHeader = request.headers.get('authorization');
-  if (!authHeader?.startsWith('Bearer ')) {
-    return { supabase, user: null };
-  }
+  if (!authHeader?.startsWith('Bearer ')) return { supabase, user: null };
   const token = authHeader.substring(7);
   const { data: { user } } = await supabase.auth.getUser(token);
   return { supabase, user };
