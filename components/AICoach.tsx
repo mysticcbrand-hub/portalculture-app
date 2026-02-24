@@ -445,7 +445,7 @@ export default function AICoach() {
         <div
           className={`absolute flex flex-col overflow-hidden ${
             isFullscreen
-              ? 'inset-4 rounded-3xl'
+              ? 'inset-0 md:inset-0 md:rounded-none'
               : 'inset-0 md:inset-auto md:bottom-8 md:right-8 md:w-[460px] md:h-[700px] md:rounded-3xl'
           }`}
           style={{
