@@ -565,7 +565,7 @@ export default function AICoach() {
   return (
     <div>
       {/* Full-screen overlay - captures all touch/scroll events */}
-      <div className="fixed inset-0 z-50" style={{ touchAction: 'none' }}>
+      <div className="fixed inset-0 z-50" style={{ touchAction: 'auto' }}>
         {/* Backdrop blur for desktop */}
         <div
           className="absolute inset-0 md:backdrop-blur-sm"
@@ -605,7 +605,8 @@ export default function AICoach() {
               <div className="absolute inset-y-0 left-0 w-[85%] max-w-[340px] p-4"
                 style={{
                   background: 'linear-gradient(180deg, rgba(12,12,18,0.98) 0%, rgba(8,8,12,0.99) 100%)',
-                  borderRight: '1px solid rgba(255,255,255,0.06)'
+                  borderRight: '1px solid rgba(255,255,255,0.06)',
+                  paddingBottom: 'env(safe-area-inset-bottom)'
                 }}
               >
                 <div className="flex items-center justify-between mb-3">
@@ -739,7 +740,7 @@ export default function AICoach() {
             <div className="absolute top-0 left-8 right-8 h-[1px] bg-gradient-to-r from-transparent via-yellow-400/30 to-transparent" />
 
             {/* Mobile grabber */}
-            <div className="md:hidden flex justify-center mb-2">
+            <div className="md:hidden flex justify-center mb-1">
               <div className="h-1 w-10 rounded-full bg-white/15" />
             </div>
 
@@ -769,6 +770,13 @@ export default function AICoach() {
 
               {/* Right actions */}
               <div className="flex items-center gap-1 flex-shrink-0">
+                <button
+                  onClick={closeNova}
+                  className="md:hidden p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
+                  title="Cerrar"
+                >
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
                 <button
                   onClick={() => setShowConversationsMobile(v => !v)}
                   className="md:hidden p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
