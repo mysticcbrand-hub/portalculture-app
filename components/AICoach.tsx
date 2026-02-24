@@ -99,6 +99,8 @@ export default function AICoach() {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
       document.documentElement.style.overflowX = 'hidden';
+      document.body.style.width = '100%';
+      document.documentElement.style.width = '100%';
       document.body.style.touchAction = 'pan-y';
     } else {
       document.body.style.overflow = '';
@@ -590,10 +592,11 @@ export default function AICoach() {
             background: 'linear-gradient(160deg, rgba(12,12,16,0.98) 0%, rgba(8,8,12,0.99) 100%)',
             backdropFilter: 'blur(40px)',
             border: '1px solid rgba(255,200,87,0.1)',
-            width: isMobile ? '100dvw' : '100%',
-            maxWidth: isMobile ? '100dvw' : '100%',
             left: isMobile ? 0 : undefined,
             right: isMobile ? 0 : undefined,
+            width: isMobile ? '100%' : undefined,
+            maxWidth: isMobile ? '100%' : undefined,
+            minWidth: 0,
             overflowX: 'hidden',
             boxSizing: 'border-box',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
