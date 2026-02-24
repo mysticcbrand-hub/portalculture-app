@@ -600,7 +600,6 @@ export default function AICoach() {
             width: isMobile ? '100%' : undefined,
             maxWidth: isMobile ? '100%' : undefined,
             height: isMobile ? '100dvh' : undefined,
-            minWidth: 0,
             overflowX: 'hidden',
             boxSizing: 'border-box',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',
