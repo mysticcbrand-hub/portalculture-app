@@ -426,33 +426,6 @@ export default function AICoach() {
     }
   };
 
-  const deleteConversation = async (id: string) => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (!session) return;
-    const res = await fetch(`/api/ai/conversations/${id}`, {
-      method: 'DELETE',
-      headers: { 'Authorization': `Bearer ${session.access_token}` },
-    });
-    if (res.ok) {
-      setConversations(prev => prev.filter(c => c.id !== id));
-      if (activeConversationId === id) {
-        setActiveConversationId(null);
-        setMessages([]);
-      }
-    }
-  };
-
-  const startRename = (id: string, currentTitle: string) => {
-    setRenamingId(id);
-    setRenameValue(currentTitle);
-  };
-
-  const commitRename = async (id: string) => {
-    await updateConversationTitle(id, renameValue);
-    setRenamingId(null);
-    setRenameValue('');
-  };
-
   const clearHistory = async () => {
     if (!activeConversationId) return;
     if (!confirm('¿Seguro que quieres borrar todo el historial?')) return;
