@@ -24,7 +24,7 @@ export default function HapticsProvider() {
 
   return (
     <div style={{ position: 'fixed', left: '-9999px', top: '-9999px', width: 1, height: 1, opacity: 0 }} aria-hidden="true">
-      <input ref={inputRef} id="ios-haptic-switch" type="checkbox" switch="" />
+      <input ref={inputRef} id="ios-haptic-switch" type="checkbox" {...{ switch: '' } as any} />
       <label ref={labelRef} htmlFor="ios-haptic-switch">h</label>
     </div>
   )

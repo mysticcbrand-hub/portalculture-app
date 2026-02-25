@@ -908,7 +908,10 @@ export default function AICoach() {
                 <div
                   key={msg.id}
                   className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} items-end gap-2`}
-                  style={{ animation: 'msgIn 0.25s ease-out both', animationDelay: `${Math.min(idx * 20, 200)}ms` }}
+                  style={{
+                    animation: 'msgIn 0.4s cubic-bezier(0.16,1,0.3,1) both',
+                    animationDelay: `${Math.min(idx * 20, 200)}ms`,
+                  }}
                 >
                   {/* NOVA avatar on messages */}
                   {msg.role === 'assistant' && (
@@ -941,11 +944,11 @@ export default function AICoach() {
                         <ReactMarkdown
                           remarkPlugins={[remarkGfm]}
                           components={{
-                            p: ({ children }) => <p className="mb-2 last:mb-0 text-white/85 leading-relaxed">{children}</p>,
+                            p: ({ children }) => <p className="mb-2 last:mb-0 text-white/85 leading-relaxed nova-chunk">{children}</p>,
                             strong: ({ children }) => <strong className="font-bold text-white">{children}</strong>,
                             em: ({ children }) => <em className="italic text-white/70">{children}</em>,
-                            ul: ({ children }) => <ul className="list-none mb-3 space-y-1.5">{children}</ul>,
-                            ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1.5">{children}</ol>,
+                            ul: ({ children }) => <ul className="list-none mb-3 space-y-1.5 nova-chunk">{children}</ul>,
+                            ol: ({ children }) => <ol className="list-decimal list-inside mb-3 space-y-1.5 nova-chunk">{children}</ol>,
                             li: ({ children }) => (
                               <li className="flex gap-2 text-white/80">
                                 <span className="mt-0.5 flex-shrink-0" style={{ color: '#FFC857' }}>▸</span>
@@ -1092,12 +1095,20 @@ export default function AICoach() {
 
       <style jsx>{`
         @keyframes msgIn {
-          from { opacity: 0; transform: translateY(6px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes typingDot {
           0%, 60%, 100% { transform: translateY(0); opacity: 0.5; }
           30% { transform: translateY(-4px); opacity: 1; }
+        }
+        /* Fade-in suave para cada párrafo/elemento de NOVA durante streaming */
+        @keyframes novaChunkIn {
+          from { opacity: 0; transform: translateY(4px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        .nova-chunk {
+          animation: novaChunkIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
       `}</style>
     </div>
