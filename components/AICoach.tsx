@@ -59,6 +59,7 @@ export default function AICoach() {
   const [renameValue, setRenameValue] = useState('');
   const [isMobile, setIsMobile] = useState(false);
   const [sidebarExpanded, setSidebarExpanded] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -121,6 +122,39 @@ export default function AICoach() {
     update();
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
+  }, []);
+
+  // VisualViewport: keyboard height tracking (iOS + Android)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const handleViewport = () => {
+      const windowHeight = window.innerHeight;
+      const viewportHeight = vv.height;
+      const offsetTop = vv.offsetTop ?? 0;
+      // keyboard height = how much the viewport has shrunk from the bottom
+      const kb = Math.max(0, windowHeight - viewportHeight - offsetTop);
+      setKeyboardHeight(kb);
+      // Auto-scroll messages to bottom when keyboard appears
+      if (kb > 0) {
+        setTimeout(() => {
+          messagesContainerRef.current?.scrollTo({
+            top: messagesContainerRef.current.scrollHeight,
+            behavior: 'smooth',
+          });
+        }, 50);
+      }
+    };
+
+    vv.addEventListener('resize', handleViewport);
+    vv.addEventListener('scroll', handleViewport);
+
+    return () => {
+      vv.removeEventListener('resize', handleViewport);
+      vv.removeEventListener('scroll', handleViewport);
+    };
   }, []);
 
   // Scroll to bottom within messages container only
@@ -1013,11 +1047,16 @@ export default function AICoach() {
 
           {/* ── INPUT BAR ──────────────────────────────────────────────── */}
           <div
-            className="flex-shrink-0 px-3 py-3"
+            className="flex-shrink-0 px-3 pt-3"
             style={{
               borderTop: '1px solid rgba(255,255,255,0.07)',
               background: 'rgba(0,0,0,0.4)',
               backdropFilter: 'blur(20px)',
+              // Keyboard-aware padding: sube con el teclado en iOS/Android
+              paddingBottom: keyboardHeight > 0
+                ? `${keyboardHeight + 12}px`
+                : 'calc(12px + env(safe-area-inset-bottom))',
+              transition: 'padding-bottom 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
             {/* Quick actions (when there are messages) */}
@@ -1053,10 +1092,24 @@ export default function AICoach() {
                 value={input}
                 onChange={handleInputChange}
                 onKeyDown={handleKeyDown}
+                onFocus={() => {
+                  // Scroll to bottom cuando el teclado aparece
+                  setTimeout(() => {
+                    messagesContainerRef.current?.scrollTo({
+                      top: messagesContainerRef.current.scrollHeight,
+                      behavior: 'smooth',
+                    });
+                  }, 300);
+                }}
                 placeholder="Escribe tu mensaje..."
                 className="flex-1 bg-transparent text-white text-[16px] md:text-sm placeholder:text-white/30 resize-none outline-none py-1 leading-relaxed"
                 rows={inputRows}
                 disabled={isLoading}
+                inputMode="text"
+                enterKeyHint="send"
+                autoComplete="off"
+                autoCorrect="on"
+                spellCheck={false}
                 style={{
                   maxHeight: '96px',
                   touchAction: 'pan-y',
@@ -1084,8 +1137,7 @@ export default function AICoach() {
               </button>
             </div>
 
-            {/* Safe area for mobile */}
-            <div className="h-safe-bottom md:hidden" />
+            {/* Safe area handled by paddingBottom above */}
           </div>
 
           </div>{/* flex-1 flex flex-col */}
