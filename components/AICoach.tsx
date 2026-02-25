@@ -759,39 +759,34 @@ export default function AICoach() {
               <div className="h-1 w-10 rounded-full bg-white/15" />
             </div>
 
-            <div className="flex items-center gap-3">
-              {/* Avatar with gold ring */}
-              <div className="relative flex-shrink-0">
-                <div className="w-9 h-9 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
-                  <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
-                    <Image src="/novamejor.png" alt="NOVA" width={36} height={36} className="w-full h-full object-cover" />
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
+                {/* Avatar with gold ring */}
+                <div className="relative flex-shrink-0">
+                  <div className="w-9 h-9 rounded-xl p-[1.5px]" style={{ background: 'linear-gradient(135deg, #FFC857, #FF9632)' }}>
+                    <div className="w-full h-full rounded-[10px] bg-black/70 overflow-hidden">
+                      <Image src="/novamejor.png" alt="NOVA" width={36} height={36} className="w-full h-full object-cover" />
+                    </div>
                   </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-black" />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-black" />
-              </div>
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-white font-bold text-sm">NOVA™</h3>
-                  <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>online</span>
-                  {displayName && !isMobile && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded-full max-w-[90px] truncate" style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
-                      Hola, {displayName}
-                    </span>
-                  )}
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-white font-bold text-sm">NOVA™</h3>
+                    <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full" style={{ color: '#FFC857', background: 'rgba(255,200,87,0.1)', border: '1px solid rgba(255,200,87,0.2)' }}>online</span>
+                    {displayName && !isMobile && (
+                      <span className="text-[10px] px-1.5 py-0.5 rounded-full max-w-[90px] truncate" style={{ color: 'rgba(255,255,255,0.6)', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                        Hola, {displayName}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-white/40 truncate">Tu coach de élite personal</p>
                 </div>
-                <p className="text-[11px] text-white/40 truncate">Tu coach de élite personal</p>
               </div>
 
               {/* Right actions */}
               <div className="flex items-center gap-1 flex-shrink-0">
-                <button
-                  onClick={closeNova}
-                  className="md:hidden p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
-                  title="Cerrar"
-                >
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" stroke="currentColor" fill="none"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
                 <button
                   onClick={() => setShowConversationsMobile(v => !v)}
                   className="md:hidden p-2 rounded-xl text-white/40 hover:text-white hover:bg-white/5 transition-all"
