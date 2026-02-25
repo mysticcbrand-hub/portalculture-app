@@ -572,7 +572,7 @@ export default function AICoach() {
   return (
     <div>
       {/* Full-screen overlay - captures all touch/scroll events */}
-      <div className="fixed inset-0 z-50" style={{ touchAction: 'auto', width: '100vw', maxWidth: '100vw', overflowX: 'hidden' }}>
+      <div className="fixed inset-0 z-50" style={{ touchAction: 'auto', width: '100%', maxWidth: '100%', overflowX: 'hidden' }}>
         {/* Backdrop blur for desktop */}
         <div
           className="absolute inset-0 md:backdrop-blur-sm"
@@ -599,7 +599,7 @@ export default function AICoach() {
             right: isMobile ? 0 : undefined,
             width: isMobile ? '100%' : undefined,
             maxWidth: isMobile ? '100%' : undefined,
-            height: isMobile ? '100dvh' : undefined,
+            height: isMobile ? '100%' : undefined,
             overflowX: 'hidden',
             boxSizing: 'border-box',
             boxShadow: '0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07)',

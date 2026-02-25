@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { NotificationProvider } from "@/components/AppleNotification";
 import PageTransition from "@/components/PageTransition";
+import HapticsProvider from "@/components/HapticsProvider";
 
 export const metadata: Metadata = {
   title: "Portal Culture — App",
@@ -24,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased bg-black">
+        <HapticsProvider />
         <PageTransition />
         <NotificationProvider>
           {children}

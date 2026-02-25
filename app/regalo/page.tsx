@@ -153,16 +153,16 @@ export default function RegaloPage() {
       }
 
       // Haptic
-      if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-        navigator.vibrate([10, 50, 10])
+      if (typeof window !== 'undefined') {
+        (window as any).__haptic?.()
       }
       // Face ID animation sequence
       setPhase('faceid')
       setFaceIdStage('scanning')
       setTimeout(() => {
         setFaceIdStage('success')
-        if (typeof window !== 'undefined' && 'vibrate' in navigator) {
-          navigator.vibrate([5, 30, 5, 30, 5])
+        if (typeof window !== 'undefined') {
+          (window as any).__haptic?.()
         }
       }, 2000)
       setTimeout(() => {
