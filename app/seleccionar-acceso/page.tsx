@@ -9,9 +9,13 @@ export default function SeleccionarAcceso() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   
-  const [shuffling, setShuffling] = useState(false)
-  const [showPaid, setShowPaid] = useState(true)
-  const [shuffleCount, setShuffleCount] = useState(0)
+  const [swipeDir, setSwipeDir] = useState<'left' | 'right' | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
+  const [dragX, setDragX] = useState(0)
+  const [isExiting, setIsExiting] = useState(false)
+  
+  const cardRef = useRef<HTMLDivElement>(null)
+  const startX = useRef(0)
   
   const supabase = createClient()
 
@@ -25,39 +29,97 @@ export default function SeleccionarAcceso() {
     getUser()
   }, [router, supabase.auth])
 
-  const handleShuffle = useCallback((type: 'paid' | 'free') => {
-    if (shuffling) return
-    setShuffling(true)
-    setShuffleCount(0)
-    
-    const maxShuffles = 8
-    
-    const shuffle = () => {
-      setShowPaid(prev => !prev)
-      setShuffleCount(c => c + 1)
-      
-      if (shuffleCount < maxShuffles - 1) {
-        setTimeout(shuffle, 80)
-      } else {
-        setTimeout(() => {
-          setShuffling(false)
-          if (type === 'paid') {
-            window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
-          } else {
-            router.push('/cuestionario')
-          }
-        }, 150)
-      }
-    }
-    setTimeout(shuffle, 80)
-  }, [shuffling, shuffleCount, router])
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (isExiting) return
+    setIsDragging(true)
+    startX.current = e.touches[0].clientX
+  }, [isExiting])
 
-  const handleFastPass = () => handleShuffle('paid')
-  const handleWaitlist = () => handleShuffle('free')
-  
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging || isExiting) return
+    const currentX = e.touches[0].clientX
+    const diff = currentX - startX.current
+    setDragX(diff)
+    
+    if (diff > 30) setSwipeDir('right')
+    else if (diff < -30) setSwipeDir('left')
+    else setSwipeDir(null)
+  }, [isDragging, isExiting])
+
+  const handleTouchEnd = useCallback(() => {
+    if (!isDragging || isExiting) return
+    setIsDragging(false)
+    
+    const threshold = 80
+    if (dragX > threshold) {
+      setIsExiting(true)
+      setTimeout(() => {
+        window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
+      }, 250)
+    } else if (dragX < -threshold) {
+      setIsExiting(true)
+      setTimeout(() => {
+        router.push('/cuestionario')
+      }, 250)
+    } else {
+      setDragX(0)
+      setSwipeDir(null)
+    }
+  }, [isDragging, isExiting, dragX, router])
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    if (isExiting) return
+    setIsDragging(true)
+    startX.current = e.clientX
+  }, [isExiting])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (!isDragging || isExiting) return
+    const diff = e.clientX - startX.current
+    setDragX(diff)
+    
+    if (diff > 30) setSwipeDir('right')
+    else if (diff < -30) setSwipeDir('left')
+    else setSwipeDir(null)
+  }, [isDragging, isExiting])
+
+  const handleMouseUp = useCallback(() => {
+    if (!isDragging || isExiting) return
+    setIsDragging(false)
+    
+    const threshold = 80
+    if (dragX > threshold) {
+      setIsExiting(true)
+      setTimeout(() => {
+        window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
+      }, 250)
+    } else if (dragX < -threshold) {
+      setIsExiting(true)
+      setTimeout(() => {
+        router.push('/cuestionario')
+      }, 250)
+    } else {
+      setDragX(0)
+      setSwipeDir(null)
+    }
+  }, [isDragging, isExiting, dragX, router])
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/')
+  }
+
+  const getTransform = () => {
+    if (isExiting) {
+      return `translateX(${swipeDir === 'right' ? 400 : -400}px) rotate(${swipeDir === 'right' ? 30 : -30}deg)`
+    }
+    const rotate = dragX * 0.03
+    return `translateX(${dragX}px) rotate(${rotate}deg)`
+  }
+
+  const getOpacity = () => {
+    if (isExiting) return 0
+    return 1 - Math.abs(dragX) * 0.002
   }
 
   if (loading) {
@@ -72,7 +134,12 @@ export default function SeleccionarAcceso() {
   }
 
   return (
-    <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black">
+    <div 
+      className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black"
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
+    >
       
       {/* Premium Background */}
       <div className="fixed inset-0">
@@ -118,102 +185,68 @@ export default function SeleccionarAcceso() {
         <h1 className="text-2.5xl font-bold text-white">Portal Culture</h1>
       </div>
 
-      {/* MOBILE: Premium Card Stack */}
+      {/* MOBILE: Swipeable Cards */}
       <div className="relative z-10 w-full max-w-[300px] md:hidden">
         
-        {/* Shuffle indicators */}
+        {/* Direction Hints */}
         <div className="flex justify-between items-center mb-3 px-1">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 ${!showPaid ? 'bg-blue-500/20 border border-blue-400/30 text-blue-300' : 'text-white/25'}`}>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 ${swipeDir === 'left' ? 'bg-blue-500/30 border border-blue-400/40 text-blue-200 scale-105' : 'bg-white/5 border border-white/10 text-white/30'}`}>
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             <span className="text-[10px] font-medium">Gratis</span>
           </div>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 ${showPaid ? 'bg-red-500/20 border border-red-400/30 text-red-300' : 'text-white/25'}`}>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 ${swipeDir === 'right' ? 'bg-red-500/30 border border-red-400/40 text-red-200 scale-105' : 'bg-white/5 border border-white/10 text-white/30'}`}>
             <span className="text-[10px] font-medium">17€</span>
+            <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
           </div>
         </div>
 
-        <div className="relative aspect-[3/4] max-h-[420px]">
-          
-          {/* Card FREE (Behind) */}
+        {/* Main Card (Swipeable) */}
+        <div 
+          ref={cardRef}
+          className="relative aspect-[3/4] max-h-[420px] select-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onMouseDown={handleMouseDown}
+          style={{ touchAction: 'none' }}
+        >
+          {/* Card */}
           <div 
-            className="absolute inset-0 rounded-[28px] overflow-hidden"
+            className="absolute inset-0 rounded-[28px] overflow-hidden cursor-grab active:cursor-grabbing"
             style={{
-              transform: showPaid ? 'scale(0.86) translateY(24px)' : 'scale(1) translateY(0px)',
-              opacity: showPaid ? 0.35 : 1,
-              filter: showPaid ? 'blur(1.5px)' : 'blur(0px)',
-              zIndex: showPaid ? 1 : 10,
-              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: getTransform(),
+              opacity: getOpacity(),
+              transition: isExiting ? 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)' : 'none',
+              zIndex: 10,
             }}
           >
-            {/* Glassmorphism */}
+            {/* Glassmorphism Background */}
             <div 
               className="absolute inset-0"
               style={{
-                background: 'linear-gradient(145deg, rgba(30,58,95,0.7) 0%, rgba(15,23,42,0.85) 50%, rgba(5,10,20,0.95) 100%)',
+                background: 'linear-gradient(145deg, rgba(127,29,29,0.75) 0%, rgba(69,10,10,0.9) 50%, rgba(20,5,5,0.95) 100%)',
                 backdropFilter: 'blur(20px) saturate(140%)',
                 WebkitBackdropFilter: 'blur(20px) saturate(140%)',
-                border: '1px solid rgba(59,130,246,0.2)',
-                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), 0 0 60px rgba(220,38,38,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
               }}
             />
             
-            {/* Shimmer */}
-            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
-            
-            <div className="relative h-full p-5 flex flex-col">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="w-2 h-2 rounded-full bg-blue-400" />
-                <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
+            {/* Swipe Direction Overlay */}
+            {swipeDir === 'right' && (
+              <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none" style={{ background: 'rgba(220,38,38,0.15)' }}>
+                <div className="px-6 py-3 rounded-2xl border-2 border-red-400/60 bg-red-500/20 backdrop-blur-sm">
+                  <span className="text-2xl font-bold text-red-300">17€</span>
+                </div>
               </div>
-              
-              <div className="text-3.5xl font-bold text-white/80 mb-1">Gratis</div>
-              <p className="text-xs text-white/35 mb-4">tras aprobación manual</p>
-              
-              <div className="w-full h-px mb-4 bg-gradient-to-r from-blue-500/30 to-transparent" />
-              
-              <div className="flex-1 space-y-2.5">
-                {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10 msg/día', '✓ Discord exclusivo'].map((f, i) => (
-                  <p key={i} className="text-xs text-white/45">{f}</p>
-                ))}
+            )}
+            {swipeDir === 'left' && (
+              <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none" style={{ background: 'rgba(37,99,235,0.15)' }}>
+                <div className="px-6 py-3 rounded-2xl border-2 border-blue-400/60 bg-blue-500/20 backdrop-blur-sm">
+                  <span className="text-2xl font-bold text-blue-300">Gratis</span>
+                </div>
               </div>
-
-              <button
-                onClick={handleWaitlist}
-                disabled={shuffling}
-                className="w-full py-3.5 mt-4 rounded-2xl text-xs font-semibold transition-all duration-200 active:scale-[0.98]"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(37,99,235,0.6) 0%, rgba(29,78,216,0.5) 100%)',
-                  border: '1px solid rgba(59,130,246,0.3)',
-                  boxShadow: '0 4px 20px rgba(37,99,235,0.2)',
-                  opacity: shuffling ? 0.5 : 1,
-                }}
-              >
-                {shuffling ? '...' : 'Solicitar Gratis'}
-              </button>
-            </div>
-          </div>
-
-          {/* Card PAID (Front) */}
-          <div 
-            className="absolute inset-0 rounded-[28px] overflow-hidden"
-            style={{
-              transform: showPaid ? 'scale(1) translateY(0px)' : 'scale(0.86) translateY(24px)',
-              opacity: showPaid ? 1 : 0.35,
-              filter: showPaid ? 'blur(0px)' : 'blur(1.5px)',
-              zIndex: showPaid ? 10 : 1,
-              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-            }}
-          >
-            {/* Glassmorphism */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(145deg, rgba(127,29,29,0.7) 0%, rgba(69,10,10,0.85) 50%, rgba(20,5,5,0.95) 100%)',
-                backdropFilter: 'blur(20px) saturate(140%)',
-                WebkitBackdropFilter: 'blur(20px) saturate(140%)',
-                border: '1px solid rgba(239,68,68,0.25)',
-                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), 0 0 40px rgba(220,38,38,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
-              }}
-            />
+            )}
             
             {/* Shimmer */}
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
@@ -222,10 +255,10 @@ export default function SeleccionarAcceso() {
             <div className="absolute top-4 right-4 z-10">
               <div className="px-2.5 py-1 rounded-full text-[9px] font-semibold"
                 style={{ 
-                  background: 'rgba(220,38,38,0.2)', 
-                  border: '1px solid rgba(239,68,68,0.4)', 
+                  background: 'rgba(220,38,38,0.25)', 
+                  border: '1px solid rgba(239,68,68,0.5)', 
                   color: '#fca5a5',
-                  boxShadow: '0 0 20px rgba(220,38,38,0.2)',
+                  boxShadow: '0 0 20px rgba(220,38,38,0.25)',
                 }}>
                 ⚡ Popular
               </div>
@@ -249,28 +282,28 @@ export default function SeleccionarAcceso() {
               </div>
 
               <button
-                onClick={handleFastPass}
-                disabled={shuffling}
+                onClick={(e) => { e.stopPropagation(); window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer') }}
                 className="w-full py-3.5 mt-4 rounded-2xl text-xs font-semibold text-white transition-all duration-200 active:scale-[0.98]"
                 style={{
-                  background: shuffling 
-                    ? 'rgba(220,38,38,0.6)'
-                    : 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
-                  boxShadow: shuffling ? 'none' : '0 4px 20px rgba(220,38,38,0.35)',
-                  opacity: shuffling ? 0.6 : 1,
+                  background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                  boxShadow: '0 4px 20px rgba(220,38,38,0.35)',
                 }}
               >
-                {shuffling ? '...' : 'Acceso 17€ →'}
+                Acceso 17€ →
               </button>
             </div>
           </div>
-
         </div>
 
         {/* Hint */}
-        <p className="text-center text-white/25 text-[10px] mt-4">
-          {shuffling ? 'Eligiendo acceso...' : 'Toca un acceso para continuar'}
-        </p>
+        <div className="text-center mt-4 space-y-1">
+          <p className="text-white/50 text-[11px]">Desliza para elegir</p>
+          <div className="flex justify-center gap-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue-400/40" />
+            <span className="w-1.5 h-1.5 rounded-full bg-white/20" />
+            <span className="w-1.5 h-1.5 rounded-full bg-red-400/40" />
+          </div>
+        </div>
       </div>
 
       {/* DESKTOP: Premium Cards */}
@@ -278,7 +311,7 @@ export default function SeleccionarAcceso() {
         
         {/* PAID Card */}
         <div 
-          onClick={handleFastPass}
+          onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
           className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={{
             background: 'linear-gradient(145deg, rgba(127,29,29,0.6) 0%, rgba(69,10,10,0.8) 100%)',
@@ -323,7 +356,7 @@ export default function SeleccionarAcceso() {
 
         {/* FREE Card */}
         <div 
-          onClick={handleWaitlist}
+          onClick={() => router.push('/cuestionario')}
           className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={{
             background: 'linear-gradient(145deg, rgba(30,58,95,0.6) 0%, rgba(15,23,42,0.8) 100%)',
@@ -364,7 +397,7 @@ export default function SeleccionarAcceso() {
       </div>
 
       {/* Trust */}
-      <div className="relative z-10 mt-8 flex items-center gap-6 text-white/25 text-[10px]">
+      <div className="relative z-10 mt-8 flex items-center justify-center gap-4 text-white/25 text-[10px] flex-wrap px-4">
         <span className="flex items-center gap-1.5">✓ Pago seguro</span>
         <span className="w-px h-3 bg-white/10" />
         <span>✓ Sin compromisos</span>
