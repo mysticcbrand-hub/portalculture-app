@@ -23,15 +23,20 @@ export default function SeleccionarAcceso() {
   const rafRef = useRef<number | null>(null)
   
   // Mobile swipe state
-  const [activeCard, setActiveCard] = useState(0)
-  const [swipeDirection, setSwipeDirection] = useState<'left' | 'right' | null>(null)
-  const [swipeProgress, setSwipeProgress] = useState(0)
+  const [currentCardIndex, setCurrentCardIndex] = useState(0)
+  const [swipeX, setSwipeX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const containerRef = useRef<HTMLDivElement>(null)
-  const [showThird, setShowThird] = useState(false)
+  const [isAnimating, setIsAnimating] = useState(false)
   
+  const containerRef = useRef<HTMLDivElement>(null)
+  const cardRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
+
+  const cards = [
+    { type: 'paid', title: 'Acceso Inmediato', price: '17€', subtitle: 'pago único · sin suscripción' },
+    { type: 'free', title: 'Lista de Espera', price: 'Gratis', subtitle: 'Tras aprobación manual' },
+  ]
 
   useEffect(() => {
     const getUser = async () => {
@@ -45,54 +50,53 @@ export default function SeleccionarAcceso() {
 
   // Mobile drag handlers
   const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
+    if (isAnimating) return
     setIsDragging(true)
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    setDragStart({ x: clientX, y: clientY })
-  }, [])
+    setDragStart({ x: clientX, y: 0 })
+  }, [isAnimating])
 
   const handleDragMove = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging || !containerRef.current) return
-    
+    if (!isDragging || isAnimating) return
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY
-    
     const deltaX = clientX - dragStart.x
-    const deltaY = clientY - dragStart.y
-    const progress = Math.min(Math.abs(deltaX) / 150, 1)
-    
-    setSwipeProgress(progress)
-    
-    if (deltaX > 50) {
-      setSwipeDirection('right')
-    } else if (deltaX < -50) {
-      setSwipeDirection('left')
-    } else {
-      setSwipeDirection(null)
-    }
-  }, [isDragging, dragStart])
+    setSwipeX(deltaX)
+  }, [isDragging, dragStart, isAnimating])
 
   const handleDragEnd = useCallback(() => {
-    if (!isDragging) return
-    
-    if (swipeDirection === 'left' || swipeProgress > 0.5) {
-      // Swipe left - go to waitlist
-      setSwipeDirection('left')
-      setTimeout(() => {
-        router.push('/cuestionario')
-      }, 300)
-    } else if (swipeDirection === 'right' || swipeProgress > 0.5) {
-      // Swipe right - go to payment
-      setSwipeDirection('right')
-      setTimeout(() => {
-        window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
-      }, 300)
-    }
-    
+    if (!isDragging || isAnimating) return
     setIsDragging(false)
-    setSwipeProgress(0)
-    setSwipeDirection(null)
-  }, [isDragging, swipeDirection, swipeProgress, router])
+    
+    const threshold = 80
+    if (Math.abs(swipeX) > threshold) {
+      // Swipe completed - animate card off screen
+      setIsAnimating(true)
+      const direction = swipeX > 0 ? 1 : -1
+      const finalX = direction * 400
+      
+      // Animate card flying off
+      setSwipeX(finalX)
+      
+      setTimeout(() => {
+        // Reset and show next card
+        setSwipeX(0)
+        setCurrentCardIndex(prev => (prev + 1) % cards.length)
+        setIsAnimating(false)
+        
+        // Navigate based on direction
+        if (direction > 0) {
+          // Swiped right - paid
+          window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
+        } else {
+          // Swiped left - free
+          router.push('/cuestionario')
+        }
+      }, 300)
+    } else {
+      // Spring back
+      setSwipeX(0)
+    }
+  }, [isDragging, swipeX, isAnimating, router, cards.length])
 
   const handleFastPass = () => {
     window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
@@ -151,6 +155,11 @@ export default function SeleccionarAcceso() {
       </div>
     )
   }
+
+  const currentCard = cards[currentCardIndex]
+  const isPaid = currentCard.type === 'paid'
+  const swipeProgress = Math.min(Math.abs(swipeX) / 100, 1)
+  const rotation = swipeX * 0.05
 
   return (
     <div 
@@ -215,272 +224,214 @@ export default function SeleccionarAcceso() {
         <p className="text-white/35 text-sm sm:text-base max-w-sm mx-auto leading-relaxed hidden md:block">
           Elige cómo quieres empezar tu transformación
         </p>
-        {/* Mobile hint */}
-        <p className="text-white/35 text-xs sm:text-base max-w-sm mx-auto leading-relaxed md:hidden">
-          Desliza para elegir tu acceso
-        </p>
       </div>
 
-      {/* ── MOBILE: Card Shuffle ── */}
-      <div className="relative z-10 w-full max-w-[340px] md:hidden" ref={containerRef}>
+      {/* ── MOBILE: Card Swipe ── */}
+      <div className="relative z-10 w-full max-w-[320px] md:hidden">
         
         {/* Swipe indicators */}
-        <div className="absolute -top-8 left-0 right-0 flex justify-between px-2">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
-            swipeDirection === 'left' ? 'bg-blue-500/20 border border-blue-500/40 text-blue-400' : 'text-white/20'
-          }`}>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="absolute -top-10 left-0 right-0 flex justify-center gap-8">
+          <div className={`flex items-center gap-2 transition-all duration-300 ${swipeX < -20 ? 'text-blue-400 scale-110' : 'text-white/25'}`}>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
-            <span className="text-xs font-medium">Gratis</span>
+            <span className="text-xs font-semibold">Gratis</span>
           </div>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-300 ${
-            swipeDirection === 'right' ? 'bg-red-500/20 border border-red-500/40 text-red-400' : 'text-white/20'
-          }`}>
-            <span className="text-xs font-medium">17€</span>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className={`flex items-center gap-2 transition-all duration-300 ${swipeX > 20 ? 'text-red-400 scale-110' : 'text-white/25'}`}>
+            <span className="text-xs font-semibold">17€</span>
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </div>
         </div>
 
-        {/* Card stack */}
-        <div className="relative h-[480px]">
+        {/* Card Stack */}
+        <div className="relative h-[420px]">
           
-          {/* Back card (shows through) */}
+          {/* Next card (behind) */}
           <div 
             className="absolute inset-0 rounded-3xl overflow-hidden"
             style={{
-              transform: 'scale(0.92) translateY(20px)',
-              opacity: 0.6,
-              filter: 'blur(2px)',
+              transform: 'scale(0.88) translateY(16px)',
+              opacity: 0.5,
+              filter: 'blur(1px)',
               zIndex: 1,
-              pointerEvents: 'none',
             }}
           >
             <div className="absolute inset-0" style={{
-              background: 'linear-gradient(160deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.85) 100%)',
-              border: '1px solid rgba(59,130,246,0.15)',
+              background: isPaid 
+                ? 'linear-gradient(160deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.9) 100%)'
+                : 'linear-gradient(160deg, rgba(220,38,38,0.06) 0%, rgba(0,0,0,0.9) 100%)',
+              border: `1px solid ${isPaid ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)'}`,
             }} />
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center p-8">
-                <div className="w-16 h-16 mx-auto mb-4 rounded-2xl bg-blue-500/10 flex items-center justify-center">
-                  <svg className="w-8 h-8 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
+              <div className="text-center">
+                <div className={`w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center ${
+                  isPaid ? 'bg-blue-500/15' : 'bg-red-500/15'
+                }`}>
+                  {isPaid ? (
+                    <svg className="w-7 h-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  ) : (
+                    <svg className="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                  )}
                 </div>
-                <p className="text-white/40 text-sm">Lista de Espera</p>
+                <p className="text-white/35 text-xs">{isPaid ? 'Lista de Espera' : 'Acceso Inmediato'}</p>
               </div>
             </div>
           </div>
 
-          {/* Front card (active) */}
+          {/* Current Card (front) */}
           <div 
-            className="absolute inset-0 rounded-3xl cursor-grab active:cursor-grabbing touch-none"
+            ref={cardRef}
+            className="absolute inset-0 rounded-3xl cursor-grab active:cursor-grabbing touch-none select-none"
             style={{
-              transform: `
-                translateX(${isDragging ? (swipeDirection === 'right' ? swipeProgress * 100 : swipeDirection === 'left' ? -swipeProgress * 100 : 0) : 0}px) 
-                rotate(${isDragging && swipeDirection ? (swipeDirection === 'right' ? swipeProgress * 8 : -swipeProgress * 8) : 0}deg)
-                scale(1)
-              `,
-              transition: isDragging ? 'none' : 'transform 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+              transform: `translateX(${swipeX}px) rotate(${rotation}deg)`,
+              transition: isDragging ? 'none' : isAnimating ? 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)' : 'transform 0.2s ease-out',
               zIndex: 10,
               perspective: '1000px',
             }}
             onTouchStart={handleDragStart}
             onMouseDown={handleDragStart}
           >
-            {/* Card content based on swipe direction */}
-            {(!swipeDirection || swipeDirection === 'right') ? (
-              /* RED CARD - PAID */
-              <div className="relative w-full h-full rounded-3xl overflow-hidden"
-                style={{
-                  background: 'linear-gradient(160deg, rgba(220,38,38,0.08) 0%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.95) 100%)',
-                  border: `1px solid rgba(239,68,68,${0.2 + swipeProgress * 0.3})`,
-                  boxShadow: `0 ${20 + swipeProgress * 20}px ${40 + swipeProgress * 30}px rgba(0,0,0,0.5), 0 0 ${swipeProgress * 60}px rgba(220,38,38,${swipeProgress * 0.4})`,
-                }}
-                onClick={handleFastPass}
-              >
-                {/* Swipe overlay */}
-                {swipeDirection === 'right' && (
+            <div 
+              className="relative w-full h-full rounded-3xl overflow-hidden"
+              style={{
+                background: isPaid 
+                  ? 'linear-gradient(165deg, rgba(220,38,38,0.08) 0%, rgba(0,0,0,0.88) 60%)'
+                  : 'linear-gradient(165deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.88) 60%)',
+                border: `1px solid ${isPaid 
+                  ? `rgba(239,68,68,${0.15 + swipeProgress * 0.4})`
+                  : `rgba(59,130,246,${0.15 + swipeProgress * 0.4})`
+                }`,
+                boxShadow: `
+                  0 25px 50px -12px rgba(0,0,0,0.5),
+                  0 0 ${swipeProgress * 50}px ${isPaid 
+                    ? `rgba(220,38,38,${swipeProgress * 0.5})`
+                    : `rgba(37,99,235,${swipeProgress * 0.4})`
+                  }
+                `,
+              }}
+            >
+              {/* Swipe feedback overlay */}
+              {swipeProgress > 0.1 && (
+                <div 
+                  className="absolute inset-0 z-20 rounded-3xl flex items-center justify-center"
+                  style={{
+                    background: isPaid
+                      ? `linear-gradient(135deg, rgba(220,38,38,${swipeProgress * 0.25}) 0%, transparent 60%)`
+                      : `linear-gradient(135deg, rgba(37,99,235,${swipeProgress * 0.25}) 0%, transparent 60%)`,
+                  }}
+                >
                   <div 
-                    className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl"
+                    className={`px-8 py-4 rounded-2xl font-bold text-xl transition-all duration-200 ${
+                      isPaid ? 'bg-red-500/90' : 'bg-blue-500/90'
+                    }`}
                     style={{
-                      background: `linear-gradient(135deg, rgba(220,38,38,${swipeProgress * 0.3}) 0%, transparent 60%)`,
+                      transform: `scale(${0.8 + swipeProgress * 0.3})`,
+                      opacity: swipeProgress * 0.9,
                     }}
                   >
-                    <div className={`px-6 py-3 rounded-2xl bg-red-500/90 text-white font-bold text-lg transform scale-${swipeProgress}`}
-                      style={{ transform: `scale(${0.8 + swipeProgress * 0.4})`, opacity: swipeProgress }}>
-                      ACCEDER
-                    </div>
+                    {isPaid ? 'ACCEDER' : 'SOLICITAR'}
                   </div>
-                )}
+                </div>
+              )}
 
-                <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)'
-                }} />
+              {/* Top shimmer */}
+              <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
+                background: isPaid 
+                  ? 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)'
+                  : 'linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent)'
+              }} />
 
-                {/* Badge */}
-                <div className="absolute top-5 right-5 z-10">
+              {/* Badge */}
+              {isPaid && (
+                <div className="absolute top-4 right-4 z-10">
                   <div className="px-3 py-1 rounded-full text-[10px] font-semibold tracking-wide"
                     style={{ background: 'rgba(220,38,38,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#FCA5A5' }}>
                     ⚡ Más popular
                   </div>
                 </div>
+              )}
 
-                <div className="p-6 flex flex-col h-full">
-                  {/* Tag */}
-                  <div className="inline-flex items-center gap-2 mb-4 mt-2">
-                    <div className="w-2 h-2 rounded-full bg-red-500" />
-                    <span className="text-xs font-semibold uppercase tracking-widest text-red-400">Acceso Inmediato</span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-5xl font-bold text-white">17€</span>
-                    </div>
-                    <p className="text-sm text-white/30">pago único · sin suscripción</p>
-                  </div>
-
-                  <div className="w-full h-[1px] mb-4" style={{ background: 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' }} />
-
-                  {/* Features */}
-                  <ul className="space-y-2.5 flex-1">
-                    {[
-                      'Acceso completo inmediato',
-                      'Sin espera ni aprobación',
-                      '5 Templos desbloqueados',
-                      'NOVA AI Coach ilimitado',
-                      'Discord exclusivo',
-                    ].map((f, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                          style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)' }}>
-                          <svg className="w-2.5 h-2.5" fill="none" stroke="#EF4444" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <span className="text-sm text-white/75">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleFastPass() }}
-                    className="w-full py-3.5 rounded-xl text-sm font-semibold text-white mt-4"
-                    style={{
-                      background: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
-                      boxShadow: '0 4px 20px rgba(220,38,38,0.3), inset 0 1px 0 rgba(255,255,255,0.15)',
-                    }}
-                  >
-                    Entrar ahora →
-                  </button>
+              <div className="p-5 flex flex-col h-full">
+                {/* Tag */}
+                <div className="inline-flex items-center gap-2 mb-3">
+                  <div className={`w-2 h-2 rounded-full ${isPaid ? 'bg-red-500' : 'bg-blue-500'}`} />
+                  <span className={`text-xs font-semibold uppercase tracking-widest ${isPaid ? 'text-red-400' : 'text-blue-400'}`}>
+                    {currentCard.title}
+                  </span>
                 </div>
-              </div>
-            ) : (
-              /* BLUE CARD - FREE */
-              <div className="relative w-full h-full rounded-3xl overflow-hidden"
-                style={{
-                  background: 'linear-gradient(160deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.85) 60%, rgba(0,0,0,0.95) 100%)',
-                  border: `1px solid rgba(59,130,246,${0.15 + swipeProgress * 0.3})`,
-                  boxShadow: `0 ${20 + swipeProgress * 20}px ${40 + swipeProgress * 30}px rgba(0,0,0,0.5), 0 0 ${swipeProgress * 60}px rgba(37,99,235,${swipeProgress * 0.3})`,
-                }}
-                onClick={handleWaitlist}
-              >
-                {/* Swipe overlay */}
-                {swipeDirection === 'left' && (
-                  <div 
-                    className="absolute inset-0 z-20 flex items-center justify-center rounded-3xl"
-                    style={{
-                      background: `linear-gradient(135deg, rgba(37,99,235,${swipeProgress * 0.3}) 0%, transparent 60%)`,
-                    }}
-                  >
-                    <div className={`px-6 py-3 rounded-2xl bg-blue-500/90 text-white font-bold text-lg`}
-                      style={{ transform: `scale(${0.8 + swipeProgress * 0.4})`, opacity: swipeProgress }}>
-                      SOLICITAR
-                    </div>
-                  </div>
-                )}
 
-                <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
-                  background: 'linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent)'
+                {/* Price */}
+                <div className="mb-3">
+                  <div className="flex items-baseline gap-1">
+                    <span className={`text-4xl font-bold ${isPaid ? 'text-white' : 'text-white/80'}`}>
+                      {currentCard.price}
+                    </span>
+                  </div>
+                  <p className={`text-sm ${isPaid ? 'text-white/30' : 'text-white/25'}`}>
+                    {currentCard.subtitle}
+                  </p>
+                </div>
+
+                <div className="w-full h-[1px] mb-3" style={{ 
+                  background: isPaid 
+                    ? 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' 
+                    : 'linear-gradient(90deg, rgba(59,130,246,0.25), transparent)'
                 }} />
 
-                <div className="p-6 flex flex-col h-full">
-                  {/* Tag */}
-                  <div className="inline-flex items-center gap-2 mb-4 mt-2">
-                    <div className="w-2 h-2 rounded-full bg-blue-500" />
-                    <span className="text-xs font-semibold uppercase tracking-widest text-blue-400">Lista de Espera</span>
-                  </div>
-
-                  {/* Price */}
-                  <div className="mb-4">
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="text-5xl font-bold text-white/80">Gratis</span>
-                    </div>
-                    <p className="text-sm text-white/25">Tras aprobación manual</p>
-                  </div>
-
-                  <div className="w-full h-[1px] mb-4" style={{ background: 'linear-gradient(90deg, rgba(59,130,246,0.25), transparent)' }} />
-
-                  {/* Features */}
-                  <ul className="space-y-2.5 flex-1">
-                    {[
-                      'Aprobación con cuestionario',
-                      'Templos progresivos',
-                      'NOVA AI Coach (10 msg/día)',
-                      'Discord exclusivo',
-                    ].map((f, i) => (
-                      <li key={i} className="flex items-center gap-3">
-                        <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                          style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
-                          <svg className="w-2.5 h-2.5" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                          </svg>
-                        </div>
-                        <span className="text-sm text-white/50">{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* CTA */}
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleWaitlist() }}
-                    className="w-full py-3.5 rounded-xl text-sm font-semibold mt-4"
-                    style={{
-                      background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
-                      border: '1px solid rgba(59,130,246,0.3)',
-                      color: 'rgba(255,255,255,0.85)',
-                      boxShadow: '0 4px 20px rgba(37,99,235,0.2)',
-                    }}
-                  >
-                    Continuar gratis →
-                  </button>
-                </div>
+                {/* Features */}
+                <ul className="space-y-2 flex-1">
+                  {isPaid ? [
+                    'Acceso completo inmediato',
+                    'Sin espera ni aprobación',
+                    '5 Templos desbloqueados',
+                    'NOVA AI Coach ilimitado',
+                    'Discord exclusivo',
+                  ].map((f, i) => (
+                    <li key={i} className="flex items-center gap-2.5">
+                      <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
+                        style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)' }}>
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="#EF4444" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-white/75">{f}</span>
+                    </li>
+                  )) : [
+                    'Aprobación con cuestionario',
+                    'Templos progresivos',
+                    'NOVA AI Coach (10 msg/día)',
+                    'Discord exclusivo',
+                  ].map((f, i) => (
+                    <li key={i} className="flex items-center gap-2.5">
+                      <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
+                        style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
+                        <svg className="w-2.5 h-2.5" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-sm text-white/50">{f}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            )}
+            </div>
           </div>
         </div>
 
         {/* Swipe hint */}
-        <div className="mt-6 flex items-center justify-center gap-4 text-white/25">
-          <div className="flex items-center gap-2 text-xs">
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        <div className="mt-6 text-center">
+          <p className="text-white/30 text-xs flex items-center justify-center gap-2">
+            <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
             </svg>
-            <span>Gratis</span>
-          </div>
-          <div className="w-12 h-1 rounded-full bg-white/10 overflow-hidden">
-            <div className="w-1/2 h-full bg-white/20 rounded-full" />
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <span>17€</span>
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
+            Desliza a izquierda o derecha
+          </p>
         </div>
       </div>
 
@@ -517,7 +468,6 @@ export default function SeleccionarAcceso() {
               background: `linear-gradient(135deg, rgba(239,68,68,${hoveredCard === 0 ? '0.85' : '0.55'}) 0%, rgba(185,28,28,0.3) 40%, rgba(120,0,0,0.1) 100%)`,
               padding: '1px',
               borderRadius: '24px',
-              transition: 'opacity 0.4s ease',
             }} />
 
           {/* Card body */}
@@ -532,7 +482,7 @@ export default function SeleccionarAcceso() {
             }}>
 
             <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-              style={{ background: `linear-gradient(90deg, transparent, rgba(239,68,68,${hoveredCard === 0 ? '0.7' : '0.35'}), transparent)`, transition: 'opacity 0.4s' }} />
+              style={{ background: `linear-gradient(90deg, transparent, rgba(239,68,68,${hoveredCard === 0 ? '0.7' : '0.35'}), transparent)` }} />
 
             {/* Badge */}
             <div className="absolute top-4 right-4">
@@ -589,11 +539,6 @@ export default function SeleccionarAcceso() {
                 transition: 'box-shadow 0.35s ease',
               }}
             >
-              <span className="absolute inset-0 pointer-events-none" style={{
-                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.18) 50%, transparent 65%)',
-                transform: hoveredCard === 0 ? 'translateX(200%)' : 'translateX(-200%)',
-                transition: 'transform 0.65s cubic-bezier(0.16,1,0.3,1)',
-              }} />
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Entrar ahora
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
@@ -633,7 +578,6 @@ export default function SeleccionarAcceso() {
           <div className="absolute -inset-[1px] rounded-3xl pointer-events-none"
             style={{
               background: `linear-gradient(135deg, rgba(59,130,246,${hoveredCard === 1 ? '0.45' : '0.2'}) 0%, rgba(37,99,235,0.1) 50%, transparent 100%)`,
-              transition: 'opacity 0.4s ease',
             }} />
 
           <div className="relative rounded-3xl p-6 sm:p-8 h-full flex flex-col overflow-hidden"
@@ -643,11 +587,10 @@ export default function SeleccionarAcceso() {
                 : 'linear-gradient(160deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.85) 100%)',
               backdropFilter: 'blur(24px) saturate(130%)',
               border: `1px solid rgba(59,130,246,${hoveredCard === 1 ? '0.2' : '0.08'})`,
-              transition: 'background 0.4s ease, border-color 0.4s ease',
             }}>
 
             <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-              style={{ background: `linear-gradient(90deg, transparent, rgba(59,130,246,${hoveredCard === 1 ? '0.4' : '0.15'}), transparent)`, transition: 'opacity 0.4s' }} />
+              style={{ background: `linear-gradient(90deg, transparent, rgba(59,130,246,${hoveredCard === 1 ? '0.4' : '0.15'}), transparent)` }} />
 
             <div className="inline-flex items-center gap-2 mb-5">
               <div className="w-2 h-2 rounded-full bg-blue-500" />
@@ -692,14 +635,8 @@ export default function SeleccionarAcceso() {
                 boxShadow: hoveredCard === 1
                   ? '0 4px 20px rgba(37,99,235,0.22), inset 0 1px 0 rgba(255,255,255,0.12)'
                   : '0 2px 10px rgba(37,99,235,0.12), inset 0 1px 0 rgba(255,255,255,0.08)',
-                transition: 'box-shadow 0.35s ease, color 0.3s ease',
               }}
             >
-              <span className="absolute inset-0 pointer-events-none" style={{
-                background: 'linear-gradient(105deg, transparent 35%, rgba(255,255,255,0.08) 50%, transparent 65%)',
-                transform: hoveredCard === 1 ? 'translateX(200%)' : 'translateX(-200%)',
-                transition: 'transform 0.65s cubic-bezier(0.16,1,0.3,1)',
-              }} />
               <span className="relative z-10 flex items-center justify-center gap-2">
                 Continuar gratis
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"
