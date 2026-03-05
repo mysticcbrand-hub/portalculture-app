@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
@@ -9,9 +9,8 @@ export default function SeleccionarAcceso() {
   const [user, setUser] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   
-  const [activeCard, setActiveCard] = useState<'paid' | 'free'>('paid')
-  const containerRef = useRef<HTMLDivElement>(null)
-  const startX = useRef(0)
+  const [showPaid, setShowPaid] = useState(true)
+  const lastToggle = useRef(0)
   
   const supabase = createClient()
 
@@ -23,33 +22,14 @@ export default function SeleccionarAcceso() {
       setLoading(false)
     }
     getUser()
-  }, [router, supabase.auth])
+  }, [router])
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    startX.current = e.touches[0].clientX
-  }, [])
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    const currentX = e.touches[0].clientX
-    const diff = startX.current - currentX
-    
-    if (Math.abs(diff) > 60) {
-      setActiveCard(prev => diff > 0 ? 'free' : 'paid')
-      startX.current = currentX
-    }
-  }, [])
-
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    startX.current = e.clientX
-  }, [])
-
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    const diff = startX.current - e.clientX
-    if (Math.abs(diff) > 60) {
-      setActiveCard(prev => diff > 0 ? 'free' : 'paid')
-      startX.current = e.clientX
-    }
-  }, [])
+  const toggleCard = () => {
+    const now = Date.now()
+    if (now - lastToggle.current < 400) return
+    lastToggle.current = now
+    setShowPaid(prev => !prev)
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -68,18 +48,14 @@ export default function SeleccionarAcceso() {
   }
 
   return (
-    <div 
-      className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black"
-      onMouseMove={handleMouseMove}
-    >
+    <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black">
       
-      {/* Premium Background */}
+      {/* Background */}
       <div className="fixed inset-0">
         <div className="absolute inset-0 hidden md:block" style={{
           background: `
             radial-gradient(ellipse 90% 75% at 10% 25%, rgba(220,38,38,0.3) 0%, rgba(185,28,28,0.1) 40%, transparent 70%),
             radial-gradient(ellipse 80% 70% at 90% 75%, rgba(37,99,235,0.25) 0%, rgba(29,78,216,0.08) 40%, transparent 70%),
-            radial-gradient(ellipse 60% 50% at 50% 0%, rgba(139,92,246,0.15) 0%, transparent 55%),
             #000000
           `
         }} />
@@ -117,25 +93,75 @@ export default function SeleccionarAcceso() {
         <h1 className="text-2xl font-bold text-white tracking-tight">Portal Culture</h1>
       </div>
 
-      {/* MOBILE: Side by Side Cards */}
+      {/* Card Container */}
       <div 
-        ref={containerRef}
-        className="relative z-10 w-full max-w-[360px] md:hidden flex gap-3"
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onMouseDown={handleMouseDown}
-        style={{ touchAction: 'pan-y' }}
+        className="relative z-10 w-full max-w-[320px] md:hidden"
+        onClick={toggleCard}
       >
         
-        {/* PAID Card */}
+        {/* FREE Card (Back) */}
         <div 
-          className="flex-1 aspect-[3/4] rounded-[28px] overflow-hidden cursor-pointer transition-all duration-500"
+          className="absolute inset-0 rounded-[28px] overflow-hidden"
           style={{
-            transform: activeCard === 'paid' ? 'scale(1) rotateY(0deg)' : 'scale(0.85) rotateY(-8deg)',
-            opacity: activeCard === 'paid' ? 1 : 0.3,
-            filter: activeCard === 'paid' ? 'blur(0px)' : 'blur(3px)',
-            perspective: '1000px',
-            transformStyle: 'preserve-3d',
+            transform: showPaid ? 'scale(0.88) translateY(16px)' : 'scale(1) translateY(0)',
+            opacity: showPaid ? 0.35 : 1,
+            filter: showPaid ? 'blur(2px)' : 'blur(0)',
+            zIndex: 1,
+            transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          }}
+        >
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(160deg, rgba(30,58,138,0.8) 0%, rgba(15,23,42,0.92) 50%, rgba(3,7,18,0.98) 100%)',
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+              border: '1px solid rgba(59,130,246,0.25)',
+              boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7)',
+            }}
+          />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+          
+          <div className="relative h-full p-5 flex flex-col">
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-blue-400" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
+            </div>
+            
+            <div className="text-4xl font-bold text-white/85 mb-1">Gratis</div>
+            <p className="text-[10px] text-white/35 mb-4">aprobación manual</p>
+            
+            <div className="w-full h-px mb-4 bg-gradient-to-r from-blue-500/30 to-transparent" />
+            
+            <div className="flex-1 space-y-2">
+              {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10/día', '✓ Discord'].map((f, i) => (
+                <p key={i} className="text-[10px] text-white/45">{f}</p>
+              ))}
+            </div>
+
+            <button
+              onClick={(e) => { e.stopPropagation(); router.push('/cuestionario') }}
+              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
+              style={{
+                background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
+                border: '1px solid rgba(59,130,246,0.35)',
+                boxShadow: '0 6px 20px rgba(37,99,235,0.25)',
+              }}
+            >
+              Solicitar Gratis
+            </button>
+          </div>
+        </div>
+
+        {/* PAID Card (Front) */}
+        <div 
+          className="absolute inset-0 rounded-[28px] overflow-hidden"
+          style={{
+            transform: showPaid ? 'scale(1) translateY(0)' : 'scale(0.88) translateY(16px)',
+            opacity: showPaid ? 1 : 0.35,
+            filter: showPaid ? 'blur(0)' : 'blur(2px)',
+            zIndex: 10,
+            transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
           }}
         >
           <div 
@@ -150,11 +176,11 @@ export default function SeleccionarAcceso() {
           />
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
           
+          <div className="absolute top-4 right-4">
+            <div className="px-2.5 py-1 rounded-full text-[8px] font-bold uppercase bg-red-500/25 border border-red-500/50 text-red-300">⚡</div>
+          </div>
+          
           <div className="relative h-full p-5 flex flex-col">
-            <div className="absolute top-4 right-4">
-              <div className="px-2.5 py-1 rounded-full text-[8px] font-bold uppercase bg-red-500/25 border border-red-500/50 text-red-300">⚡</div>
-            </div>
-            
             <div className="flex items-center gap-2 mb-3">
               <div className="w-2 h-2 rounded-full bg-red-500" />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Acceso</span>
@@ -172,7 +198,7 @@ export default function SeleccionarAcceso() {
             </div>
 
             <button
-              onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
+              onClick={(e) => { e.stopPropagation(); window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer') }}
               className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
               style={{
                 background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
@@ -184,77 +210,17 @@ export default function SeleccionarAcceso() {
           </div>
         </div>
 
-        {/* FREE Card */}
-        <div 
-          className="flex-1 aspect-[3/4] rounded-[28px] overflow-hidden cursor-pointer transition-all duration-500"
-          style={{
-            transform: activeCard === 'free' ? 'scale(1) rotateY(0deg)' : 'scale(0.85) rotateY(8deg)',
-            opacity: activeCard === 'free' ? 1 : 0.3,
-            filter: activeCard === 'free' ? 'blur(0px)' : 'blur(3px)',
-            perspective: '1000px',
-            transformStyle: 'preserve-3d',
-          }}
-        >
-          <div 
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(160deg, rgba(30,58,138,0.8) 0%, rgba(15,23,42,0.92) 50%, rgba(3,7,18,0.98) 100%)',
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-              border: '1px solid rgba(59,130,246,0.25)',
-              boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7), 0 0 40px rgba(37,99,235,0.08)',
-            }}
-          />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
-          
-          <div className="relative h-full p-5 flex flex-col">
-            <div className="flex items-center gap-2 mb-3 mt-6">
-              <div className="w-2 h-2 rounded-full bg-blue-400" />
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-400">Lista</span>
-            </div>
-            
-            <div className="text-4xl font-bold text-white/85 mb-1">Gratis</div>
-            <p className="text-[10px] text-white/35 mb-4">aprobación manual</p>
-            
-            <div className="w-full h-px mb-4 bg-gradient-to-r from-blue-500/30 to-transparent" />
-            
-            <div className="flex-1 space-y-2">
-              {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10/día', '✓ Discord'].map((f, i) => (
-                <p key={i} className="text-[10px] text-white/45">{f}</p>
-              ))}
-            </div>
-
-            <button
-              onClick={() => router.push('/cuestionario')}
-              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
-              style={{
-                background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
-                border: '1px solid rgba(59,130,246,0.35)',
-                boxShadow: '0 6px 20px rgba(37,99,235,0.25)',
-              }}
-            >
-              Solicitar Gratis
-            </button>
-          </div>
-        </div>
-
       </div>
 
-      {/* Swipe Hint */}
-      <div className="md:hidden relative z-10 mt-4 flex items-center gap-2 text-white/30 text-[10px]">
-        <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-        </svg>
-        <span>Desliza para cambiar</span>
-        <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 9l-4 4-4-4m0 6l4 4 4-4" />
-        </svg>
+      {/* Hint */}
+      <div className="md:hidden relative z-10 mt-[340px] text-white/30 text-[10px]">
+        Toca para cambiar
       </div>
 
-      {/* DESKTOP: Cards Side by Side */}
+      {/* DESKTOP */}
       <div className="relative z-10 w-full max-w-5xl hidden md:flex gap-6 px-4">
         
-        {/* PAID Card */}
+        {/* PAID */}
         <div 
           className="flex-1 rounded-[32px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
           style={{
@@ -264,7 +230,6 @@ export default function SeleccionarAcceso() {
           }}
         >
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
-          <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/5 rounded-full blur-3xl" />
           
           <div className="absolute top-6 right-6">
             <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-red-500/20 border border-red-500/40 text-red-300">⚡ Popular</span>
@@ -302,7 +267,7 @@ export default function SeleccionarAcceso() {
           </div>
         </div>
 
-        {/* FREE Card */}
+        {/* FREE */}
         <div 
           className="flex-1 rounded-[32px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
           style={{
@@ -312,7 +277,6 @@ export default function SeleccionarAcceso() {
           }}
         >
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
-          <div className="absolute -top-24 -left-24 w-48 h-48 bg-blue-500/5 rounded-full blur-3xl" />
 
           <div className="p-8 pt-12">
             <div className="flex items-center gap-2 mb-5">
@@ -347,7 +311,7 @@ export default function SeleccionarAcceso() {
 
       </div>
 
-      {/* Trust Footer */}
+      {/* Trust */}
       <div className="relative z-10 mt-10 flex items-center justify-center gap-4 text-white/25 text-[10px] flex-wrap px-4">
         <span className="flex items-center gap-1.5">✓ Pago seguro</span>
         <span className="w-px h-3 bg-white/10" />
