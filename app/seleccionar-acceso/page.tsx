@@ -22,21 +22,11 @@ export default function SeleccionarAcceso() {
   const [transforms, setTransforms] = useState<CardTransform[]>([DEFAULT_TRANSFORM, DEFAULT_TRANSFORM])
   const rafRef = useRef<number | null>(null)
   
-  // Mobile swipe state
-  const [currentCardIndex, setCurrentCardIndex] = useState(0)
-  const [swipeX, setSwipeX] = useState(0)
-  const [isDragging, setIsDragging] = useState(false)
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 })
-  const [isAnimating, setIsAnimating] = useState(false)
+  // Mobile animation state
+  const [shuffling, setShuffling] = useState(false)
+  const [cardIndex, setCardIndex] = useState(0)
   
-  const containerRef = useRef<HTMLDivElement>(null)
-  const cardRef = useRef<HTMLDivElement>(null)
   const supabase = createClient()
-
-  const cards = [
-    { type: 'paid', title: 'Acceso Inmediato', price: '17€', subtitle: 'pago único · sin suscripción' },
-    { type: 'free', title: 'Lista de Espera', price: 'Gratis', subtitle: 'Tras aprobación manual' },
-  ]
 
   useEffect(() => {
     const getUser = async () => {
@@ -48,62 +38,31 @@ export default function SeleccionarAcceso() {
     getUser()
   }, [router, supabase.auth])
 
-  // Mobile drag handlers
-  const handleDragStart = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    if (isAnimating) return
-    setIsDragging(true)
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    setDragStart({ x: clientX, y: 0 })
-  }, [isAnimating])
-
-  const handleDragMove = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    if (!isDragging || isAnimating) return
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX
-    const deltaX = clientX - dragStart.x
-    setSwipeX(deltaX)
-  }, [isDragging, dragStart, isAnimating])
-
-  const handleDragEnd = useCallback(() => {
-    if (!isDragging || isAnimating) return
-    setIsDragging(false)
+  // Shuffle animation when button is clicked
+  const handleShuffle = useCallback((type: 'paid' | 'free') => {
+    if (shuffling) return
+    setShuffling(true)
     
-    const threshold = 80
-    if (Math.abs(swipeX) > threshold) {
-      // Swipe completed - animate card off screen
-      setIsAnimating(true)
-      const direction = swipeX > 0 ? 1 : -1
-      const finalX = direction * 400
+    // Do 3 quick shuffles
+    let shuffleCount = 0
+    const shuffleInterval = setInterval(() => {
+      setCardIndex(prev => (prev + 1) % 2)
+      shuffleCount++
       
-      // Animate card flying off
-      setSwipeX(finalX)
-      
-      setTimeout(() => {
-        // Reset and show next card
-        setSwipeX(0)
-        setCurrentCardIndex(prev => (prev + 1) % cards.length)
-        setIsAnimating(false)
-        
-        // Navigate based on direction
-        if (direction > 0) {
-          // Swiped right - paid
+      if (shuffleCount >= 6) {
+        clearInterval(shuffleInterval)
+        // Navigate based on selection
+        if (type === 'paid') {
           window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
         } else {
-          // Swiped left - free
           router.push('/cuestionario')
         }
-      }, 300)
-    } else {
-      // Spring back
-      setSwipeX(0)
-    }
-  }, [isDragging, swipeX, isAnimating, router, cards.length])
+      }
+    }, 100)
+  }, [shuffling, router])
 
-  const handleFastPass = () => {
-    window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
-  }
-  
-  const handleWaitlist = () => { router.push('/cuestionario') }
-  
+  const handleFastPass = () => handleShuffle('paid')
+  const handleWaitlist = () => handleShuffle('free')
   const handleLogout = async () => {
     await supabase.auth.signOut()
     router.push('/')
@@ -156,20 +115,12 @@ export default function SeleccionarAcceso() {
     )
   }
 
-  const currentCard = cards[currentCardIndex]
-  const isPaid = currentCard.type === 'paid'
-  const swipeProgress = Math.min(Math.abs(swipeX) / 100, 1)
-  const rotation = swipeX * 0.05
+  const currentCard = cardIndex === 0 ? 'paid' : 'free'
+  const isPaid = currentCard === 'paid'
 
   return (
-    <div 
-      className="min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-black"
-      onMouseMove={handleDragMove}
-      onMouseUp={handleDragEnd}
-      onMouseLeave={handleDragEnd}
-      onTouchMove={handleDragMove}
-      onTouchEnd={handleDragEnd}
-    >
+    <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-black">
+      
       {/* ── Ambient background ── */}
       <div className="fixed inset-0 pointer-events-none" aria-hidden>
         <div className="absolute inset-0 hidden md:block" style={{
@@ -206,13 +157,13 @@ export default function SeleccionarAcceso() {
       </button>
 
       {/* ── Header ── */}
-      <div className="relative z-10 text-center mb-8 md:mb-14">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-6 text-[11px] font-medium tracking-widest uppercase"
+      <div className="relative z-10 text-center mb-6 md:mb-14">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-5 text-[11px] font-medium tracking-widest uppercase"
           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.35)' }}>
           <span className="w-1.5 h-1.5 rounded-full bg-white/30 animate-pulse" />
           Elige tu acceso
         </div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-3">
           Bienvenido a{' '}
           <span style={{
             background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%)',
@@ -226,213 +177,124 @@ export default function SeleccionarAcceso() {
         </p>
       </div>
 
-      {/* ── MOBILE: Card Swipe ── */}
-      <div className="relative z-10 w-full max-w-[320px] md:hidden">
+      {/* ── MOBILE: Single Card with Buttons ── */}
+      <div className="relative z-10 w-full max-w-[300px] md:hidden">
         
-        {/* Swipe indicators */}
-        <div className="absolute -top-10 left-0 right-0 flex justify-center gap-8">
-          <div className={`flex items-center gap-2 transition-all duration-300 ${swipeX < -20 ? 'text-blue-400 scale-110' : 'text-white/25'}`}>
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="text-xs font-semibold">Gratis</span>
-          </div>
-          <div className={`flex items-center gap-2 transition-all duration-300 ${swipeX > 20 ? 'text-red-400 scale-110' : 'text-white/25'}`}>
-            <span className="text-xs font-semibold">17€</span>
-            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </div>
-        </div>
-
-        {/* Card Stack */}
-        <div className="relative h-[420px]">
-          
-          {/* Next card (behind) */}
+        {/* Shuffling Card */}
+        <div 
+          className="relative w-full rounded-3xl overflow-hidden"
+          style={{
+            transform: shuffling ? 'scale(0.95)' : 'scale(1)',
+            opacity: shuffling ? 0.8 : 1,
+            transition: 'all 0.2s ease-out',
+            height: '340px',
+          }}
+        >
           <div 
-            className="absolute inset-0 rounded-3xl overflow-hidden"
+            className="absolute inset-0 rounded-3xl"
             style={{
-              transform: 'scale(0.88) translateY(16px)',
-              opacity: 0.5,
-              filter: 'blur(1px)',
-              zIndex: 1,
-            }}
-          >
-            <div className="absolute inset-0" style={{
               background: isPaid 
-                ? 'linear-gradient(160deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.9) 100%)'
-                : 'linear-gradient(160deg, rgba(220,38,38,0.06) 0%, rgba(0,0,0,0.9) 100%)',
-              border: `1px solid ${isPaid ? 'rgba(59,130,246,0.15)' : 'rgba(239,68,68,0.15)'}`,
-            }} />
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center">
-                <div className={`w-14 h-14 mx-auto mb-3 rounded-2xl flex items-center justify-center ${
-                  isPaid ? 'bg-blue-500/15' : 'bg-red-500/15'
-                }`}>
-                  {isPaid ? (
-                    <svg className="w-7 h-7 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  ) : (
-                    <svg className="w-7 h-7 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  )}
-                </div>
-                <p className="text-white/35 text-xs">{isPaid ? 'Lista de Espera' : 'Acceso Inmediato'}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Current Card (front) */}
-          <div 
-            ref={cardRef}
-            className="absolute inset-0 rounded-3xl cursor-grab active:cursor-grabbing touch-none select-none"
-            style={{
-              transform: `translateX(${swipeX}px) rotate(${rotation}deg)`,
-              transition: isDragging ? 'none' : isAnimating ? 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)' : 'transform 0.2s ease-out',
-              zIndex: 10,
-              perspective: '1000px',
+                ? 'linear-gradient(165deg, rgba(220,38,38,0.08) 0%, rgba(0,0,0,0.9) 50%)'
+                : 'linear-gradient(165deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.9) 50%)',
+              border: `1px solid ${isPaid ? 'rgba(239,68,68,0.25)' : 'rgba(59,130,246,0.25)'}`,
+              boxShadow: `0 20px 40px rgba(0,0,0,0.5), 0 0 ${isPaid ? '30px' : '25px'} ${isPaid ? 'rgba(220,38,38,0.15)' : 'rgba(37,99,235,0.12)'}`,
             }}
-            onTouchStart={handleDragStart}
-            onMouseDown={handleDragStart}
           >
-            <div 
-              className="relative w-full h-full rounded-3xl overflow-hidden"
-              style={{
-                background: isPaid 
-                  ? 'linear-gradient(165deg, rgba(220,38,38,0.08) 0%, rgba(0,0,0,0.88) 60%)'
-                  : 'linear-gradient(165deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.88) 60%)',
-                border: `1px solid ${isPaid 
-                  ? `rgba(239,68,68,${0.15 + swipeProgress * 0.4})`
-                  : `rgba(59,130,246,${0.15 + swipeProgress * 0.4})`
-                }`,
-                boxShadow: `
-                  0 25px 50px -12px rgba(0,0,0,0.5),
-                  0 0 ${swipeProgress * 50}px ${isPaid 
-                    ? `rgba(220,38,38,${swipeProgress * 0.5})`
-                    : `rgba(37,99,235,${swipeProgress * 0.4})`
-                  }
-                `,
-              }}
-            >
-              {/* Swipe feedback overlay */}
-              {swipeProgress > 0.1 && (
-                <div 
-                  className="absolute inset-0 z-20 rounded-3xl flex items-center justify-center"
-                  style={{
-                    background: isPaid
-                      ? `linear-gradient(135deg, rgba(220,38,38,${swipeProgress * 0.25}) 0%, transparent 60%)`
-                      : `linear-gradient(135deg, rgba(37,99,235,${swipeProgress * 0.25}) 0%, transparent 60%)`,
-                  }}
-                >
-                  <div 
-                    className={`px-8 py-4 rounded-2xl font-bold text-xl transition-all duration-200 ${
-                      isPaid ? 'bg-red-500/90' : 'bg-blue-500/90'
-                    }`}
-                    style={{
-                      transform: `scale(${0.8 + swipeProgress * 0.3})`,
-                      opacity: swipeProgress * 0.9,
-                    }}
-                  >
-                    {isPaid ? 'ACCEDER' : 'SOLICITAR'}
-                  </div>
-                </div>
-              )}
+            {/* Top shimmer */}
+            <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
+              background: isPaid 
+                ? 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)'
+                : 'linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent)'
+            }} />
 
-              {/* Top shimmer */}
-              <div className="absolute top-0 left-0 right-0 h-[1px]" style={{
+            {/* Badge */}
+            {isPaid && (
+              <div className="absolute top-4 right-4 z-10">
+                <div className="px-2.5 py-1 rounded-full text-[9px] font-semibold tracking-wide"
+                  style={{ background: 'rgba(220,38,38,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#FCA5A5' }}>
+                  ⚡ Popular
+                </div>
+              </div>
+            )}
+
+            <div className="p-4 h-full flex flex-col">
+              {/* Tag */}
+              <div className="inline-flex items-center gap-2 mb-2">
+                <div className={`w-1.5 h-1.5 rounded-full ${isPaid ? 'bg-red-500' : 'bg-blue-500'}`} />
+                <span className={`text-[10px] font-semibold uppercase tracking-wider ${isPaid ? 'text-red-400' : 'text-blue-400'}`}>
+                  {isPaid ? 'Acceso Inmediato' : 'Lista de Espera'}
+                </span>
+              </div>
+
+              {/* Price */}
+              <div className="mb-2">
+                <span className={`text-3xl font-bold ${isPaid ? 'text-white' : 'text-white/80'}`}>
+                  {isPaid ? '17€' : 'Gratis'}
+                </span>
+                <p className={`text-[10px] ${isPaid ? 'text-white/30' : 'text-white/25'}`}>
+                  {isPaid ? 'pago único' : 'tras aprobación'}
+                </p>
+              </div>
+
+              <div className="w-full h-px my-2" style={{ 
                 background: isPaid 
-                  ? 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)'
-                  : 'linear-gradient(90deg, transparent, rgba(59,130,246,0.4), transparent)'
+                  ? 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' 
+                  : 'linear-gradient(90deg, rgba(59,130,246,0.3), transparent)'
               }} />
 
-              {/* Badge */}
-              {isPaid && (
-                <div className="absolute top-4 right-4 z-10">
-                  <div className="px-3 py-1 rounded-full text-[10px] font-semibold tracking-wide"
-                    style={{ background: 'rgba(220,38,38,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#FCA5A5' }}>
-                    ⚡ Más popular
-                  </div>
-                </div>
-              )}
+              {/* Features */}
+              <ul className="space-y-1.5 flex-1 overflow-hidden">
+                {(isPaid ? [
+                  '✓ Acceso inmediato',
+                  '✓ 5 Templos',
+                  '✓ NOVA ilimitado',
+                  '✓ Discord',
+                ] : [
+                  '○ Aprobación',
+                  '○ Templos progresivos',
+                  '○ NOVA 10 msg/día',
+                  '○ Discord',
+                ]).map((f, i) => (
+                  <li key={i} className={`text-[11px] ${isPaid ? 'text-white/70' : 'text-white/45'}`}>
+                    {f}
+                  </li>
+                ))}
+              </ul>
 
-              <div className="p-5 flex flex-col h-full">
-                {/* Tag */}
-                <div className="inline-flex items-center gap-2 mb-3">
-                  <div className={`w-2 h-2 rounded-full ${isPaid ? 'bg-red-500' : 'bg-blue-500'}`} />
-                  <span className={`text-xs font-semibold uppercase tracking-widest ${isPaid ? 'text-red-400' : 'text-blue-400'}`}>
-                    {currentCard.title}
-                  </span>
-                </div>
-
-                {/* Price */}
-                <div className="mb-3">
-                  <div className="flex items-baseline gap-1">
-                    <span className={`text-4xl font-bold ${isPaid ? 'text-white' : 'text-white/80'}`}>
-                      {currentCard.price}
-                    </span>
-                  </div>
-                  <p className={`text-sm ${isPaid ? 'text-white/30' : 'text-white/25'}`}>
-                    {currentCard.subtitle}
-                  </p>
-                </div>
-
-                <div className="w-full h-[1px] mb-3" style={{ 
-                  background: isPaid 
-                    ? 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' 
-                    : 'linear-gradient(90deg, rgba(59,130,246,0.25), transparent)'
-                }} />
-
-                {/* Features */}
-                <ul className="space-y-2 flex-1">
-                  {isPaid ? [
-                    'Acceso completo inmediato',
-                    'Sin espera ni aprobación',
-                    '5 Templos desbloqueados',
-                    'NOVA AI Coach ilimitado',
-                    'Discord exclusivo',
-                  ].map((f, i) => (
-                    <li key={i} className="flex items-center gap-2.5">
-                      <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                        style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)' }}>
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="#EF4444" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-white/75">{f}</span>
-                    </li>
-                  )) : [
-                    'Aprobación con cuestionario',
-                    'Templos progresivos',
-                    'NOVA AI Coach (10 msg/día)',
-                    'Discord exclusivo',
-                  ].map((f, i) => (
-                    <li key={i} className="flex items-center gap-2.5">
-                      <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                        style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.25)' }}>
-                        <svg className="w-2.5 h-2.5" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                        </svg>
-                      </div>
-                      <span className="text-sm text-white/50">{f}</span>
-                    </li>
-                  ))}
-                </ul>
+              {/* Buttons */}
+              <div className="space-y-2 mt-2">
+                <button
+                  onClick={handleFastPass}
+                  disabled={shuffling}
+                  className="w-full py-2.5 rounded-xl text-xs font-semibold text-white disabled:opacity-50"
+                  style={{
+                    background: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
+                    boxShadow: '0 4px 15px rgba(220,38,38,0.3)',
+                  }}
+                >
+                  {shuffling ? '...' : 'Acceso 17€ →'}
+                </button>
+                <button
+                  onClick={handleWaitlist}
+                  disabled={shuffling}
+                  className="w-full py-2 rounded-xl text-xs font-semibold disabled:opacity-50"
+                  style={{
+                    background: isPaid ? 'rgba(37,99,235,0.15)' : 'rgba(37,99,235,0.25)',
+                    border: '1px solid rgba(59,130,246,0.3)',
+                    color: 'rgba(255,255,255,0.8)',
+                  }}
+                >
+                  {shuffling ? '...' : 'Solicitar Gratis'}
+                </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Swipe hint */}
-        <div className="mt-6 text-center">
-          <p className="text-white/30 text-xs flex items-center justify-center gap-2">
-            <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
-            </svg>
-            Desliza a izquierda o derecha
-          </p>
-        </div>
+        {/* Hint */}
+        <p className="text-center text-white/25 text-[10px] mt-4">
+          Toca para elegir tu acceso
+        </p>
       </div>
 
       {/* ── DESKTOP: Cards side by side ── */}
