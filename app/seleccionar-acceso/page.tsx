@@ -10,7 +10,8 @@ export default function SeleccionarAcceso() {
   const [loading, setLoading] = useState(true)
   
   const [showPaid, setShowPaid] = useState(true)
-  const lastToggle = useRef(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const startX = useRef(0)
   
   const supabase = createClient()
 
@@ -24,11 +25,26 @@ export default function SeleccionarAcceso() {
     getUser()
   }, [router])
 
-  const toggleCard = () => {
-    const now = Date.now()
-    if (now - lastToggle.current < 400) return
-    lastToggle.current = now
-    setShowPaid(prev => !prev)
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX
+  }
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const diff = startX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 50) {
+      setShowPaid(diff > 0)
+    }
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    startX.current = e.clientX
+  }
+
+  const handleMouseUp = (e: React.MouseEvent) => {
+    const diff = startX.current - e.clientX
+    if (Math.abs(diff) > 50) {
+      setShowPaid(diff > 0)
+    }
   }
 
   const handleLogout = async () => {
@@ -54,22 +70,22 @@ export default function SeleccionarAcceso() {
       <div className="fixed inset-0">
         <div className="absolute inset-0 hidden md:block" style={{
           background: `
-            radial-gradient(ellipse 90% 75% at 10% 25%, rgba(220,38,38,0.3) 0%, rgba(185,28,28,0.1) 40%, transparent 70%),
-            radial-gradient(ellipse 80% 70% at 90% 75%, rgba(37,99,235,0.25) 0%, rgba(29,78,216,0.08) 40%, transparent 70%),
+            radial-gradient(ellipse 90% 75% at 10% 25%, rgba(220,38,38,0.35) 0%, rgba(185,28,28,0.12) 40%, transparent 70%),
+            radial-gradient(ellipse 80% 70% at 90% 75%, rgba(37,99,235,0.3) 0%, rgba(29,78,216,0.1) 40%, transparent 70%),
             #000000
           `
         }} />
         <div className="absolute inset-0 md:hidden" style={{
           background: `
-            radial-gradient(ellipse 100% 80% at 50% 10%, rgba(139,92,246,0.25) 0%, transparent 50%),
-            radial-gradient(ellipse 90% 70% at 50% 95%, rgba(37,99,235,0.18) 0%, transparent 45%),
+            radial-gradient(ellipse 100% 80% at 50% 8%, rgba(139,92,246,0.3) 0%, transparent 50%),
+            radial-gradient(ellipse 90% 60% at 50% 95%, rgba(37,99,235,0.2) 0%, transparent 45%),
             #000000
           `
         }} />
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: '150px',
-          opacity: 0.04,
+          opacity: 0.035,
           mixBlendMode: 'overlay',
         }} />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" />
@@ -85,7 +101,7 @@ export default function SeleccionarAcceso() {
       </button>
 
       {/* Header */}
-      <div className="relative z-10 text-center mb-6">
+      <div className="relative z-10 text-center mb-5">
         <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/50 text-[10px] uppercase tracking-widest mb-3">
           <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse" />
           Elige tu acceso
@@ -93,59 +109,66 @@ export default function SeleccionarAcceso() {
         <h1 className="text-2xl font-bold text-white tracking-tight">Portal Culture</h1>
       </div>
 
-      {/* Card Container */}
+      {/* Card Stack - Swipeable */}
       <div 
-        className="relative z-10 w-full max-w-[320px] md:hidden"
-        onClick={toggleCard}
+        ref={containerRef}
+        className="relative z-10 w-full max-w-[300px] aspect-[3/4] md:hidden select-none"
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        style={{ touchAction: 'pan-y' }}
       >
         
         {/* FREE Card (Back) */}
         <div 
-          className="absolute inset-0 rounded-[28px] overflow-hidden"
+          className="absolute inset-0 rounded-[24px] overflow-hidden"
           style={{
-            transform: showPaid ? 'scale(0.88) translateY(16px)' : 'scale(1) translateY(0)',
-            opacity: showPaid ? 0.35 : 1,
-            filter: showPaid ? 'blur(2px)' : 'blur(0)',
+            transform: showPaid 
+              ? 'perspective(1000px) rotateY(-12deg) scale(0.85) translateY(12px)' 
+              : 'perspective(1000px) rotateY(0deg) scale(1) translateY(0)',
+            opacity: showPaid ? 0.3 : 1,
+            filter: showPaid ? 'blur(3px)' : 'blur(0px)',
             zIndex: 1,
-            transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+            transformOrigin: 'center bottom',
           }}
         >
           <div 
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(160deg, rgba(30,58,138,0.8) 0%, rgba(15,23,42,0.92) 50%, rgba(3,7,18,0.98) 100%)',
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-              border: '1px solid rgba(59,130,246,0.25)',
-              boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7)',
+              background: 'linear-gradient(160deg, rgba(30,64,175,0.85) 0%, rgba(15,23,42,0.95) 60%, rgba(0,0,0,0.98) 100%)',
+              backdropFilter: 'blur(20px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+              border: '1px solid rgba(59,130,246,0.3)',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
             }}
           />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
           
           <div className="relative h-full p-5 flex flex-col">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-blue-400" />
+              <div className="w-2 h-2 rounded-full bg-blue-400 shadow-lg shadow-blue-400/50" />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
             </div>
             
-            <div className="text-4xl font-bold text-white/85 mb-1">Gratis</div>
-            <p className="text-[10px] text-white/35 mb-4">aprobación manual</p>
+            <div className="text-[2.5rem] font-bold text-white/90 mb-1 tracking-tight">Gratis</div>
+            <p className="text-[10px] text-white/35 mb-4">tras aprobación manual</p>
             
             <div className="w-full h-px mb-4 bg-gradient-to-r from-blue-500/30 to-transparent" />
             
-            <div className="flex-1 space-y-2">
-              {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10/día', '✓ Discord'].map((f, i) => (
+            <div className="flex-1 space-y-2.5">
+              {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10 msg/día', '✓ Discord exclusivo'].map((f, i) => (
                 <p key={i} className="text-[10px] text-white/45">{f}</p>
               ))}
             </div>
 
             <button
-              onClick={(e) => { e.stopPropagation(); router.push('/cuestionario') }}
-              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
+              onClick={() => router.push('/cuestionario')}
+              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white transition-transform active:scale-95"
               style={{
-                background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
-                border: '1px solid rgba(59,130,246,0.35)',
-                boxShadow: '0 6px 20px rgba(37,99,235,0.25)',
+                background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                boxShadow: '0 4px 15px rgba(37,99,235,0.3)',
               }}
             >
               Solicitar Gratis
@@ -155,54 +178,57 @@ export default function SeleccionarAcceso() {
 
         {/* PAID Card (Front) */}
         <div 
-          className="absolute inset-0 rounded-[28px] overflow-hidden"
+          className="absolute inset-0 rounded-[24px] overflow-hidden"
           style={{
-            transform: showPaid ? 'scale(1) translateY(0)' : 'scale(0.88) translateY(16px)',
-            opacity: showPaid ? 1 : 0.35,
-            filter: showPaid ? 'blur(0)' : 'blur(2px)',
+            transform: showPaid 
+              ? 'perspective(1000px) rotateY(0deg) scale(1) translateY(0)' 
+              : 'perspective(1000px) rotateY(12deg) scale(0.85) translateY(12px)',
+            opacity: showPaid ? 1 : 0.3,
+            filter: showPaid ? 'blur(0px)' : 'blur(3px)',
             zIndex: 10,
-            transition: 'all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            transition: 'all 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
+            transformOrigin: 'center bottom',
           }}
         >
           <div 
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(160deg, rgba(153,27,27,0.85) 0%, rgba(69,10,10,0.92) 50%, rgba(20,5,5,0.98) 100%)',
-              backdropFilter: 'blur(24px) saturate(150%)',
-              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-              border: '1px solid rgba(239,68,68,0.3)',
-              boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7), 0 0 60px rgba(220,38,38,0.15)',
+              background: 'linear-gradient(160deg, rgba(153,27,27,0.9) 0%, rgba(69,10,10,0.95) 60%, rgba(0,0,0,0.98) 100%)',
+              backdropFilter: 'blur(20px) saturate(140%)',
+              WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+              border: '1px solid rgba(239,68,68,0.35)',
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), 0 0 40px rgba(220,38,38,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
             }}
           />
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
           
           <div className="absolute top-4 right-4">
-            <div className="px-2.5 py-1 rounded-full text-[8px] font-bold uppercase bg-red-500/25 border border-red-500/50 text-red-300">⚡</div>
+            <div className="px-2.5 py-1 rounded-full text-[8px] font-bold uppercase bg-red-500/30 border border-red-500/50 text-red-300 shadow-lg shadow-red-500/30">⚡</div>
           </div>
           
           <div className="relative h-full p-5 flex flex-col">
             <div className="flex items-center gap-2 mb-3">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <div className="w-2 h-2 rounded-full bg-red-500 shadow-lg shadow-red-500/50" />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Acceso</span>
             </div>
             
-            <div className="text-4xl font-bold text-white mb-1">17€</div>
+            <div className="text-[2.5rem] font-bold text-white mb-1 tracking-tight">17€</div>
             <p className="text-[10px] text-white/35 mb-4">pago único</p>
             
             <div className="w-full h-px mb-4 bg-gradient-to-r from-red-500/40 to-transparent" />
             
-            <div className="flex-1 space-y-2">
-              {['✓ Acceso inmediato', '✓ 5 Templos', '✓ NOVA ilimitado', '✓ Discord'].map((f, i) => (
-                <p key={i} className="text-[10px] text-white/60">{f}</p>
+            <div className="flex-1 space-y-2.5">
+              {['✓ Acceso inmediato', '✓ 5 Templos', '✓ NOVA ilimitado', '✓ Discord exclusivo'].map((f, i) => (
+                <p key={i} className="text-[10px] text-white/65">{f}</p>
               ))}
             </div>
 
             <button
-              onClick={(e) => { e.stopPropagation(); window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer') }}
-              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
+              onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
+              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white transition-transform active:scale-95"
               style={{
                 background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
-                boxShadow: '0 6px 20px rgba(220,38,38,0.4)',
+                boxShadow: '0 4px 15px rgba(220,38,38,0.4)',
               }}
             >
               Acceso 17€ →
@@ -212,9 +238,11 @@ export default function SeleccionarAcceso() {
 
       </div>
 
-      {/* Hint */}
-      <div className="md:hidden relative z-10 mt-[340px] text-white/30 text-[10px]">
-        Toca para cambiar
+      {/* Swipe Hint */}
+      <div className="md:hidden relative z-10 mt-4 flex items-center gap-2 text-white/35 text-[10px]">
+        <span className="animate-pulse">←</span>
+        <span>Desliza</span>
+        <span className="animate-pulse">→</span>
       </div>
 
       {/* DESKTOP */}
@@ -222,17 +250,17 @@ export default function SeleccionarAcceso() {
         
         {/* PAID */}
         <div 
-          className="flex-1 rounded-[32px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
+          className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
           style={{
-            background: 'linear-gradient(160deg, rgba(153,27,27,0.8) 0%, rgba(69,10,10,0.9) 50%, rgba(20,5,5,0.95) 100%)',
-            border: '1px solid rgba(239,68,68,0.25)',
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 60px rgba(220,38,38,0.1)',
+            background: 'linear-gradient(160deg, rgba(153,27,27,0.85) 0%, rgba(69,10,10,0.92) 50%, rgba(20,5,5,0.95) 100%)',
+            border: '1px solid rgba(239,68,68,0.3)',
+            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 60px rgba(220,38,38,0.12)',
           }}
         >
           <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
           
           <div className="absolute top-6 right-6">
-            <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-red-500/20 border border-red-500/40 text-red-300">⚡ Popular</span>
+            <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-red-500/25 border border-red-500/45 text-red-300">⚡ Popular</span>
           </div>
 
           <div className="p-8 pt-12">
@@ -269,14 +297,14 @@ export default function SeleccionarAcceso() {
 
         {/* FREE */}
         <div 
-          className="flex-1 rounded-[32px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
+          className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
           style={{
-            background: 'linear-gradient(160deg, rgba(30,58,138,0.75) 0%, rgba(15,23,42,0.88) 50%, rgba(3,7,18,0.95) 100%)',
-            border: '1px solid rgba(59,130,246,0.2)',
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 40px rgba(37,99,235,0.05)',
+            background: 'linear-gradient(160deg, rgba(30,64,175,0.8) 0%, rgba(15,23,42,0.9) 50%, rgba(3,7,18,0.95) 100%)',
+            border: '1px solid rgba(59,130,246,0.25)',
+            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 40px rgba(37,99,235,0.06)',
           }}
         >
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
 
           <div className="p-8 pt-12">
             <div className="flex items-center gap-2 mb-5">
@@ -312,7 +340,7 @@ export default function SeleccionarAcceso() {
       </div>
 
       {/* Trust */}
-      <div className="relative z-10 mt-10 flex items-center justify-center gap-4 text-white/25 text-[10px] flex-wrap px-4">
+      <div className="relative z-10 mt-8 flex items-center justify-center gap-4 text-white/25 text-[10px] flex-wrap px-4">
         <span className="flex items-center gap-1.5">✓ Pago seguro</span>
         <span className="w-px h-3 bg-white/10" />
         <span>✓ Sin compromisos</span>
