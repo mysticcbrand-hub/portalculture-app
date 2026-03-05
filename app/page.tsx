@@ -468,24 +468,28 @@ function HomePageContent() {
 
                 <div className="space-y-2">
                   <h2 className="text-xl sm:text-2xl font-semibold text-white">
-                    Transforma tu vida
+                    Tu transformación comienza aquí
                   </h2>
                   <p className="text-white/50 text-sm leading-relaxed">
-                    Únete a una comunidad exclusiva de desarrollo personal. 
-                    Acceso inmediato a 5 templos de conocimiento y tu coach AI personalizado.
+                    Más de <span className="text-emerald-400 font-semibold">590€ en contenido exclusivo</span> que puede cambiar tu vida. 
+                    Todo esto por una fracción del valor real.
                   </p>
                 </div>
 
                 {/* Features */}
                 <div className="grid grid-cols-1 gap-2.5 pt-2">
                   {[
-                    { icon: '⚡', text: 'Acceso inmediato' },
-                    { icon: '🧠', text: 'NOVA AI Coach' },
-                    { icon: '🔥', text: '5 Templos de saber' },
+                    { icon: '🚀', text: 'Comunidad de jóvenes ambiciosos', value: 'Invalorable' },
+                    { icon: '🏛️', text: '5 Templos de saber', value: '297€' },
+                    { icon: '🤖', text: 'NOVA AI Coach', value: '97€' },
+                    { icon: '💎', text: 'Contenido extra exclusivo', value: '+197€' },
                   ].map((feature, i) => (
-                    <div key={i} className="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-white/[0.035] border border-white/[0.06]">
-                      <span className="text-base">{feature.icon}</span>
-                      <span className="text-white/70 text-sm">{feature.text}</span>
+                    <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.035] border border-white/[0.06]">
+                      <div className="flex items-center gap-3">
+                        <span className="text-base">{feature.icon}</span>
+                        <span className="text-white/70 text-sm">{feature.text}</span>
+                      </div>
+                      <span className="text-emerald-400/90 text-xs font-semibold">{feature.value}</span>
                     </div>
                   ))}
                 </div>
@@ -493,20 +497,22 @@ function HomePageContent() {
                 {/* CTA Button */}
                 <button
                   onClick={scrollToAuth}
-                  className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.35),0_0_100px_rgba(59,130,246,0.2)] hover:scale-[1.02] active:scale-[0.98]"
+                  className="relative w-full py-4 mt-4 bg-white text-black text-sm font-bold rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.35),0_0_100px_rgba(59,130,246,0.2)] hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  <span className="relative z-10 flex items-center justify-center gap-2.5">
-                    <span>Cruzar el Portal</span>
-                    <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                    </svg>
+                  <span className="relative z-10 flex flex-col items-center justify-center gap-0.5">
+                    <span className="text-[10px] text-black/50 font-medium">Total: 591€</span>
+                    <span className="flex items-center gap-2">
+                      <span>Acceso por 17€</span>
+                      <span className="text-black/40">o</span>
+                      <span className="text-emerald-600">Gratis</span>
+                    </span>
                   </span>
                   <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                   <div className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent opacity-60" />
                 </button>
 
-                <p className="text-white/30 text-[10px] uppercase tracking-wider">
-                  7€ acceso único o gratis con aprobación
+                <p className="text-white/35 text-[10px] uppercase tracking-wider">
+                  Con aprobación manual · 14 días de cooldown si eres rechazado
                 </p>
               </div>
             </div>
