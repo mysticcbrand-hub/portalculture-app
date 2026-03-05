@@ -24,7 +24,7 @@ export default function SeleccionarAcceso() {
   
   // Mobile shuffle state
   const [shuffling, setShuffling] = useState(false)
-  const [shuffleType, setShuffleType] = useState<'paid' | 'free' | null>(null)
+  const [showPaid, setShowPaid] = useState(true)
   
   const supabase = createClient()
 
@@ -42,20 +42,18 @@ export default function SeleccionarAcceso() {
   const handleShuffle = useCallback((type: 'paid' | 'free') => {
     if (shuffling) return
     setShuffling(true)
-    setShuffleType(type)
     
     let count = 0
-    const maxShuffles = 5
+    const maxShuffles = 6
     
     const shuffle = () => {
       count++
-      setShuffleType(prev => prev === 'paid' ? 'free' : 'paid')
+      setShowPaid(prev => !prev)
       
       if (count < maxShuffles) {
-        setTimeout(shuffle, 120)
+        setTimeout(shuffle, 100)
       } else {
         setShuffling(false)
-        // Navigate based on selection
         if (type === 'paid') {
           window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
         } else {
@@ -64,7 +62,7 @@ export default function SeleccionarAcceso() {
       }
     }
     
-    setTimeout(shuffle, 120)
+    setTimeout(shuffle, 100)
   }, [shuffling, router])
 
   const handleFastPass = () => handleShuffle('paid')
@@ -121,14 +119,11 @@ export default function SeleccionarAcceso() {
     )
   }
 
-  const isPaid = shuffleType === 'paid'
-  const isFree = shuffleType === 'free'
-
   return (
     <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 sm:p-6 relative overflow-hidden bg-black">
       
-      {/* ── Ambient background ── */}
-      <div className="fixed inset-0 pointer-events-none" aria-hidden>
+      {/* Background */}
+      <div className="fixed inset-0 pointer-events-none">
         <div className="absolute inset-0 hidden md:block" style={{
           background: `
             radial-gradient(ellipse 90% 75% at 10% 25%, rgba(220,38,38,0.28) 0%, rgba(185,28,28,0.10) 40%, transparent 70%),
@@ -152,24 +147,23 @@ export default function SeleccionarAcceso() {
         }} />
       </div>
 
-      {/* ── Logout ── */}
-      <button onClick={handleLogout} className="fixed top-4 sm:top-6 right-4 sm:right-6 z-50 group" aria-label="Cerrar sesión">
-        <div className="px-4 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-xl border border-white/[0.08] hover:border-white/[0.15] rounded-full transition-all duration-300 hover:scale-105 active:scale-95 flex items-center gap-2">
-          <svg className="w-4 h-4 text-white/40 group-hover:text-white/70 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      {/* Logout */}
+      <button onClick={handleLogout} className="fixed top-4 sm:top-6 right-4 sm:right-6 z-50 group">
+        <div className="px-4 py-2.5 bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-xl border border-white/[0.08] rounded-full flex items-center gap-2">
+          <svg className="w-4 h-4 text-white/40" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
           </svg>
-          <span className="text-sm text-white/40 group-hover:text-white/70 transition-colors hidden sm:inline">Cerrar sesión</span>
         </div>
       </button>
 
-      {/* ── Header ── */}
-      <div className="relative z-10 text-center mb-5 md:mb-14">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-4 text-[11px] font-medium tracking-widest uppercase"
+      {/* Header */}
+      <div className="relative z-10 text-center mb-4 md:mb-14">
+        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full mb-3 text-[11px] font-medium tracking-widest uppercase"
           style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)', color: 'rgba(255,255,255,0.35)' }}>
           <span className="w-1.5 h-1.5 rounded-full bg-white/30 animate-pulse" />
           Elige tu acceso
         </div>
-        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight mb-2">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight">
           <span style={{
             background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.55) 100%)',
             WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
@@ -179,90 +173,91 @@ export default function SeleccionarAcceso() {
         </h1>
       </div>
 
-      {/* ── MOBILE: Card Stack with Shuffle ── */}
-      <div className="relative z-10 w-full max-w-[280px] md:hidden">
+      {/* MOBILE: Card Stack */}
+      <div className="relative z-10 w-full max-w-[300px] md:hidden">
         
-        <div className="relative h-[380px]">
+        {/* Card Container with Shuffle */}
+        <div className="relative h-[340px]">
           
-          {/* Card 2 (Behind) - Free */}
+          {/* Card FREE (Behind) */}
           <div 
-            className="absolute inset-x-0 top-3 rounded-3xl overflow-hidden"
+            className="absolute left-0 right-0 top-2 rounded-3xl overflow-hidden"
             style={{
-              transform: shuffling ? 'scale(0.85) translateY(15px)' : (isPaid ? 'scale(0.85) translateY(15px)' : 'scale(0.88) translateY(12px)'),
-              opacity: shuffling ? 0.4 : (isPaid ? 0.5 : 0.8),
-              filter: shuffling ? 'blur(2px)' : 'blur(1px)',
-              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              zIndex: 1,
+              transform: `scale(${shuffling ? (showPaid ? 0.82 : 1) : (showPaid ? 0.85 : 1)}) translateY(${shuffling ? (showPaid ? 18 : 0) : (showPaid ? 15 : 0)}px)`,
+              opacity: shuffling ? (showPaid ? 0.3 : 0.9) : (showPaid ? 0.5 : 1),
+              filter: shuffling ? 'blur(2px)' : (showPaid ? 'blur(1px)' : 'blur(0px)'),
+              transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+              zIndex: showPaid ? 1 : 10,
             }}
           >
             <div 
               className="absolute inset-0 rounded-3xl"
               style={{
-                background: 'linear-gradient(165deg, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.92) 60%)',
-                border: '1px solid rgba(59,130,246,0.2)',
-                boxShadow: '0 15px 30px rgba(0,0,0,0.4)',
+                background: 'linear-gradient(165deg, rgba(37,99,235,0.08) 0%, rgba(0,0,0,0.92) 60%)',
+                border: '1px solid rgba(59,130,246,0.25)',
+                boxShadow: '0 18px 35px rgba(0,0,0,0.5)',
               }}
             >
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
+              
               <div className="p-4 h-full flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
                   <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
                 </div>
-                <div className="text-2xl font-bold text-white/70 mb-1">Gratis</div>
+                <div className="text-3xl font-bold text-white/80 mb-1">Gratis</div>
                 <p className="text-[9px] text-white/30 mb-3">tras aprobación</p>
-                <div className="space-y-1 flex-1">
-                  <p className="text-[9px] text-white/40">○ Aprobación</p>
-                  <p className="text-[9px] text-white/40">○ Templos</p>
-                  <p className="text-[9px] text-white/40">○ NOVA 10/día</p>
+                
+                <div className="w-full h-px mb-3 bg-gradient-to-r from-blue-500/30 to-transparent" />
+                
+                <div className="space-y-1.5 flex-1">
+                  <p className="text-[10px] text-white/45">✓ Aprobación manual</p>
+                  <p className="text-[10px] text-white/45">✓ Templos progresivos</p>
+                  <p className="text-[10px] text-white/45">✓ NOVA 10 msg/día</p>
                 </div>
+
                 <button
-                  onClick={(e) => { e.stopPropagation(); handleWaitlist() }}
-                  className="w-full py-2 rounded-xl text-[10px] font-semibold"
+                  onClick={handleWaitlist}
+                  disabled={shuffling}
+                  className="w-full py-2.5 rounded-xl text-[11px] font-semibold mt-2"
                   style={{
-                    background: 'rgba(37,99,235,0.2)',
-                    border: '1px solid rgba(59,130,246,0.3)',
-                    color: 'rgba(255,255,255,0.7)',
+                    background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
+                    border: '1px solid rgba(59,130,246,0.35)',
+                    color: 'rgba(255,255,255,0.9)',
+                    boxShadow: '0 4px 15px rgba(37,99,235,0.25)',
+                    opacity: shuffling ? 0.5 : 1,
                   }}
                 >
-                  Gratis →
+                  {shuffling ? '...' : 'Solicitar Gratis'}
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Card 1 (Front) - Paid */}
+          {/* Card PAID (Front) */}
           <div 
-            className="absolute inset-x-0 top-0 rounded-3xl overflow-hidden"
+            className="absolute left-0 right-0 top-0 rounded-3xl overflow-hidden"
             style={{
-              transform: shuffling ? 'scale(1.05) translateY(-5px)' : 'scale(1)',
-              opacity: shuffling ? 0.6 : 1,
-              filter: shuffling ? 'blur(1px)' : 'blur(0px)',
-              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-              zIndex: 10,
+              transform: `scale(${shuffling ? (showPaid ? 1 : 0.88) : (showPaid ? 1 : 0.92)}) translateY(${shuffling ? (showPaid ? 0 : 12) : (showPaid ? 0 : 12)}px)`,
+              opacity: shuffling ? (showPaid ? 0.9 : 0.4) : (showPaid ? 1 : 0.6),
+              filter: shuffling ? 'blur(0px)' : (showPaid ? 'blur(0px)' : 'blur(1px)'),
+              transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+              zIndex: showPaid ? 10 : 1,
             }}
           >
             <div 
               className="absolute inset-0 rounded-3xl"
               style={{
-                background: isFree 
-                  ? 'linear-gradient(165deg, rgba(220,38,38,0.08) 0%, rgba(0,0,0,0.92) 60%)'
-                  : 'linear-gradient(165deg, rgba(220,38,38,0.08) 0%, rgba(0,0,0,0.88) 60%)',
-                border: `1px solid ${shuffling ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.25)'}`,
-                boxShadow: shuffling
-                  ? '0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(220,38,38,0.2)'
-                  : '0 20px 40px rgba(0,0,0,0.45), 0 0 25px rgba(220,38,38,0.12)',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+                background: 'linear-gradient(165deg, rgba(220,38,38,0.1) 0%, rgba(0,0,0,0.9) 60%)',
+                border: '1px solid rgba(239,68,68,0.3)',
+                boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(220,38,38,0.15)',
               }}
             >
-              {/* Shimmer */}
-              <div className="absolute top-0 left-0 right-0 h-px" style={{
-                background: 'linear-gradient(90deg, transparent, rgba(239,68,68,0.5), transparent)'
-              }} />
-
-              {/* Badge */}
+              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+              
               <div className="absolute top-3 right-3 z-10">
-                <div className="px-2 py-0.5 rounded-full text-[8px] font-semibold"
-                  style={{ background: 'rgba(220,38,38,0.2)', border: '1px solid rgba(239,68,68,0.4)', color: '#FCA5A5' }}>
+                <div className="px-2.5 py-1 rounded-full text-[8px] font-semibold"
+                  style={{ background: 'rgba(220,38,38,0.25)', border: '1px solid rgba(239,68,68,0.45)', color: '#FCA5A5' }}>
                   ⚡ Popular
                 </div>
               </div>
@@ -272,65 +267,55 @@ export default function SeleccionarAcceso() {
                   <div className="w-1.5 h-1.5 rounded-full bg-red-500" />
                   <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Acceso</span>
                 </div>
-                <div className="text-3xl font-bold text-white mb-1">17€</div>
+                <div className="text-3.5xl font-bold text-white mb-1">17€</div>
                 <p className="text-[9px] text-white/30 mb-3">pago único</p>
                 
-                <div className="w-full h-px mb-3" style={{ background: 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' }} />
-
+                <div className="w-full h-px mb-3 bg-gradient-to-r from-red-500/40 to-transparent" />
+                
                 <div className="space-y-1.5 flex-1">
-                  <p className="text-[10px] text-white/60 flex items-center gap-1.5">
-                    <span className="text-green-400">✓</span> Acceso inmediato
-                  </p>
-                  <p className="text-[10px] text-white/60 flex items-center gap-1.5">
-                    <span className="text-green-400">✓</span> 5 Templos
-                  </p>
-                  <p className="text-[10px] text-white/60 flex items-center gap-1.5">
-                    <span className="text-green-400">✓</span> NOVA ilimitado
-                  </p>
-                  <p className="text-[10px] text-white/60 flex items-center gap-1.5">
-                    <span className="text-green-400">✓</span> Discord
-                  </p>
+                  <p className="text-[10px] text-white/65 flex items-center gap-1.5"><span className="text-green-400">✓</span> Acceso inmediato</p>
+                  <p className="text-[10px] text-white/65 flex items-center gap-1.5"><span className="text-green-400">✓</span> 5 Templos</p>
+                  <p className="text-[10px] text-white/65 flex items-center gap-1.5"><span className="text-green-400">✓</span> NOVA ilimitado</p>
+                  <p className="text-[10px] text-white/65 flex items-center gap-1.5"><span className="text-green-400">✓</span> Discord</p>
                 </div>
 
                 <button
-                  onClick={(e) => { e.stopPropagation(); handleFastPass() }}
+                  onClick={handleFastPass}
                   disabled={shuffling}
                   className="w-full py-2.5 rounded-xl text-[11px] font-semibold text-white mt-2"
                   style={{
                     background: shuffling
-                      ? 'rgba(220,38,38,0.5)'
+                      ? 'rgba(220,38,38,0.6)'
                       : 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
-                    boxShadow: '0 4px 15px rgba(220,38,38,0.35)',
-                    opacity: shuffling ? 0.7 : 1,
+                    boxShadow: '0 4px 20px rgba(220,38,38,0.4)',
+                    opacity: shuffling ? 0.6 : 1,
                     transition: 'all 0.2s ease',
                   }}
                 >
-                  {shuffling ? '...' : '17€ →'}
+                  {shuffling ? '...' : 'Acceso 17€'}
                 </button>
               </div>
             </div>
           </div>
+
         </div>
 
-        {/* Shuffle hint */}
-        <p className="text-center text-white/25 text-[9px] mt-4">
-          {shuffling ? 'Eligiendo...' : 'Toca un acceso para continuar'}
+        <p className="text-center text-white/30 text-[9px] mt-4">
+          {shuffling ? 'Eligiendo...' : 'Toca para elegir'}
         </p>
       </div>
 
-      {/* ── DESKTOP: Cards side by side ── */}
+      {/* DESKTOP: Cards */}
       <div className="relative z-10 w-full max-w-3xl hidden md:flex flex-row gap-5 items-stretch">
 
-        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ CARD 0 — PAGO ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        {/* Card 0 - PAID */}
         <div
           ref={el => { cardRefs.current[0] = el }}
           className="relative flex-1 cursor-pointer"
           onClick={handleFastPass}
           style={{
             transform: `perspective(1000px) rotateX(${transforms[0].rotateX}deg) rotateY(${transforms[0].rotateY}deg) translateY(${hoveredCard === 0 ? '-8px' : '-3px'}) scale(${hoveredCard === 0 ? 1.025 : 1.008})`,
-            transition: hoveredCard === 0
-              ? 'transform 0.12s cubic-bezier(0.16,1,0.3,1)'
-              : 'transform 0.55s cubic-bezier(0.16,1,0.3,1)',
+            transition: hoveredCard === 0 ? 'transform 0.12s' : 'transform 0.55s cubic-bezier(0.16,1,0.3,1)',
             transformStyle: 'preserve-3d',
             willChange: 'transform',
           }}
@@ -343,99 +328,57 @@ export default function SeleccionarAcceso() {
               background: `radial-gradient(ellipse at ${transforms[0].glowX}% ${transforms[0].glowY}%, rgba(220,38,38,${hoveredCard === 0 ? '0.32' : '0.16'}) 0%, rgba(185,28,28,0.06) 50%, transparent 70%)`,
               filter: 'blur(20px)',
             }} />
-
           <div className="absolute -inset-[1px] rounded-3xl pointer-events-none"
             style={{
               background: `linear-gradient(135deg, rgba(239,68,68,${hoveredCard === 0 ? '0.85' : '0.55'}) 0%, rgba(185,28,28,0.3) 40%, rgba(120,0,0,0.1) 100%)`,
-              padding: '1px',
-              borderRadius: '24px',
             }} />
-
           <div className="relative rounded-3xl p-6 sm:p-8 h-full flex flex-col overflow-hidden"
             style={{
               background: hoveredCard === 0
                 ? `radial-gradient(ellipse at ${transforms[0].glowX}% ${transforms[0].glowY}%, rgba(220,38,38,0.09) 0%, rgba(0,0,0,0.75) 60%)`
                 : 'linear-gradient(160deg, rgba(220,38,38,0.05) 0%, rgba(0,0,0,0.8) 60%, rgba(0,0,0,0.9) 100%)',
-              backdropFilter: 'blur(28px) saturate(150%)',
               border: `1px solid rgba(239,68,68,${hoveredCard === 0 ? '0.35' : '0.15'})`,
             }}>
-
-            <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-              style={{ background: `linear-gradient(90deg, transparent, rgba(239,68,68,${hoveredCard === 0 ? '0.7' : '0.35'}), transparent)` }} />
-
             <div className="absolute top-4 right-4">
-              <div className="px-3 py-1 rounded-full text-[11px] font-semibold tracking-wide"
+              <div className="px-3 py-1 rounded-full text-[11px] font-semibold"
                 style={{ background: 'rgba(220,38,38,0.15)', border: '1px solid rgba(239,68,68,0.35)', color: '#FCA5A5' }}>
                 ⚡ Más popular
               </div>
             </div>
-
             <div className="inline-flex items-center gap-2 mb-5 mt-1">
               <div className="w-2 h-2 rounded-full bg-red-500" />
               <span className="text-xs font-semibold uppercase tracking-widest text-red-400">Acceso Inmediato</span>
             </div>
-
             <div className="mb-6">
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-5xl sm:text-6xl font-bold text-white">17€</span>
-              </div>
-              <p className="text-sm text-white/30">pago único · sin suscripción</p>
+              <span className="text-5xl sm:text-6xl font-bold text-white">17€</span>
+              <p className="text-sm text-white/30 mt-1">pago único · sin suscripción</p>
             </div>
-
-            <div className="w-full h-[1px] mb-6" style={{ background: 'linear-gradient(90deg, rgba(239,68,68,0.4), transparent)' }} />
-
+            <div className="w-full h-[1px] mb-6 bg-gradient-to-r from-red-500/40 to-transparent" />
             <ul className="space-y-3 mb-auto flex-1">
-              {[
-                'Acceso completo inmediato',
-                'Sin espera ni aprobación',
-                '5 Templos desbloqueados',
-                'NOVA AI Coach ilimitado',
-                'Discord exclusivo',
-              ].map((f, i) => (
+              {['Acceso completo inmediato', 'Sin espera', '5 Templos', 'NOVA ilimitado', 'Discord'].map((f, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                    style={{ background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.35)' }}>
-                    <svg className="w-2.5 h-2.5" fill="none" stroke="#EF4444" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center bg-red-500/20 border border-red-500/40">
+                    <svg className="w-2.5 h-2.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <span className="text-sm text-white/75">{f}</span>
                 </li>
               ))}
             </ul>
-
-            <button
-              onClick={handleFastPass}
-              className="relative w-full py-4 rounded-2xl text-sm font-semibold text-white overflow-hidden mt-8"
-              style={{
-                background: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)',
-                boxShadow: hoveredCard === 0
-                  ? '0 0 40px rgba(220,38,38,0.5), 0 8px 32px rgba(220,38,38,0.3), inset 0 1px 0 rgba(255,255,255,0.2)'
-                  : '0 4px 20px rgba(220,38,38,0.25), inset 0 1px 0 rgba(255,255,255,0.15)',
-              }}
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Entrar ahora
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
+            <button onClick={handleFastPass} className="w-full py-4 rounded-2xl text-sm font-semibold text-white mt-8 bg-gradient-to-r from-red-600 to-red-800 hover:shadow-lg hover:shadow-red-500/30">
+              Entrar ahora →
             </button>
-
             <p className="text-center text-[11px] mt-3 text-white/20">Pago seguro vía Whop</p>
           </div>
         </div>
 
-        {/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ CARD 1 — Gratis ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */}
+        {/* Card 1 - FREE */}
         <div
           ref={el => { cardRefs.current[1] = el }}
           className="relative flex-1 cursor-pointer"
           onClick={handleWaitlist}
           style={{
             transform: `perspective(1000px) rotateX(${transforms[1].rotateX}deg) rotateY(${transforms[1].rotateY}deg) translateY(${hoveredCard === 1 ? '-4px' : '0px'}) scale(${hoveredCard === 1 ? 1.01 : 1})`,
-            transition: hoveredCard === 1
-              ? 'transform 0.12s cubic-bezier(0.16,1,0.3,1)'
-              : 'transform 0.55s cubic-bezier(0.16,1,0.3,1)',
+            transition: hoveredCard === 1 ? 'transform 0.12s' : 'transform 0.55s cubic-bezier(0.16,1,0.3,1)',
             transformStyle: 'preserve-3d',
             willChange: 'transform',
           }}
@@ -443,95 +386,57 @@ export default function SeleccionarAcceso() {
           onMouseLeave={() => handleMouseLeave(1)}
           onMouseMove={(e) => handleMouseMove(e, 1)}
         >
-          <div className="absolute -inset-3 rounded-[36px] pointer-events-none transition-opacity duration-500"
+          <div className="absolute -inset-3 rounded-[36px] pointer-events-none"
             style={{
               background: `radial-gradient(ellipse at ${transforms[1].glowX}% ${transforms[1].glowY}%, rgba(37,99,235,${hoveredCard === 1 ? '0.18' : '0.07'}) 0%, transparent 70%)`,
               filter: 'blur(18px)',
             }} />
-
           <div className="absolute -inset-[1px] rounded-3xl pointer-events-none"
             style={{
               background: `linear-gradient(135deg, rgba(59,130,246,${hoveredCard === 1 ? '0.45' : '0.2'}) 0%, rgba(37,99,235,0.1) 50%, transparent 100%)`,
             }} />
-
           <div className="relative rounded-3xl p-6 sm:p-8 h-full flex flex-col overflow-hidden"
             style={{
               background: hoveredCard === 1
                 ? `radial-gradient(ellipse at ${transforms[1].glowX}% ${transforms[1].glowY}%, rgba(37,99,235,0.06) 0%, rgba(0,0,0,0.82) 60%)`
                 : 'linear-gradient(160deg, rgba(255,255,255,0.02) 0%, rgba(0,0,0,0.85) 100%)',
-              backdropFilter: 'blur(24px) saturate(130%)',
               border: `1px solid rgba(59,130,246,${hoveredCard === 1 ? '0.2' : '0.08'})`,
             }}>
-
-            <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-              style={{ background: `linear-gradient(90deg, transparent, rgba(59,130,246,${hoveredCard === 1 ? '0.4' : '0.15'}), transparent)` }} />
-
             <div className="inline-flex items-center gap-2 mb-5 mt-1">
               <div className="w-2 h-2 rounded-full bg-blue-500" />
               <span className="text-xs font-semibold uppercase tracking-widest text-blue-400">Lista de Espera</span>
             </div>
-
             <div className="mb-6">
-              <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-5xl sm:text-6xl font-bold text-white/80">Gratis</span>
-              </div>
-              <p className="text-sm text-white/25">Tras aprobación manual</p>
+              <span className="text-5xl sm:text-6xl font-bold text-white/80">Gratis</span>
+              <p className="text-sm text-white/25 mt-1">Tras aprobación manual</p>
             </div>
-
-            <div className="w-full h-[1px] mb-6" style={{ background: 'linear-gradient(90deg, rgba(59,130,246,0.25), transparent)' }} />
-
+            <div className="w-full h-[1px] mb-6 bg-gradient-to-r from-blue-500/25 to-transparent" />
             <ul className="space-y-3 mb-auto flex-1">
-              {[
-                'Aprobación con cuestionario',
-                'Templos progresivos',
-                'NOVA AI Coach (10 msg/día)',
-                'Discord exclusivo',
-              ].map((f, i) => (
+              {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA 10 msg/día', 'Discord'].map((f, i) => (
                 <li key={i} className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full flex-shrink-0 flex items-center justify-center"
-                    style={{ background: 'rgba(59,130,246,0.08)', border: '1px solid rgba(59,130,246,0.2)' }}>
-                    <svg className="w-2.5 h-2.5" fill="none" stroke="#3B82F6" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                    </svg>
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                    <svg className="w-2.5 h-2.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <span className="text-sm text-white/50">{f}</span>
                 </li>
               ))}
             </ul>
-
-            <button
-              onClick={handleWaitlist}
-              className="relative w-full py-4 rounded-2xl text-sm font-semibold overflow-hidden mt-8"
-              style={{
-                background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
-                border: '1px solid rgba(59,130,246,0.25)',
-                color: 'rgba(255,255,255,0.75)',
-              }}
-            >
-              <span className="relative z-10 flex items-center justify-center gap-2">
-                Continuar gratis
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </span>
+            <button onClick={handleWaitlist} className="w-full py-4 rounded-2xl text-sm font-semibold mt-8 bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg hover:shadow-blue-500/30 text-white">
+              Continuar gratis →
             </button>
           </div>
         </div>
 
       </div>
 
-      {/* ── Trust bar ── */}
+      {/* Trust bar */}
       <div className="relative z-10 mt-8 md:mt-10 flex items-center gap-5 text-[11px] text-white/20">
         <span className="flex items-center gap-1.5">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-          </svg>
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
           Pago seguro
         </span>
         <span className="w-px h-3 bg-white/10" />
         <span>Sin compromisos</span>
-        <span className="w-px h-3 bg-white/10" />
-        <span>Acceso inmediato</span>
       </div>
 
     </div>
