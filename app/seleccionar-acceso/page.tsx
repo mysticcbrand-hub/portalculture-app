@@ -11,6 +11,7 @@ export default function SeleccionarAcceso() {
   
   const [shuffling, setShuffling] = useState(false)
   const [showPaid, setShowPaid] = useState(true)
+  const [shuffleCount, setShuffleCount] = useState(0)
   
   const supabase = createClient()
 
@@ -27,25 +28,29 @@ export default function SeleccionarAcceso() {
   const handleShuffle = useCallback((type: 'paid' | 'free') => {
     if (shuffling) return
     setShuffling(true)
+    setShuffleCount(0)
     
-    let count = 0
+    const maxShuffles = 8
+    
     const shuffle = () => {
-      count++
       setShowPaid(prev => !prev)
+      setShuffleCount(c => c + 1)
       
-      if (count < 6) {
-        setTimeout(shuffle, 100)
+      if (shuffleCount < maxShuffles - 1) {
+        setTimeout(shuffle, 80)
       } else {
-        setShuffling(false)
-        if (type === 'paid') {
-          window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
-        } else {
-          router.push('/cuestionario')
-        }
+        setTimeout(() => {
+          setShuffling(false)
+          if (type === 'paid') {
+            window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')
+          } else {
+            router.push('/cuestionario')
+          }
+        }, 150)
       }
     }
-    setTimeout(shuffle, 100)
-  }, [shuffling, router])
+    setTimeout(shuffle, 80)
+  }, [shuffling, shuffleCount, router])
 
   const handleFastPass = () => handleShuffle('paid')
   const handleWaitlist = () => handleShuffle('free')
@@ -69,174 +74,302 @@ export default function SeleccionarAcceso() {
   return (
     <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black">
       
-      {/* Background */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20" />
-      
+      {/* Premium Background */}
+      <div className="fixed inset-0">
+        <div className="absolute inset-0 hidden md:block" style={{
+          background: `
+            radial-gradient(ellipse 90% 75% at 10% 25%, rgba(220,38,38,0.25) 0%, rgba(185,28,28,0.08) 40%, transparent 70%),
+            radial-gradient(ellipse 80% 70% at 90% 75%, rgba(37,99,235,0.2) 0%, rgba(29,78,216,0.06) 40%, transparent 70%),
+            radial-gradient(ellipse 60% 50% at 50% 0%, rgba(139,92,246,0.1) 0%, transparent 55%),
+            #000000
+          `
+        }} />
+        <div className="absolute inset-0 md:hidden" style={{
+          background: `
+            radial-gradient(ellipse 100% 70% at 50% 15%, rgba(139,92,246,0.18) 0%, transparent 50%),
+            radial-gradient(ellipse 80% 60% at 50% 90%, rgba(37,99,235,0.12) 0%, transparent 40%),
+            #000000
+          `
+        }} />
+        <div className="absolute inset-0" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundSize: '150px',
+          opacity: 0.03,
+          mixBlendMode: 'overlay',
+        }} />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/60" />
+      </div>
+
       {/* Logout */}
       <button onClick={handleLogout} className="fixed top-4 right-4 z-50">
-        <div className="px-3 py-2 bg-white/10 rounded-full">✕</div>
+        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/40 hover:text-white hover:bg-white/10 transition-all">
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </div>
       </button>
 
       {/* Header */}
-      <div className="relative z-10 text-center mb-6">
-        <div className="inline-block px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-xs mb-3">
+      <div className="relative z-10 text-center mb-5">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] uppercase tracking-widest mb-3">
+          <span className="w-1.5 h-1.5 rounded-full bg-white/40 animate-pulse" />
           Elige tu acceso
         </div>
-        <h1 className="text-3xl font-bold text-white">Portal Culture</h1>
+        <h1 className="text-2.5xl font-bold text-white">Portal Culture</h1>
       </div>
 
-      {/* MOBILE: Card Stack */}
-      <div className="relative z-10 w-full max-w-[320px] md:hidden">
+      {/* MOBILE: Premium Card Stack */}
+      <div className="relative z-10 w-full max-w-[300px] md:hidden">
         
-        <div className="relative h-[360px]">
+        {/* Shuffle indicators */}
+        <div className="flex justify-between items-center mb-3 px-1">
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 ${!showPaid ? 'bg-blue-500/20 border border-blue-400/30 text-blue-300' : 'text-white/25'}`}>
+            <span className="text-[10px] font-medium">Gratis</span>
+          </div>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all duration-200 ${showPaid ? 'bg-red-500/20 border border-red-400/30 text-red-300' : 'text-white/25'}`}>
+            <span className="text-[10px] font-medium">17€</span>
+          </div>
+        </div>
+
+        <div className="relative aspect-[3/4] max-h-[420px]">
           
           {/* Card FREE (Behind) */}
           <div 
-            className="absolute left-0 right-0 top-3 rounded-3xl p-4"
+            className="absolute inset-0 rounded-[28px] overflow-hidden"
             style={{
-              background: 'linear-gradient(165deg, #1e3a5f 0%, #0f172a 100%)',
-              border: '1px solid rgba(59,130,246,0.3)',
-              transform: `scale(${showPaid ? 0.85 : 1}) translateY(${showPaid ? 20 : 0}px)`,
-              opacity: showPaid ? 0.4 : 1,
+              transform: showPaid ? 'scale(0.86) translateY(24px)' : 'scale(1) translateY(0px)',
+              opacity: showPaid ? 0.35 : 1,
+              filter: showPaid ? 'blur(1.5px)' : 'blur(0px)',
               zIndex: showPaid ? 1 : 10,
-              transition: 'all 0.2s ease',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-xs font-semibold text-blue-400 uppercase">Lista de Espera</span>
-            </div>
-            <div className="text-3xl font-bold text-white/80 mb-1">Gratis</div>
-            <p className="text-xs text-white/40 mb-3">tras aprobación</p>
+            {/* Glassmorphism */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(145deg, rgba(30,58,95,0.7) 0%, rgba(15,23,42,0.85) 50%, rgba(5,10,20,0.95) 100%)',
+                backdropFilter: 'blur(20px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+                border: '1px solid rgba(59,130,246,0.2)',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
+              }}
+            />
             
-            <div className="space-y-2 mb-4">
-              <p className="text-xs text-white/50">✓ Aprobación manual</p>
-              <p className="text-xs text-white/50">✓ Templos progresivos</p>
-              <p className="text-xs text-white/50">✓ NOVA 10 msg/día</p>
-            </div>
+            {/* Shimmer */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
+            
+            <div className="relative h-full p-5 flex flex-col">
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-2 h-2 rounded-full bg-blue-400" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
+              </div>
+              
+              <div className="text-3.5xl font-bold text-white/80 mb-1">Gratis</div>
+              <p className="text-xs text-white/35 mb-4">tras aprobación manual</p>
+              
+              <div className="w-full h-px mb-4 bg-gradient-to-r from-blue-500/30 to-transparent" />
+              
+              <div className="flex-1 space-y-2.5">
+                {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10 msg/día', '✓ Discord exclusivo'].map((f, i) => (
+                  <p key={i} className="text-xs text-white/45">{f}</p>
+                ))}
+              </div>
 
-            <button
-              onClick={handleWaitlist}
-              disabled={shuffling}
-              className="w-full py-3 rounded-xl text-sm font-semibold bg-blue-600 hover:bg-blue-500"
-            >
-              {shuffling ? '...' : 'Solicitar Gratis'}
-            </button>
+              <button
+                onClick={handleWaitlist}
+                disabled={shuffling}
+                className="w-full py-3.5 mt-4 rounded-2xl text-xs font-semibold transition-all duration-200 active:scale-[0.98]"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(37,99,235,0.6) 0%, rgba(29,78,216,0.5) 100%)',
+                  border: '1px solid rgba(59,130,246,0.3)',
+                  boxShadow: '0 4px 20px rgba(37,99,235,0.2)',
+                  opacity: shuffling ? 0.5 : 1,
+                }}
+              >
+                {shuffling ? '...' : 'Solicitar Gratis'}
+              </button>
+            </div>
           </div>
 
           {/* Card PAID (Front) */}
           <div 
-            className="absolute left-0 right-0 top-0 rounded-3xl p-4"
+            className="absolute inset-0 rounded-[28px] overflow-hidden"
             style={{
-              background: 'linear-gradient(165deg, #7f1d1d 0%, #450a0a 100%)',
-              border: '1px solid rgba(239,68,68,0.3)',
-              transform: `scale(${showPaid ? 1 : 0.85}) translateY(${showPaid ? 0 : 20}px)`,
-              opacity: showPaid ? 1 : 0.4,
+              transform: showPaid ? 'scale(1) translateY(0px)' : 'scale(0.86) translateY(24px)',
+              opacity: showPaid ? 1 : 0.35,
+              filter: showPaid ? 'blur(0px)' : 'blur(1.5px)',
               zIndex: showPaid ? 10 : 1,
-              transition: 'all 0.2s ease',
-              boxShadow: '0 20px 40px rgba(0,0,0,0.5), 0 0 30px rgba(220,38,38,0.2)',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
             }}
           >
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-red-500" />
-                <span className="text-xs font-semibold text-red-400 uppercase">Acceso</span>
-              </div>
-              <span className="px-2 py-0.5 rounded-full bg-red-500/20 border border-red-500/40 text-[10px] text-red-300">⚡ Popular</span>
-            </div>
-            <div className="text-4xl font-bold text-white mb-1">17€</div>
-            <p className="text-xs text-white/40 mb-3">pago único</p>
+            {/* Glassmorphism */}
+            <div 
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(145deg, rgba(127,29,29,0.7) 0%, rgba(69,10,10,0.85) 50%, rgba(20,5,5,0.95) 100%)',
+                backdropFilter: 'blur(20px) saturate(140%)',
+                WebkitBackdropFilter: 'blur(20px) saturate(140%)',
+                border: '1px solid rgba(239,68,68,0.25)',
+                boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), 0 0 40px rgba(220,38,38,0.15), inset 0 1px 0 rgba(255,255,255,0.08)',
+              }}
+            />
             
-            <div className="space-y-2 mb-4">
-              <p className="text-xs text-white/70">✓ Acceso inmediato</p>
-              <p className="text-xs text-white/70">✓ 5 Templos</p>
-              <p className="text-xs text-white/70">✓ NOVA ilimitado</p>
-              <p className="text-xs text-white/70">✓ Discord</p>
+            {/* Shimmer */}
+            <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+            
+            {/* Badge */}
+            <div className="absolute top-4 right-4 z-10">
+              <div className="px-2.5 py-1 rounded-full text-[9px] font-semibold"
+                style={{ 
+                  background: 'rgba(220,38,38,0.2)', 
+                  border: '1px solid rgba(239,68,68,0.4)', 
+                  color: '#fca5a5',
+                  boxShadow: '0 0 20px rgba(220,38,38,0.2)',
+                }}>
+                ⚡ Popular
+              </div>
             </div>
 
-            <button
-              onClick={handleFastPass}
-              disabled={shuffling}
-              className="w-full py-3 rounded-xl text-sm font-semibold bg-red-600 hover:bg-red-500 text-white"
-            >
-              {shuffling ? '...' : 'Acceso 17€ →'}
-            </button>
+            <div className="relative h-full p-5 flex flex-col">
+              <div className="flex items-center gap-2 mb-3 mt-1">
+                <div className="w-2 h-2 rounded-full bg-red-500" />
+                <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Acceso</span>
+              </div>
+              
+              <div className="text-4xl font-bold text-white mb-1">17€</div>
+              <p className="text-xs text-white/35 mb-4">pago único</p>
+              
+              <div className="w-full h-px mb-4 bg-gradient-to-r from-red-500/40 to-transparent" />
+              
+              <div className="flex-1 space-y-2.5">
+                {['✓ Acceso inmediato', '✓ 5 Templos', '✓ NOVA ilimitado', '✓ Discord exclusivo'].map((f, i) => (
+                  <p key={i} className="text-xs text-white/65">{f}</p>
+                ))}
+              </div>
+
+              <button
+                onClick={handleFastPass}
+                disabled={shuffling}
+                className="w-full py-3.5 mt-4 rounded-2xl text-xs font-semibold text-white transition-all duration-200 active:scale-[0.98]"
+                style={{
+                  background: shuffling 
+                    ? 'rgba(220,38,38,0.6)'
+                    : 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                  boxShadow: shuffling ? 'none' : '0 4px 20px rgba(220,38,38,0.35)',
+                  opacity: shuffling ? 0.6 : 1,
+                }}
+              >
+                {shuffling ? '...' : 'Acceso 17€ →'}
+              </button>
+            </div>
           </div>
 
         </div>
 
-        <p className="text-center text-white/40 text-xs mt-4">
-          {shuffling ? 'Eligiendo...' : 'Toca para elegir'}
+        {/* Hint */}
+        <p className="text-center text-white/25 text-[10px] mt-4">
+          {shuffling ? 'Eligiendo acceso...' : 'Toca un acceso para continuar'}
         </p>
       </div>
 
-      {/* DESKTOP: Simple Cards */}
-      <div className="relative z-10 w-full max-w-4xl hidden md:flex gap-6">
+      {/* DESKTOP: Premium Cards */}
+      <div className="relative z-10 w-full max-w-4xl hidden md:flex gap-5">
         
         {/* PAID Card */}
         <div 
           onClick={handleFastPass}
-          className="flex-1 rounded-3xl p-8 cursor-pointer hover:scale-[1.02] transition-transform"
+          className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={{
-            background: 'linear-gradient(165deg, #7f1d1d 0%, #450a0a 100%)',
-            border: '1px solid rgba(239,68,68,0.3)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            background: 'linear-gradient(145deg, rgba(127,29,29,0.6) 0%, rgba(69,10,10,0.8) 100%)',
+            border: '1px solid rgba(239,68,68,0.25)',
+            boxShadow: '0 30px 60px -15px rgba(0,0,0,0.6), 0 0 50px rgba(220,38,38,0.1)',
           }}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-red-500" />
-            <span className="text-xs font-semibold text-red-400 uppercase">Acceso Inmediato</span>
-          </div>
-          <div className="text-5xl font-bold text-white mb-2">17€</div>
-          <p className="text-sm text-white/40 mb-6">pago único</p>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
           
-          <div className="space-y-3 mb-6">
-            <p className="text-sm text-white/70">✓ Acceso inmediato</p>
-            <p className="text-sm text-white/70">✓ 5 Templos</p>
-            <p className="text-sm text-white/70">✓ NOVA ilimitado</p>
-            <p className="text-sm text-white/70">✓ Discord</p>
+          <div className="absolute top-5 right-5">
+            <span className="px-3 py-1 rounded-full text-[10px] font-semibold bg-red-500/20 border border-red-500/40 text-red-300">⚡ Popular</span>
           </div>
 
-          <button className="w-full py-4 rounded-2xl font-semibold bg-red-600 text-white">
-            Entrar ahora →
-          </button>
+          <div className="p-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Acceso Inmediato</span>
+            </div>
+            
+            <div className="text-5xl font-bold text-white mb-2">17€</div>
+            <p className="text-sm text-white/40 mb-6">pago único · sin suscripción</p>
+            
+            <div className="w-full h-px mb-6 bg-gradient-to-r from-red-500/40 to-transparent" />
+            
+            <div className="space-y-3 mb-8">
+              {['Acceso completo inmediato', 'Sin espera ni aprobación', '5 Templos desbloqueados', 'NOVA AI Coach ilimitado', 'Discord exclusivo'].map((f, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center bg-red-500/20 border border-red-500/40">
+                    <svg className="w-2.5 h-2.5 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <span className="text-sm text-white/70">{f}</span>
+                </div>
+              ))}
+            </div>
+
+            <button className="w-full py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-800 hover:shadow-lg hover:shadow-red-500/20">
+              Entrar ahora →
+            </button>
+            <p className="text-center text-[11px] text-white/20 mt-3">Pago seguro vía Whop</p>
+          </div>
         </div>
 
         {/* FREE Card */}
         <div 
           onClick={handleWaitlist}
-          className="flex-1 rounded-3xl p-8 cursor-pointer hover:scale-[1.02] transition-transform"
+          className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           style={{
-            background: 'linear-gradient(165deg, #1e3a5f 0%, #0f172a 100%)',
-            border: '1px solid rgba(59,130,246,0.3)',
-            boxShadow: '0 20px 40px rgba(0,0,0,0.5)',
+            background: 'linear-gradient(145deg, rgba(30,58,95,0.6) 0%, rgba(15,23,42,0.8) 100%)',
+            border: '1px solid rgba(59,130,246,0.2)',
+            boxShadow: '0 30px 60px -15px rgba(0,0,0,0.6)',
           }}
         >
-          <div className="flex items-center gap-2 mb-4">
-            <div className="w-2 h-2 rounded-full bg-blue-500" />
-            <span className="text-xs font-semibold text-blue-400 uppercase">Lista de Espera</span>
-          </div>
-          <div className="text-5xl font-bold text-white/80 mb-2">Gratis</div>
-          <p className="text-sm text-white/30 mb-6">tras aprobación</p>
-          
-          <div className="space-y-3 mb-6">
-            <p className="text-sm text-white/50">✓ Aprobación manual</p>
-            <p className="text-sm text-white/50">✓ Templos progresivos</p>
-            <p className="text-sm text-white/50">✓ NOVA 10 msg/día</p>
-          </div>
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/40 to-transparent" />
 
-          <button className="w-full py-4 rounded-2xl font-semibold bg-blue-600 text-white">
-            Continuar gratis →
-          </button>
+          <div className="p-8">
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
+            </div>
+            
+            <div className="text-5xl font-bold text-white/80 mb-2">Gratis</div>
+            <p className="text-sm text-white/30 mb-6">tras aprobación manual</p>
+            
+            <div className="w-full h-px mb-6 bg-gradient-to-r from-blue-500/30 to-transparent" />
+            
+            <div className="space-y-3 mb-8">
+              {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
+                <div key={i} className="flex items-center gap-3">
+                  <div className="w-4 h-4 rounded-full flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
+                    <svg className="w-2.5 h-2.5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  </div>
+                  <span className="text-sm text-white/50">{f}</span>
+                </div>
+              ))}
+            </div>
+
+            <button className="w-full py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg hover:shadow-blue-500/20">
+              Continuar gratis →
+            </button>
+          </div>
         </div>
 
       </div>
 
       {/* Trust */}
-      <div className="relative z-10 mt-8 text-white/30 text-xs flex items-center gap-4">
-        <span>✓ Pago seguro</span>
+      <div className="relative z-10 mt-8 flex items-center gap-6 text-white/25 text-[10px]">
+        <span className="flex items-center gap-1.5">✓ Pago seguro</span>
+        <span className="w-px h-3 bg-white/10" />
         <span>✓ Sin compromisos</span>
+        <span className="w-px h-3 bg-white/10" />
+        <span>✓ Acceso inmediato</span>
       </div>
 
     </div>
