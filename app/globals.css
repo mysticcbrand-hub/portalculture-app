@@ -632,3 +632,21 @@ body::after {
 .animate-shine {
   animation: shine 1.8s ease-in-out;
 }
+
+/* Blur fade in animation - Apple style */
+@keyframes blur-fade-in {
+  0% {
+    opacity: 0;
+    filter: blur(8px);
+    transform: translateY(4px);
+  }
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translateY(0);
+  }
+}
+
+.animate-blur-fade-in {
+  animation: blur-fade-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}

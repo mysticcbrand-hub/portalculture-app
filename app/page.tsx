@@ -497,25 +497,41 @@ function HomePageContent() {
                 {/* CTA Button - Glassmorphism Apple Style */}
                 <button
                   onClick={scrollToAuth}
-                  className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                  className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.1) 100%)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
-                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(255,255,255,0.1)',
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.08) 100%)',
+                    backdropFilter: 'blur(24px) saturate(200%)',
+                    WebkitBackdropFilter: 'blur(24px) saturate(200%)',
+                    border: '1px solid rgba(255,255,255,0.18)',
+                    boxShadow: '0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(255,255,255,0.08)',
                   }}
                 >
-                  <span className="relative z-10 flex flex-col items-center justify-center gap-1">
-                    <span className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-medium">Total: 591€</span>
-                    <span className="flex items-center gap-2 text-base font-bold">
-                      <span className="text-white">Acceso por 17€</span>
-                      <span className="text-white/40">·</span>
+                  <span className="relative z-10 flex flex-col items-center justify-center gap-1.5">
+                    {/* Animated pricing info - blur fade in */}
+                    <span 
+                      className="text-[10px] uppercase tracking-[0.15em] text-white/50 font-medium animate-blur-fade-in"
+                      style={{
+                        animationDelay: '0.15s',
+                        animationFillMode: 'backwards',
+                      }}
+                    >
+                      Total: <span className="text-white/70 line-through text-[9px] mr-1">591€</span>
+                      <span className="text-white/80">17€</span>
+                      <span className="text-white/30 mx-1">/</span>
                       <span className="text-emerald-300">Gratis</span>
                     </span>
+                    {/* Main CTA */}
+                    <span className="text-base font-bold text-white flex items-center gap-2">
+                      Cruzar el Portal
+                      <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                      </svg>
+                    </span>
                   </span>
-                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
+                  {/* Shimmer effect */}
+                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                  {/* Subtle inner glow */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/8 to-transparent opacity-60" />
                 </button>
               </div>
             </div>
