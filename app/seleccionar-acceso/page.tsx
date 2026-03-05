@@ -10,9 +10,8 @@ export default function SeleccionarAcceso() {
   const [loading, setLoading] = useState(true)
   
   const [activeCard, setActiveCard] = useState<'paid' | 'free'>('paid')
-  const [isShuffling, setIsShuffling] = useState(false)
-  const [shuffleCount, setShuffleCount] = useState(0)
-  const shuffleInterval = useRef<NodeJS.Timeout | null>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const startX = useRef(0)
   
   const supabase = createClient()
 
@@ -26,31 +25,30 @@ export default function SeleccionarAcceso() {
     getUser()
   }, [router, supabase.auth])
 
-  const startShuffle = useCallback(() => {
-    if (isShuffling) return
-    setIsShuffling(true)
-    setShuffleCount(0)
-    
-    let count = 0
-    const maxShuffles = 12
-    
-    shuffleInterval.current = setInterval(() => {
-      setActiveCard(prev => prev === 'paid' ? 'free' : 'paid')
-      count++
-      setShuffleCount(count)
-      
-      if (count >= maxShuffles) {
-        if (shuffleInterval.current) clearInterval(shuffleInterval.current)
-        setIsShuffling(false)
-      }
-    }, 90)
-  }, [isShuffling])
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX
+  }, [])
 
-  const stopShuffle = useCallback(() => {
-    if (shuffleInterval.current) {
-      clearInterval(shuffleInterval.current)
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const currentX = e.touches[0].clientX
+    const diff = startX.current - currentX
+    
+    if (Math.abs(diff) > 60) {
+      setActiveCard(prev => diff > 0 ? 'free' : 'paid')
+      startX.current = currentX
     }
-    setIsShuffling(false)
+  }, [])
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    startX.current = e.clientX
+  }, [])
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const diff = startX.current - e.clientX
+    if (Math.abs(diff) > 60) {
+      setActiveCard(prev => diff > 0 ? 'free' : 'paid')
+      startX.current = e.clientX
+    }
   }, [])
 
   const handleLogout = async () => {
@@ -70,7 +68,10 @@ export default function SeleccionarAcceso() {
   }
 
   return (
-    <div className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black">
+    <div 
+      className="min-h-screen text-white flex flex-col items-center justify-center p-4 relative overflow-hidden bg-black"
+      onMouseMove={handleMouseMove}
+    >
       
       {/* Premium Background */}
       <div className="fixed inset-0">
@@ -116,213 +117,141 @@ export default function SeleccionarAcceso() {
         <h1 className="text-2xl font-bold text-white tracking-tight">Portal Culture</h1>
       </div>
 
-      {/* MOBILE: Premium Card Stack */}
-      <div className="relative z-10 w-full max-w-[320px] md:hidden">
+      {/* MOBILE: Side by Side Cards */}
+      <div 
+        ref={containerRef}
+        className="relative z-10 w-full max-w-[360px] md:hidden flex gap-3"
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onMouseDown={handleMouseDown}
+        style={{ touchAction: 'pan-y' }}
+      >
         
-        {/* Card Stack Container */}
+        {/* PAID Card */}
         <div 
-          className="relative aspect-[3/4] max-h-[480px] cursor-grab active:cursor-grabbing"
-          onMouseDown={startShuffle}
-          onMouseUp={stopShuffle}
-          onMouseLeave={stopShuffle}
-          onTouchStart={startShuffle}
-          onTouchEnd={stopShuffle}
+          className="flex-1 aspect-[3/4] rounded-[28px] overflow-hidden cursor-pointer transition-all duration-500"
+          style={{
+            transform: activeCard === 'paid' ? 'scale(1) rotateY(0deg)' : 'scale(0.85) rotateY(-8deg)',
+            opacity: activeCard === 'paid' ? 1 : 0.3,
+            filter: activeCard === 'paid' ? 'blur(0px)' : 'blur(3px)',
+            perspective: '1000px',
+            transformStyle: 'preserve-3d',
+          }}
         >
-          {/* FREE Card (Back) */}
           <div 
-            className="absolute inset-0 rounded-[32px] overflow-hidden"
+            className="absolute inset-0"
             style={{
-              transform: `
-                translateY(${activeCard === 'paid' ? 20 : 0}px) 
-                scale(${activeCard === 'paid' ? 0.88 : 1})
-                rotateY(${activeCard === 'paid' ? -8 : 0}deg)
-              `,
-              opacity: activeCard === 'paid' ? 0.4 : 1,
-              filter: activeCard === 'paid' ? 'blur(2px)' : 'blur(0px)',
-              zIndex: 1,
-              transition: isShuffling ? 'none' : 'all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              transformOrigin: 'center center',
-              perspective: '1000px',
+              background: 'linear-gradient(160deg, rgba(153,27,27,0.85) 0%, rgba(69,10,10,0.92) 50%, rgba(20,5,5,0.98) 100%)',
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+              border: '1px solid rgba(239,68,68,0.3)',
+              boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7), 0 0 60px rgba(220,38,38,0.15)',
             }}
-          >
-            {/* Glass Background */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(160deg, rgba(30,58,138,0.8) 0%, rgba(15,23,42,0.92) 50%, rgba(3,7,18,0.98) 100%)',
-                backdropFilter: 'blur(24px) saturate(150%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-                border: '1px solid rgba(59,130,246,0.25)',
-                boxShadow: `
-                  0 35px 60px -15px rgba(0,0,0,0.7),
-                  0 0 80px rgba(37,99,235,0.08),
-                  inset 0 1px 0 rgba(255,255,255,0.1),
-                  inset 0 -1px 0 rgba(255,255,255,0.05)
-                `,
-              }}
-            />
+          />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+          
+          <div className="relative h-full p-5 flex flex-col">
+            <div className="absolute top-4 right-4">
+              <div className="px-2.5 py-1 rounded-full text-[8px] font-bold uppercase bg-red-500/25 border border-red-500/50 text-red-300">⚡</div>
+            </div>
             
-            {/* Shine Effect */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-20 -left-20 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl" />
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+            <div className="flex items-center gap-2 mb-3">
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-red-400">Acceso</span>
             </div>
-
-            <div className="relative h-full p-6 flex flex-col">
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.6)]" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-blue-400">Lista de Espera</span>
-              </div>
-              
-              {/* Price */}
-              <div className="text-[2.75rem] font-bold text-white/90 mb-1 tracking-tight">Gratis</div>
-              <p className="text-xs text-white/35 mb-5">tras aprobación manual</p>
-              
-              <div className="w-full h-px mb-5 bg-gradient-to-r from-blue-500/30 via-blue-500/20 to-transparent" />
-              
-              {/* Features */}
-              <div className="flex-1 space-y-3">
-                {[
-                  { icon: '✓', text: 'Aprobación manual' },
-                  { icon: '✓', text: 'Templos progresivos' },
-                  { icon: '✓', text: 'NOVA 10 msg/día' },
-                  { icon: '✓', text: 'Discord exclusivo' },
-                ].map((f, i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    <span className="text-blue-400/70 text-[10px]">{f.icon}</span>
-                    <span className="text-xs text-white/50">{f.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Button */}
-              <button
-                onClick={(e) => { e.stopPropagation(); router.push('/cuestionario') }}
-                className="w-full py-3.5 mt-4 rounded-2xl text-xs font-semibold text-white transition-all duration-200 active:scale-[0.97]"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
-                  border: '1px solid rgba(59,130,246,0.35)',
-                  boxShadow: '0 8px 25px rgba(37,99,235,0.25), inset 0 1px 0 rgba(255,255,255,0.1)',
-                }}
-              >
-                Solicitar Gratis
-              </button>
-            </div>
-          </div>
-
-          {/* PAID Card (Front) */}
-          <div 
-            className="absolute inset-0 rounded-[32px] overflow-hidden"
-            style={{
-              transform: `
-                translateY(${activeCard === 'free' ? 20 : 0}px) 
-                scale(${activeCard === 'free' ? 0.88 : 1})
-                rotateY(${activeCard === 'free' ? 8 : 0}deg)
-              `,
-              opacity: activeCard === 'free' ? 0.4 : 1,
-              filter: activeCard === 'free' ? 'blur(2px)' : 'blur(0px)',
-              zIndex: 10,
-              transition: isShuffling ? 'none' : 'all 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              transformOrigin: 'center center',
-              perspective: '1000px',
-            }}
-          >
-            {/* Glass Background */}
-            <div 
-              className="absolute inset-0"
-              style={{
-                background: 'linear-gradient(160deg, rgba(153,27,27,0.85) 0%, rgba(69,10,10,0.92) 50%, rgba(20,5,5,0.98) 100%)',
-                backdropFilter: 'blur(24px) saturate(150%)',
-                WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-                border: '1px solid rgba(239,68,68,0.3)',
-                boxShadow: `
-                  0 35px 60px -15px rgba(0,0,0,0.7),
-                  0 0 80px rgba(220,38,38,0.15),
-                  inset 0 1px 0 rgba(255,255,255,0.1),
-                  inset 0 -1px 0 rgba(255,255,255,0.05)
-                `,
-              }}
-            />
             
-            {/* Shine Effect */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-20 -right-20 w-40 h-40 bg-red-400/10 rounded-full blur-3xl" />
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/60 to-transparent" />
+            <div className="text-4xl font-bold text-white mb-1">17€</div>
+            <p className="text-[10px] text-white/35 mb-4">pago único</p>
+            
+            <div className="w-full h-px mb-4 bg-gradient-to-r from-red-500/40 to-transparent" />
+            
+            <div className="flex-1 space-y-2">
+              {['✓ Acceso inmediato', '✓ 5 Templos', '✓ NOVA ilimitado', '✓ Discord'].map((f, i) => (
+                <p key={i} className="text-[10px] text-white/60">{f}</p>
+              ))}
             </div>
 
-            {/* Badge */}
-            <div className="absolute top-5 right-5 z-20">
-              <div 
-                className="px-3 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-wider"
-                style={{ 
-                  background: 'rgba(220,38,38,0.3)', 
-                  border: '1px solid rgba(239,68,68,0.5)', 
-                  color: '#fca5a5',
-                  boxShadow: '0 0 25px rgba(220,38,38,0.3)',
-                }}
-              >
-                ⚡ Popular
-              </div>
-            </div>
-
-            <div className="relative h-full p-6 flex flex-col">
-              {/* Header */}
-              <div className="flex items-center gap-2 mb-4 mt-1">
-                <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_10px_rgba(248,113,113,0.6)]" />
-                <span className="text-[11px] font-semibold uppercase tracking-[0.15em] text-red-400">Acceso</span>
-              </div>
-              
-              {/* Price */}
-              <div className="text-[2.75rem] font-bold text-white mb-1 tracking-tight">17€</div>
-              <p className="text-xs text-white/35 mb-5">pago único</p>
-              
-              <div className="w-full h-px mb-5 bg-gradient-to-r from-red-500/40 via-red-500/20 to-transparent" />
-              
-              {/* Features */}
-              <div className="flex-1 space-y-3">
-                {[
-                  { icon: '✓', text: 'Acceso inmediato' },
-                  { icon: '✓', text: '5 Templos' },
-                  { icon: '✓', text: 'NOVA ilimitado' },
-                  { icon: '✓', text: 'Discord exclusivo' },
-                ].map((f, i) => (
-                  <div key={i} className="flex items-center gap-2.5">
-                    <span className="text-red-400/80 text-[10px]">{f.icon}</span>
-                    <span className="text-xs text-white/70">{f.text}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Button */}
-              <button
-                onClick={(e) => { e.stopPropagation(); window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer') }}
-                className="w-full py-3.5 mt-4 rounded-2xl text-xs font-semibold text-white transition-all duration-200 active:scale-[0.97]"
-                style={{
-                  background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
-                  border: '1px solid rgba(239,68,68,0.3)',
-                  boxShadow: '0 8px 25px rgba(220,38,38,0.4), inset 0 1px 0 rgba(255,255,255,0.15)',
-                }}
-              >
-                Acceso 17€ →
-              </button>
-            </div>
+            <button
+              onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
+              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
+              style={{
+                background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+                boxShadow: '0 6px 20px rgba(220,38,38,0.4)',
+              }}
+            >
+              Acceso 17€ →
+            </button>
           </div>
         </div>
 
-        {/* Shuffle Hint */}
-        <div className="mt-6 text-center space-y-2">
-          <p className="text-white/40 text-[11px]">
-            {isShuffling ? 'Mezclando...' : 'Toca y arrastra para mezclar'}
-          </p>
-          <div className="flex justify-center items-center gap-1.5">
-            <div className={`w-2 h-2 rounded-full transition-all duration-200 ${activeCard === 'free' ? 'bg-blue-400 scale-125' : 'bg-white/20'}`} />
-            <div className={`w-2 h-2 rounded-full transition-all duration-200 ${activeCard === 'paid' ? 'bg-red-500 scale-125' : 'bg-white/20'}`} />
+        {/* FREE Card */}
+        <div 
+          className="flex-1 aspect-[3/4] rounded-[28px] overflow-hidden cursor-pointer transition-all duration-500"
+          style={{
+            transform: activeCard === 'free' ? 'scale(1) rotateY(0deg)' : 'scale(0.85) rotateY(8deg)',
+            opacity: activeCard === 'free' ? 1 : 0.3,
+            filter: activeCard === 'free' ? 'blur(0px)' : 'blur(3px)',
+            perspective: '1000px',
+            transformStyle: 'preserve-3d',
+          }}
+        >
+          <div 
+            className="absolute inset-0"
+            style={{
+              background: 'linear-gradient(160deg, rgba(30,58,138,0.8) 0%, rgba(15,23,42,0.92) 50%, rgba(3,7,18,0.98) 100%)',
+              backdropFilter: 'blur(24px) saturate(150%)',
+              WebkitBackdropFilter: 'blur(24px) saturate(150%)',
+              border: '1px solid rgba(59,130,246,0.25)',
+              boxShadow: '0 30px 60px -15px rgba(0,0,0,0.7), 0 0 40px rgba(37,99,235,0.08)',
+            }}
+          />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/50 to-transparent" />
+          
+          <div className="relative h-full p-5 flex flex-col">
+            <div className="flex items-center gap-2 mb-3 mt-6">
+              <div className="w-2 h-2 rounded-full bg-blue-400" />
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-blue-400">Lista</span>
+            </div>
+            
+            <div className="text-4xl font-bold text-white/85 mb-1">Gratis</div>
+            <p className="text-[10px] text-white/35 mb-4">aprobación manual</p>
+            
+            <div className="w-full h-px mb-4 bg-gradient-to-r from-blue-500/30 to-transparent" />
+            
+            <div className="flex-1 space-y-2">
+              {['✓ Aprobación manual', '✓ Templos progresivos', '✓ NOVA 10/día', '✓ Discord'].map((f, i) => (
+                <p key={i} className="text-[10px] text-white/45">{f}</p>
+              ))}
+            </div>
+
+            <button
+              onClick={() => router.push('/cuestionario')}
+              className="w-full py-3 mt-3 rounded-xl text-[11px] font-semibold text-white"
+              style={{
+                background: 'linear-gradient(135deg, rgba(37,99,235,0.7) 0%, rgba(29,78,216,0.6) 100%)',
+                border: '1px solid rgba(59,130,246,0.35)',
+                boxShadow: '0 6px 20px rgba(37,99,235,0.25)',
+              }}
+            >
+              Solicitar Gratis
+            </button>
           </div>
         </div>
+
       </div>
 
-      {/* DESKTOP: Premium Cards Side by Side */}
+      {/* Swipe Hint */}
+      <div className="md:hidden relative z-10 mt-4 flex items-center gap-2 text-white/30 text-[10px]">
+        <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+        </svg>
+        <span>Desliza para cambiar</span>
+        <svg className="w-4 h-4 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 9l-4 4-4-4m0 6l4 4 4-4" />
+        </svg>
+      </div>
+
+      {/* DESKTOP: Cards Side by Side */}
       <div className="relative z-10 w-full max-w-5xl hidden md:flex gap-6 px-4">
         
         {/* PAID Card */}
@@ -338,16 +267,16 @@ export default function SeleccionarAcceso() {
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-red-500/5 rounded-full blur-3xl" />
           
           <div className="absolute top-6 right-6">
-            <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 border border-red-500/40 text-red-300">⚡ Popular</span>
+            <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-red-500/20 border border-red-500/40 text-red-300">⚡ Popular</span>
           </div>
 
           <div className="p-8 pt-12">
             <div className="flex items-center gap-2 mb-5">
-              <div className="w-2 h-2 rounded-full bg-red-500 shadow-[0_0_12px_rgba(248,113,113,0.6)]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.15em] text-red-400">Acceso Inmediato</span>
+              <div className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Acceso Inmediato</span>
             </div>
             
-            <div className="text-6xl font-bold text-white mb-2 tracking-tight">17€</div>
+            <div className="text-6xl font-bold text-white mb-2">17€</div>
             <p className="text-sm text-white/40 mb-6">pago único · sin suscripción</p>
             
             <div className="w-full h-px mb-6 bg-gradient-to-r from-red-500/40 to-transparent" />
@@ -387,11 +316,11 @@ export default function SeleccionarAcceso() {
 
           <div className="p-8 pt-12">
             <div className="flex items-center gap-2 mb-5">
-              <div className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_12px_rgba(96,165,250,0.5)]" />
-              <span className="text-xs font-semibold uppercase tracking-[0.15em] text-blue-400">Lista de Espera</span>
+              <div className="w-2 h-2 rounded-full bg-blue-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
             </div>
             
-            <div className="text-6xl font-bold text-white/85 mb-2 tracking-tight">Gratis</div>
+            <div className="text-6xl font-bold text-white/85 mb-2">Gratis</div>
             <p className="text-sm text-white/30 mb-6">tras aprobación manual</p>
             
             <div className="w-full h-px mb-6 bg-gradient-to-r from-blue-500/30 to-transparent" />
