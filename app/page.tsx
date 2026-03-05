@@ -494,26 +494,29 @@ function HomePageContent() {
                   ))}
                 </div>
 
-                {/* CTA Button */}
+                {/* CTA Button - Glassmorphism Apple Style */}
                 <button
                   onClick={scrollToAuth}
-                  className="relative w-full py-4 mt-4 bg-white text-black text-sm font-bold rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:shadow-[0_0_60px_rgba(139,92,246,0.35),0_0_100px_rgba(59,130,246,0.2)] hover:scale-[1.02] active:scale-[0.98]"
+                  className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.1) 100%)',
+                    backdropFilter: 'blur(20px) saturate(180%)',
+                    WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(255,255,255,0.1)',
+                  }}
                 >
-                  <span className="relative z-10 flex flex-col items-center justify-center gap-0.5">
-                    <span className="text-[10px] text-black/50 font-medium">Total: 591€</span>
-                    <span className="flex items-center gap-2">
-                      <span>Acceso por 17€</span>
-                      <span className="text-black/40">o</span>
-                      <span className="text-emerald-600">Gratis</span>
+                  <span className="relative z-10 flex flex-col items-center justify-center gap-1">
+                    <span className="text-[9px] uppercase tracking-[0.2em] text-white/60 font-medium">Total: 591€</span>
+                    <span className="flex items-center gap-2 text-base font-bold">
+                      <span className="text-white">Acceso por 17€</span>
+                      <span className="text-white/40">·</span>
+                      <span className="text-emerald-300">Gratis</span>
                     </span>
                   </span>
-                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent opacity-60" />
+                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
                 </button>
-
-                <p className="text-white/35 text-[10px] uppercase tracking-wider">
-                  Con aprobación manual · 14 días de cooldown si eres rechazado
-                </p>
               </div>
             </div>
           </div>
