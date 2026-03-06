@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { motion, AnimatePresence, useSpring } from 'framer-motion'
+import { motion, AnimatePresence, useSpring, useMotionValue, useTransform } from 'framer-motion'
 
 const CARD_GAP = 340
 const DEPTH_SCALE = 0.84
@@ -12,9 +12,9 @@ const DEPTH_Z = -100
 const SWIPE_THRESHOLD = 60
 const VELOCITY_THRESHOLD = 0.4
 
-const BACKGROUNDS = [
-  'radial-gradient(ellipse at 40% 60%, rgba(255,160,60,0.15) 0%, transparent 60%)',
-  'radial-gradient(ellipse at 60% 40%, rgba(100,160,255,0.15) 0%, transparent 60%)',
+const CARD_TINTS = [
+  { top: 'rgba(255, 220, 140, 0.08)', bottom: 'rgba(255, 180, 80, 0.08)', accent: '#ffd700', glow: 'rgba(255, 200, 100, 0.15)' },
+  { top: 'rgba(140, 180, 255, 0.06)', bottom: 'rgba(100, 160, 255, 0.08)', accent: '#64a0ff', glow: 'rgba(100, 160, 255, 0.12)' },
 ]
 
 export default function SeleccionarAcceso() {
@@ -28,8 +28,8 @@ export default function SeleccionarAcceso() {
   const [hasEntered, setHasEntered] = useState(false)
   
   const springDragX = useSpring(dragX, {
-    stiffness: 600,
-    damping: 45,
+    stiffness: 500,
+    damping: 40,
     mass: 0.8,
   })
   
@@ -57,13 +57,17 @@ export default function SeleccionarAcceso() {
     const effectivePosition = position - dragProgress
 
     const recessionFactor = Math.min(Math.abs(effectivePosition), 1)
+    
+    const swipeFactor = Math.abs(dragProgress)
+    const shuffleScale = 1 - swipeFactor * 0.02
+    const shuffleRotate = Math.sign(dragProgress) * swipeFactor * 2
 
     return {
       translateX: effectivePosition * CARD_GAP,
       translateZ: -recessionFactor * Math.abs(DEPTH_Z),
-      rotateY: effectivePosition * DEPTH_ROTATE,
-      scale: 1 - recessionFactor * (1 - DEPTH_SCALE),
-      opacity: 1 - recessionFactor * 0.35,
+      rotateY: effectivePosition * DEPTH_ROTATE + shuffleRotate,
+      scale: (1 - recessionFactor * (1 - DEPTH_SCALE)) * shuffleScale,
+      opacity: 1 - recessionFactor * 0.3,
       zIndex: Math.round(10 - Math.abs(effectivePosition) * 10),
     }
   }, [activeIndex, springDragX])
@@ -83,7 +87,7 @@ export default function SeleccionarAcceso() {
       (activeIndex === 0 && delta > 0) || 
       (activeIndex === 1 && delta < 0)
     
-    setDragX(isAtEdge ? delta * 0.2 : delta)
+    setDragX(isAtEdge ? delta * 0.15 : delta)
   }
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -96,7 +100,7 @@ export default function SeleccionarAcceso() {
       if (nextIndex >= 0 && nextIndex <= 1) {
         setActiveIndex(nextIndex)
         if (typeof navigator !== 'undefined' && navigator.vibrate) {
-          navigator.vibrate(8)
+          navigator.vibrate(10)
         }
       }
     }
@@ -148,23 +152,23 @@ export default function SeleccionarAcceso() {
       {/* Ambient Background */}
       <motion.div
         className="fixed inset-0 z-0 pointer-events-none"
-        animate={{ background: BACKGROUNDS[activeIndex] }}
-        transition={{ duration: 1.2, ease: 'easeInOut' }}
-        style={{
-          background: `#000000`,
+        animate={{ 
+          background: activeIndex === 0 
+            ? 'radial-gradient(ellipse at 35% 55%, rgba(255, 200, 100, 0.08) 0%, transparent 50%)'
+            : 'radial-gradient(ellipse at 65% 45%, rgba(100, 160, 255, 0.06) 0%, transparent 50%)'
         }}
+        transition={{ duration: 1.4, ease: [0.32, 0.72, 0, 1] }}
       />
       
       {/* Mobile Background Layers */}
       <div className="fixed inset-0 z-0">
         <motion.div
           className="absolute inset-0"
-          animate={{ opacity: 1 }}
-          transition={{ duration: 1.2 }}
+          transition={{ duration: 1.4, ease: [0.32, 0.72, 0, 1] }}
           style={{
             background: `
-              radial-gradient(ellipse 100% 80% at 50% 8%, rgba(139,92,246,0.35) 0%, transparent 50%),
-              radial-gradient(ellipse 90% 60% at 50% 95%, ${activeIndex === 0 ? 'rgba(255,180,80,0.12)' : 'rgba(100,160,255,0.12)'} 0%, transparent 45%),
+              radial-gradient(ellipse 100% 70% at 50% 5%, rgba(139,92,246,0.25) 0%, transparent 45%),
+              radial-gradient(ellipse 80% 50% at 50% 98%, ${activeIndex === 0 ? 'rgba(255, 200, 100, 0.08)' : 'rgba(100, 160, 255, 0.06)'} 0%, transparent 40%),
               #000000
             `,
           }}
@@ -172,15 +176,15 @@ export default function SeleccionarAcceso() {
         <div className="absolute inset-0" style={{
           backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           backgroundSize: '150px',
-          opacity: 0.035,
+          opacity: 0.025,
           mixBlendMode: 'overlay',
         }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/90" />
       </div>
 
       {/* Logout */}
       <button onClick={handleLogout} className="fixed top-4 right-4 z-50">
-        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-white/40 hover:text-white hover:bg-white/10 transition-all">
+        <div className="w-9 h-9 flex items-center justify-center rounded-full bg-white/5 backdrop-blur-xl border border-white/8 text-white/40 hover:text-white hover:bg-white/10 transition-all duration-300">
           <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -188,12 +192,12 @@ export default function SeleccionarAcceso() {
       </button>
 
       {/* Header */}
-      <div className="relative z-10 text-center mb-5">
-        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/50 text-[10px] uppercase tracking-widest mb-3">
+      <div className="relative z-10 text-center mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/4 border border-white/8 text-white/40 text-[10px] uppercase tracking-widest mb-3">
           <span className="w-1.5 h-1.5 rounded-full bg-white/50 animate-pulse" />
           Elige tu acceso
         </div>
-        <h1 className="text-2xl font-bold text-white tracking-tight">Portal Culture</h1>
+        <h1 className="text-2xl font-semibold text-white tracking-tight">Portal Culture</h1>
       </div>
 
       {/* MOBILE: Physics-Based Card Carousel */}
@@ -204,8 +208,8 @@ export default function SeleccionarAcceso() {
           ref={containerRef}
           className="carousel-scene"
           style={{
-            perspective: '1200px',
-            perspectiveOrigin: '50% 50%',
+            perspective: '1400px',
+            perspectiveOrigin: '50% 45%',
           }}
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
@@ -221,178 +225,197 @@ export default function SeleccionarAcceso() {
               alignItems: 'center',
               justifyContent: 'center',
               transformStyle: 'preserve-3d',
-              height: '420px',
+              height: '460px',
             }}
           >
             <AnimatePresence mode="popLayout">
               {cards.map((card, index) => {
                 const transform = getCardTransform(index)
                 const isActive = index === activeIndex
+                const tint = CARD_TINTS[index]
                 
                 return (
                   <motion.div
                     key={card.type}
-                    initial={hasEntered ? false : { y: 40, opacity: 0, scale: 0.94 }}
+                    initial={hasEntered ? false : { y: 50, opacity: 0, scale: 0.92 }}
                     animate={hasEntered ? {
                       x: transform.translateX,
                       scale: transform.scale,
                       opacity: transform.opacity,
                       rotateY: transform.rotateY,
                     } : { y: 0, opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
+                    exit={{ opacity: 0, scale: 0.88, transition: { duration: 0.2 } }}
                     transition={{
                       type: 'spring',
-                      stiffness: 320,
-                      damping: 38,
-                      mass: 1.2,
+                      stiffness: 280,
+                      damping: 32,
+                      mass: 1.1,
                     }}
                     style={{
                       position: 'absolute',
                       width: '300px',
                       minHeight: '440px',
                       padding: '40px 28px 36px',
-                      borderRadius: '28px',
+                      borderRadius: '32px',
                       zIndex: transform.zIndex,
                       transformStyle: 'preserve-3d',
                       cursor: 'pointer',
                       userSelect: 'none',
                       WebkitUserSelect: 'none',
                       touchAction: 'none',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      justifyContent: 'space-between',
                     }}
-                    className={`access-card access-card--${index === 0 ? 'option-1' : 'option-2'}`}
                   >
-                    {/* Frosted Glass Base */}
+                    {/* Premium Frosted Glass */}
                     <div 
-                      className="absolute inset-0 rounded-[28px]"
+                      className="absolute inset-0 rounded-[32px]"
                       style={{
-                        background: 'rgba(255, 255, 255, 0.08)',
-                        backdropFilter: 'blur(32px) saturate(180%) brightness(1.1)',
-                        WebkitBackdropFilter: 'blur(32px) saturate(180%) brightness(1.1)',
-                        border: '1px solid rgba(255, 255, 255, 0.18)',
+                        background: `linear-gradient(165deg, ${tint.top} 0%, rgba(255,255,255,0.03) 50%, ${tint.bottom} 100%)`,
+                        backdropFilter: 'blur(36px) saturate(190%) brightness(1.08)',
+                        WebkitBackdropFilter: 'blur(36px) saturate(190%) brightness(1.08)',
+                        border: `1px solid rgba(255, 255, 255, 0.14)`,
                         boxShadow: `
-                          inset 0 1.5px 0 rgba(255, 255, 255, 0.25),
-                          inset 0 -1px 0 rgba(255, 255, 255, 0.06),
-                          0 24px 64px rgba(0, 0, 0, 0.35),
-                          0 8px 24px rgba(0, 0, 0, 0.2)
+                          inset 0 1px 0 rgba(255, 255, 255, 0.2),
+                          inset 0 -0.5px 0 rgba(255, 255, 255, 0.05),
+                          0 28px 72px rgba(0, 0, 0, 0.4),
+                          0 12px 28px rgba(0, 0, 0, 0.25),
+                          0 0 60px ${tint.glow}
                         `,
                       }}
                     />
                     
-                    {/* Identity Color Bleed */}
+                    {/* Inner glow for depth */}
                     <div 
-                      className="absolute inset-0 rounded-[28px] pointer-events-none"
+                      className="absolute inset-0 rounded-[32px] pointer-events-none"
                       style={{
-                        background: `radial-gradient(ellipse at 50% 100%, ${index === 0 ? 'rgba(255,180,80,0.12)' : 'rgba(100,160,255,0.12)'} 0%, transparent 70%)`,
+                        background: `radial-gradient(ellipse at 50% 0%, ${tint.top} 0%, transparent 60%)`,
+                        opacity: 0.5,
                       }}
                     />
                     
-                    {/* Top Shine */}
+                    {/* Bottom color bleed */}
                     <div 
-                      className="absolute top-0 left-0 right-0 h-px rounded-t-[28px]"
+                      className="absolute inset-0 rounded-[32px] pointer-events-none"
                       style={{
-                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                        background: `radial-gradient(ellipse at 50% 100%, ${tint.bottom} 0%, transparent 65%)`,
+                      }}
+                    />
+                    
+                    {/* Top Edge Shine */}
+                    <div 
+                      className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]"
+                      style={{
+                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
                       }}
                     />
                     
                     {/* Content */}
-                    <div className="relative h-full flex flex-col" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '16px' }}>
+                    <div className="relative h-full flex flex-col">
                       {/* Badge */}
                       {card.type === 'paid' && (
                         <div className="absolute top-0 right-0">
-                          <div 
-                            className="px-3 py-1.5 rounded-full text-[9px] font-bold uppercase"
+                          <motion.div 
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
                             style={{
-                              background: 'rgba(255,180,80,0.2)',
-                              border: '1px solid rgba(255,180,80,0.35)',
-                              color: '#fed7aa',
-                              boxShadow: '0 0 20px rgba(255,180,80,0.2)',
+                              padding: '6px 12px',
+                              borderRadius: '20px',
+                              fontSize: '9px',
+                              fontWeight: 700,
+                              textTransform: 'uppercase',
+                              letterSpacing: '0.05em',
+                              background: `linear-gradient(135deg, ${tint.accent}22, ${tint.accent}15)`,
+                              border: `1px solid ${tint.accent}35`,
+                              color: tint.accent,
+                              boxShadow: `0 0 24px ${tint.glow}`,
                             }}
                           >
                             ⚡ Popular
-                          </div>
+                          </motion.div>
                         </div>
                       )}
                       
                       {/* Label */}
-                      <div className="flex items-center gap-2 mb-4">
-                        <div 
-                          className="w-2 h-2 rounded-full"
+                      <div className="flex items-center gap-2 mb-3">
+                        <motion.div 
+                          className="w-1.5 h-1.5 rounded-full"
+                          animate={{ 
+                            boxShadow: isActive ? `0 0 16px ${tint.accent}80` : 'none' 
+                          }}
+                          transition={{ duration: 0.3 }}
                           style={{
-                            background: index === 0 ? '#ffb450' : '#64a0ff',
-                            boxShadow: `0 0 12px ${index === 0 ? 'rgba(255,180,80,0.6)' : 'rgba(100,160,255,0.6)'}`,
+                            background: tint.accent,
                           }}
                         />
                         <span 
-                          className="text-[11px] font-semibold uppercase tracking-wider"
-                          style={{ color: index === 0 ? '#ffb450' : '#64a0ff' }}
+                          className="text-[10px] font-semibold uppercase tracking-widest"
+                          style={{ color: `${tint.accent}cc` }}
                         >
                           {card.title}
                         </span>
                       </div>
                       
                       {/* Price */}
-                      <div className="text-[3.5rem] font-bold text-white mb-1 tracking-tight leading-none">
+                      <motion.div 
+                        className="text-[3.5rem] font-bold text-white mb-1 tracking-tight leading-none"
+                        style={{ textShadow: `0 0 40px ${tint.glow}` }}
+                      >
                         {card.price}
-                      </div>
-                      <p className="text-xs text-white/35 mb-5">{card.subtitle}</p>
+                      </motion.div>
+                      <p className="text-xs text-white/30 mb-4">{card.subtitle}</p>
                       
                       {/* Divider */}
-                      <div className="w-full h-px mb-5 bg-gradient-to-r from-white/10 to-transparent" />
+                      <div className="w-full h-px mb-4" style={{
+                        background: `linear-gradient(90deg, transparent, ${tint.accent}15, transparent)`
+                      }} />
                       
                       {/* Features */}
-                      <div className="flex-1 space-y-3">
+                      <div className="flex-1 space-y-2.5">
                         {card.features.map((f, i) => (
-                          <p key={i} className="text-xs text-white/60">{f}</p>
+                          <p key={i} className="text-xs text-white/50">{f}</p>
                         ))}
                       </div>
 
-                      {/* CTA Button - Only visible on active card with blur transition */}
+                      {/* CTA Button */}
                       <motion.div
-                        className="card-cta-wrapper"
                         animate={{
                           opacity: isActive ? 1 : 0,
-                          filter: isActive ? 'blur(0px)' : 'blur(6px)',
-                          y: isActive ? 0 : 8,
+                          scale: isActive ? 1 : 0.96,
+                          filter: isActive ? 'blur(0px)' : 'blur(8px)',
+                          y: isActive ? 0 : 12,
                           pointerEvents: isActive ? 'auto' : 'none',
                         }}
                         transition={{
-                          opacity: { duration: 0.28, ease: [0.32, 0.72, 0, 1] },
-                          filter: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
-                          y: {
-                            type: 'spring',
-                            stiffness: 400,
-                            damping: 32,
-                          },
+                          opacity: { duration: 0.35, ease: [0.32, 0.72, 0, 1] },
+                          filter: { duration: 0.4, ease: [0.32, 0.72, 0, 1] },
+                          y: { type: 'spring', stiffness: 350, damping: 30 },
                         }}
-                        style={{ paddingTop: '28px' }}
+                        style={{ paddingTop: '24px' }}
                       >
                         <motion.button
                           onClick={card.action}
-                          className="card-cta"
+                          whileTap={{ scale: 0.96 }}
+                          transition={{ duration: 0.1 }}
                           style={{
                             width: '100%',
-                            height: '52px',
-                            borderRadius: '14px',
-                            border: '1px solid rgba(255, 255, 255, 0.32)',
-                            background: 'rgba(255, 255, 255, 0.18)',
-                            backdropFilter: 'blur(24px) saturate(160%) brightness(1.15)',
-                            WebkitBackdropFilter: 'blur(24px) saturate(160%) brightness(1.15)',
+                            height: '54px',
+                            borderRadius: '16px',
+                            border: `1px solid rgba(255, 255, 255, 0.2)`,
+                            background: `linear-gradient(135deg, ${tint.accent}25, ${tint.accent}12)`,
+                            backdropFilter: 'blur(20px) saturate(150%)',
+                            WebkitBackdropFilter: 'blur(20px) saturate(150%)',
                             boxShadow: `
-                              inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
-                              inset 0 -1px 0 rgba(255, 255, 255, 0.08),
-                              0 4px 16px rgba(0, 0, 0, 0.15)
+                              inset 0 1px 0 rgba(255, 255, 255, 0.25),
+                              inset 0 -1px 0 rgba(255, 255, 255, 0.05),
+                              0 6px 20px rgba(0, 0, 0, 0.2),
+                              0 0 40px ${tint.glow}
                             `,
-                            color: 'rgba(255, 255, 255, 0.95)',
-                            fontSize: '16px',
+                            color: 'rgba(255, 255, 255, 0.92)',
+                            fontSize: '15px',
                             fontWeight: 600,
                             letterSpacing: '-0.01em',
                             cursor: 'pointer',
                             WebkitTapHighlightColor: 'transparent',
                           }}
-                          whileTap={{ scale: 0.96 }}
                           onPointerDown={(e) => e.stopPropagation()}
                           onPointerUp={(e) => {
                             e.stopPropagation()
@@ -411,142 +434,232 @@ export default function SeleccionarAcceso() {
         </div>
         
         {/* Pagination Indicators */}
-        <div className="flex justify-center gap-2 mt-4">
+        <div className="flex justify-center gap-2.5 mt-2">
           {cards.map((_, i) => (
             <motion.div
               key={i}
               animate={{
-                width: i === activeIndex ? 24 : 8,
-                opacity: i === activeIndex ? 1 : 0.35,
+                width: i === activeIndex ? 28 : 8,
+                opacity: i === activeIndex ? 1 : 0.25,
                 background: i === activeIndex 
-                  ? 'rgba(255,255,255,0.9)' 
-                  : 'rgba(255,255,255,0.4)',
+                  ? CARD_TINTS[i].accent 
+                  : 'rgba(255,255,255,0.3)',
               }}
               transition={{
                 type: 'spring',
-                stiffness: 500,
-                damping: 32,
+                stiffness: 450,
+                damping: 30,
               }}
               style={{
-                height: 8,
-                borderRadius: 4,
+                height: 6,
+                borderRadius: 3,
               }}
             />
           ))}
         </div>
         
-        {/* Swipe Hint */}
-        <div className="flex justify-center items-center gap-2 mt-3 text-white/25 text-[10px]">
-          <span className="animate-pulse opacity-50">←</span>
-          <span>Desliza</span>
-          <span className="animate-pulse opacity-50">→</span>
-        </div>
+        {/* Swipe Hint - Moved below cards, more subtle */}
+        <motion.div 
+          className="flex justify-center items-center gap-2 mt-6"
+          animate={{ opacity: isDragging ? 0.15 : 0.35 }}
+          transition={{ duration: 0.3 }}
+        >
+          <span className="text-white/40 text-[9px] tracking-widest uppercase">Desliza</span>
+        </motion.div>
       </div>
 
-      {/* DESKTOP - Both cards side by side (unchanged) */}
-      <div className="relative z-10 w-full max-w-5xl hidden md:flex gap-6 px-4">
+      {/* DESKTOP - Premium Frosted Glass Cards */}
+      <div className="relative z-10 w-full max-w-5xl hidden md:flex gap-8 px-4 items-stretch">
         
-        {/* PAID */}
-        <div 
-          className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
-          style={{
-            background: 'linear-gradient(160deg, rgba(153,27,27,0.85) 0%, rgba(69,10,10,0.92) 50%, rgba(20,5,5,0.95) 100%)',
-            backdropFilter: 'blur(24px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-            border: '1px solid rgba(239,68,68,0.3)',
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 60px rgba(220,38,38,0.12)',
-          }}
+        {/* PAID - Premium Card */}
+        <motion.div 
+          className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
+          style={{ minHeight: '520px' }}
+          whileHover={{ y: -4, transition: { duration: 0.3 } }}
+          whileTap={{ scale: 0.99 }}
         >
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+          {/* Ambient glow */}
+          <motion.div 
+            className="absolute inset-0 rounded-[32px]"
+            style={{
+              background: 'radial-gradient(ellipse at 40% 0%, rgba(255, 200, 100, 0.1) 0%, transparent 50%)',
+            }}
+          />
           
-          <div className="absolute top-6 right-6">
-            <span className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase bg-red-500/25 border border-red-500/45 text-red-300">⚡ Popular</span>
-          </div>
+          <div 
+            className="relative h-full rounded-[32px] p-8 pt-12"
+            style={{
+              background: 'linear-gradient(165deg, rgba(255, 220, 140, 0.06) 0%, rgba(255,255,255,0.02) 40%, rgba(255, 180, 80, 0.04) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              boxShadow: `
+                inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                0 32px 80px -20px rgba(0,0,0,0.5),
+                0 0 80px rgba(255, 200, 100, 0.08)
+              `,
+            }}
+          >
+            {/* Top shine */}
+            <div className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]" style={{
+              background: 'linear-gradient(90deg, transparent, rgba(255,200,100,0.2), transparent)'
+            }} />
+            
+            <div className="absolute top-7 right-7">
+              <span 
+                className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase"
+                style={{
+                  background: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,180,80,0.1))',
+                  border: '1px solid rgba(255,215,0,0.25)',
+                  color: '#ffd700',
+                  boxShadow: '0 0 30px rgba(255,215,0,0.15)',
+                }}
+              >
+                ⚡ Popular
+              </span>
+            </div>
 
-          <div className="p-8 pt-12">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-2 h-2 rounded-full bg-red-500" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-red-400">Acceso Inmediato</span>
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-2 h-2 rounded-full" style={{ background: '#ffd700', boxShadow: '0 0 12px rgba(255,215,0,0.5)' }} />
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffd700cc' }}>Acceso Inmediato</span>
             </div>
             
-            <div className="text-6xl font-bold text-white mb-2">17€</div>
-            <p className="text-sm text-white/40 mb-6">pago único · sin suscripción</p>
+            <div className="text-6xl font-bold text-white mb-2" style={{ textShadow: '0 0 40px rgba(255,200,100,0.3)' }}>17€</div>
+            <p className="text-sm text-white/35 mb-8">pago único · sin suscripción</p>
             
-            <div className="w-full h-px mb-6 bg-gradient-to-r from-red-500/40 to-transparent" />
+            <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent)' }} />
             
-            <div className="space-y-3.5 mb-8">
+            <div className="space-y-4 mb-8">
               {['Acceso completo inmediato', 'Sin espera ni aprobación', '5 Templos desbloqueados', 'NOVA AI Coach ilimitado', 'Discord exclusivo'].map((f, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center bg-red-500/20 border border-red-500/40">
-                    <svg className="w-2 h-2 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  <div 
+                    className="w-5 h-5 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.25)' }}
+                  >
+                    <svg className="w-2.5 h-2.5" style={{ color: '#ffd700' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                   </div>
                   <span className="text-sm text-white/70">{f}</span>
                 </div>
               ))}
             </div>
 
-            <button 
+            <motion.button 
               onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
-              className="w-full py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-red-600 to-red-800 hover:shadow-lg hover:shadow-red-500/25 transition-all active:scale-[0.98]"
+              whileHover={{ scale: 1.01, boxShadow: '0 8px 40px rgba(255,200,100,0.25)' }}
+              whileTap={{ scale: 0.99 }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '18px',
+                border: '1px solid rgba(255,255,255,0.15)',
+                background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,180,80,0.12))',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: `
+                  inset 0 1px 0 rgba(255,255,255,0.2),
+                  0 8px 32px rgba(255,200,100,0.15)
+                `,
+                color: 'white',
+                fontSize: '15px',
+                fontWeight: 600,
+              }}
             >
               Entrar ahora →
-            </button>
-            <p className="text-center text-[11px] text-white/20 mt-4">Pago seguro vía Whop</p>
+            </motion.button>
+            <p className="text-center text-[11px] text-white/15 mt-5">Pago seguro vía Whop</p>
           </div>
-        </div>
+        </motion.div>
 
-        {/* FREE */}
-        <div 
-          className="flex-1 rounded-[28px] overflow-hidden cursor-pointer transition-all duration-300 hover:scale-[1.015] active:scale-[0.995]"
-          style={{
-            background: 'linear-gradient(160deg, rgba(30,64,175,0.8) 0%, rgba(15,23,42,0.9) 50%, rgba(3,7,18,0.95) 100%)',
-            backdropFilter: 'blur(24px) saturate(150%)',
-            WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-            border: '1px solid rgba(59,130,246,0.25)',
-            boxShadow: '0 40px 80px -20px rgba(0,0,0,0.7), 0 0 40px rgba(37,99,235,0.06)',
-          }}
+        {/* FREE - Subtle Card */}
+        <motion.div 
+          className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
+          style={{ minHeight: '520px' }}
+          whileHover={{ y: -4, transition: { duration: 0.3 } }}
+          whileTap={{ scale: 0.99 }}
         >
-          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
+          <motion.div 
+            className="absolute inset-0 rounded-[32px]"
+            style={{
+              background: 'radial-gradient(ellipse at 60% 0%, rgba(100,160,255,0.06) 0%, transparent 50%)',
+            }}
+          />
 
-          <div className="p-8 pt-12">
-            <div className="flex items-center gap-2 mb-5">
-              <div className="w-2 h-2 rounded-full bg-blue-400" />
-              <span className="text-xs font-semibold uppercase tracking-wider text-blue-400">Lista de Espera</span>
+          <div 
+            className="relative h-full rounded-[32px] p-8 pt-12"
+            style={{
+              background: 'linear-gradient(165deg, rgba(140,180,255,0.04) 0%, rgba(255,255,255,0.02) 40%, rgba(100,160,255,0.03) 100%)',
+              backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              boxShadow: `
+                inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                0 32px 80px -20px rgba(0,0,0,0.5),
+                0 0 60px rgba(100,160,255,0.04)
+              `,
+            }}
+          >
+            <div className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]" style={{
+              background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)'
+            }} />
+
+            <div className="flex items-center gap-2 mb-6">
+              <div className="w-2 h-2 rounded-full" style={{ background: '#64a0ff', boxShadow: '0 0 12px rgba(100,160,255,0.4)' }} />
+              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#64a0ffcc' }}>Lista de Espera</span>
             </div>
             
-            <div className="text-6xl font-bold text-white/85 mb-2">Gratis</div>
-            <p className="text-sm text-white/30 mb-6">tras aprobación manual</p>
+            <div className="text-6xl font-bold text-white/80 mb-2">Gratis</div>
+            <p className="text-sm text-white/25 mb-8">tras aprobación manual</p>
             
-            <div className="w-full h-px mb-6 bg-gradient-to-r from-blue-500/30 to-transparent" />
+            <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)' }} />
             
-            <div className="space-y-3.5 mb-8">
+            <div className="space-y-4 mb-8">
               {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
                 <div key={i} className="flex items-center gap-3">
-                  <div className="w-4 h-4 rounded-full flex items-center justify-center bg-blue-500/15 border border-blue-500/25">
-                    <svg className="w-2 h-2 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                  <div 
+                    className="w-5 h-5 rounded-full flex items-center justify-center"
+                    style={{ background: 'rgba(100,160,255,0.08)', border: '1px solid rgba(100,160,255,0.15)' }}
+                  >
+                    <svg className="w-2.5 h-2.5" style={{ color: '#64a0ff' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
                   </div>
-                  <span className="text-sm text-white/50">{f}</span>
+                  <span className="text-sm text-white/40">{f}</span>
                 </div>
               ))}
             </div>
 
-            <button 
+            <motion.button 
               onClick={() => router.push('/cuestionario')}
-              className="w-full py-4 rounded-2xl text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-blue-700 hover:shadow-lg hover:shadow-blue-500/20 transition-all active:scale-[0.98]"
+              whileHover={{ scale: 1.01, boxShadow: '0 8px 40px rgba(100,160,255,0.15)' }}
+              whileTap={{ scale: 0.99 }}
+              style={{
+                width: '100%',
+                padding: '16px',
+                borderRadius: '18px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                background: 'linear-gradient(135deg, rgba(100,160,255,0.1), rgba(100,160,255,0.05))',
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)',
+                boxShadow: `
+                  inset 0 1px 0 rgba(255,255,255,0.1),
+                  0 8px 32px rgba(100,160,255,0.08)
+                `,
+                color: 'rgba(255,255,255,0.8)',
+                fontSize: '15px',
+                fontWeight: 600,
+              }}
             >
               Continuar gratis →
-            </button>
+            </motion.button>
           </div>
-        </div>
+        </motion.div>
 
       </div>
 
       {/* Trust */}
-      <div className="relative z-10 mt-8 flex items-center justify-center gap-4 text-white/25 text-[10px] flex-wrap px-4">
+      <div className="relative z-10 mt-10 flex items-center justify-center gap-5 text-white/20 text-[10px] flex-wrap px-4">
         <span className="flex items-center gap-1.5">✓ Pago seguro</span>
-        <span className="w-px h-3 bg-white/10" />
+        <span className="w-px h-3 bg-white/8" />
         <span>✓ Sin compromisos</span>
-        <span className="w-px h-3 bg-white/10" />
+        <span className="w-px h-3 bg-white/8" />
         <span>✓ Acceso inmediato</span>
       </div>
 
