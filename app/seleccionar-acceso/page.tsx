@@ -3,12 +3,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useSpring } from 'framer-motion'
 
-const CARD_GAP = 280
-const DEPTH_SCALE = 0.88
+const CARD_GAP = 340
+const DEPTH_SCALE = 0.84
 const DEPTH_ROTATE = 8
-const DEPTH_Z = -80
+const DEPTH_Z = -100
 const SWIPE_THRESHOLD = 60
 const VELOCITY_THRESHOLD = 0.4
 
@@ -26,6 +26,12 @@ export default function SeleccionarAcceso() {
   const [dragX, setDragX] = useState(0)
   const [isDragging, setIsDragging] = useState(false)
   const [hasEntered, setHasEntered] = useState(false)
+  
+  const springDragX = useSpring(dragX, {
+    stiffness: 600,
+    damping: 45,
+    mass: 0.8,
+  })
   
   const dragStartX = useRef(0)
   const dragStartTime = useRef(0)
@@ -46,7 +52,8 @@ export default function SeleccionarAcceso() {
 
   const getCardTransform = useCallback((cardIndex: number) => {
     const position = cardIndex - activeIndex
-    const dragProgress = typeof window !== 'undefined' ? dragX / window.innerWidth : 0
+    const currentDragX = springDragX.get()
+    const dragProgress = typeof window !== 'undefined' ? currentDragX / window.innerWidth : 0
     const effectivePosition = position - dragProgress
 
     const recessionFactor = Math.min(Math.abs(effectivePosition), 1)
@@ -59,7 +66,7 @@ export default function SeleccionarAcceso() {
       opacity: 1 - recessionFactor * 0.35,
       zIndex: Math.round(10 - Math.abs(effectivePosition) * 10),
     }
-  }, [activeIndex, dragX])
+  }, [activeIndex, springDragX])
 
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsDragging(true)
@@ -235,15 +242,15 @@ export default function SeleccionarAcceso() {
                     exit={{ opacity: 0, scale: 0.9 }}
                     transition={{
                       type: 'spring',
-                      stiffness: 380,
-                      damping: 36,
-                      mass: 1,
+                      stiffness: 320,
+                      damping: 38,
+                      mass: 1.2,
                     }}
                     style={{
                       position: 'absolute',
                       width: '300px',
-                      minHeight: '380px',
-                      padding: '36px 28px',
+                      minHeight: '440px',
+                      padding: '40px 28px 36px',
                       borderRadius: '28px',
                       zIndex: transform.zIndex,
                       transformStyle: 'preserve-3d',
@@ -251,6 +258,9 @@ export default function SeleccionarAcceso() {
                       userSelect: 'none',
                       WebkitUserSelect: 'none',
                       touchAction: 'none',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'space-between',
                     }}
                     className={`access-card access-card--${index === 0 ? 'option-1' : 'option-2'}`}
                   >
@@ -288,7 +298,7 @@ export default function SeleccionarAcceso() {
                     />
                     
                     {/* Content */}
-                    <div className="relative h-full flex flex-col">
+                    <div className="relative h-full flex flex-col" style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '16px' }}>
                       {/* Badge */}
                       {card.type === 'paid' && (
                         <div className="absolute top-0 right-0">
@@ -339,47 +349,59 @@ export default function SeleccionarAcceso() {
                         ))}
                       </div>
 
-                      {/* CTA Button - Only visible on active card */}
-                      <motion.button
-                        onClick={card.action}
-                        initial={{ opacity: 0 }}
-                        animate={{ 
+                      {/* CTA Button - Only visible on active card with blur transition */}
+                      <motion.div
+                        className="card-cta-wrapper"
+                        animate={{
                           opacity: isActive ? 1 : 0,
-                          scale: isActive ? 1 : 0.95,
-                        }}
-                        transition={{
-                          type: 'spring',
-                          stiffness: 400,
-                          damping: 30,
-                        }}
-                        className="card-cta"
-                        style={{
-                          width: '100%',
-                          height: '52px',
-                          borderRadius: '14px',
-                          border: 'none',
-                          background: index === 0 
-                            ? 'linear-gradient(135deg, #ffb450 0%, #f97316 100%)'
-                            : 'linear-gradient(135deg, #64a0ff 0%, #3b82f6 100%)',
-                          color: 'white',
-                          fontSize: '16px',
-                          fontWeight: 600,
-                          letterSpacing: '-0.01em',
-                          cursor: 'pointer',
-                          marginTop: 'auto',
-                          boxShadow: index === 0
-                            ? '0 8px 25px rgba(255,180,80,0.3)'
-                            : '0 8px 25px rgba(100,160,255,0.3)',
+                          filter: isActive ? 'blur(0px)' : 'blur(6px)',
+                          y: isActive ? 0 : 8,
                           pointerEvents: isActive ? 'auto' : 'none',
                         }}
-                        onPointerDown={(e) => e.stopPropagation()}
-                        onPointerUp={(e) => {
-                          e.stopPropagation()
-                          card.action()
+                        transition={{
+                          opacity: { duration: 0.28, ease: [0.32, 0.72, 0, 1] },
+                          filter: { duration: 0.32, ease: [0.32, 0.72, 0, 1] },
+                          y: {
+                            type: 'spring',
+                            stiffness: 400,
+                            damping: 32,
+                          },
                         }}
+                        style={{ paddingTop: '28px' }}
                       >
-                        {card.button}
-                      </motion.button>
+                        <motion.button
+                          onClick={card.action}
+                          className="card-cta"
+                          style={{
+                            width: '100%',
+                            height: '52px',
+                            borderRadius: '14px',
+                            border: '1px solid rgba(255, 255, 255, 0.32)',
+                            background: 'rgba(255, 255, 255, 0.18)',
+                            backdropFilter: 'blur(24px) saturate(160%) brightness(1.15)',
+                            WebkitBackdropFilter: 'blur(24px) saturate(160%) brightness(1.15)',
+                            boxShadow: `
+                              inset 0 1.5px 0 rgba(255, 255, 255, 0.35),
+                              inset 0 -1px 0 rgba(255, 255, 255, 0.08),
+                              0 4px 16px rgba(0, 0, 0, 0.15)
+                            `,
+                            color: 'rgba(255, 255, 255, 0.95)',
+                            fontSize: '16px',
+                            fontWeight: 600,
+                            letterSpacing: '-0.01em',
+                            cursor: 'pointer',
+                            WebkitTapHighlightColor: 'transparent',
+                          }}
+                          whileTap={{ scale: 0.96 }}
+                          onPointerDown={(e) => e.stopPropagation()}
+                          onPointerUp={(e) => {
+                            e.stopPropagation()
+                            card.action()
+                          }}
+                        >
+                          {card.button}
+                        </motion.button>
+                      </motion.div>
                     </div>
                   </motion.div>
                 )
