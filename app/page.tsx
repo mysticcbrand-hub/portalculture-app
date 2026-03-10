@@ -320,27 +320,27 @@ function HomePageContent() {
       {/* ── Enhanced Deband Background for Large Screens ── */}
       <div className="fixed inset-0 pointer-events-none hidden lg:block" style={{
         background: `
-          radial-gradient(ellipse 140% 100% at 0% 0%, rgba(139,92,246,0.22) 0%, rgba(88,28,135,0.08) 40%, transparent 70%),
-          radial-gradient(ellipse 120% 100% at 100% 0%, rgba(59,130,246,0.18) 0%, rgba(29,78,216,0.07) 40%, transparent 70%),
-          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(16,185,129,0.08) 0%, rgba(5,150,105,0.03) 40%, transparent 60%),
-          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(139,92,246,0.05) 0%, transparent 50%)
+          radial-gradient(ellipse 140% 100% at 0% 0%, rgba(180,190,210,0.08) 0%, rgba(140,150,170,0.04) 40%, transparent 70%),
+          radial-gradient(ellipse 120% 100% at 100% 0%, rgba(120,140,180,0.07) 0%, rgba(80,100,140,0.03) 40%, transparent 70%),
+          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(100,120,150,0.05) 0%, rgba(80,100,130,0.02) 40%, transparent 60%),
+          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(160,170,190,0.03) 0%, transparent 50%)
         `
       }} />
       
       {/* Medium screens */}
       <div className="fixed inset-0 pointer-events-none hidden md:block lg:hidden" style={{
         background: `
-          radial-gradient(ellipse 130% 90% at 10% 10%, rgba(139,92,246,0.18) 0%, rgba(88,28,135,0.06) 40%, transparent 70%),
-          radial-gradient(ellipse 110% 80% at 90% 80%, rgba(29,78,216,0.14) 0%, rgba(23,62,172,0.05) 40%, transparent 70%),
-          radial-gradient(ellipse 70% 50% at 50% 100%, rgba(16,185,129,0.06) 0%, transparent 50%)
+          radial-gradient(ellipse 130% 90% at 10% 10%, rgba(160,170,195,0.08) 0%, rgba(120,130,160,0.03) 40%, transparent 70%),
+          radial-gradient(ellipse 110% 80% at 90% 80%, rgba(100,120,160,0.06) 0%, rgba(80,100,140,0.02) 40%, transparent 70%),
+          radial-gradient(ellipse 70% 50% at 50% 100%, rgba(130,145,170,0.04) 0%, transparent 50%)
         `
       }} />
       
       {/* Mobile */}
       <div className="fixed inset-0 pointer-events-none md:hidden" style={{
         background: `
-          radial-gradient(ellipse 120% 80% at 50% 10%, rgba(139,92,246,0.15) 0%, transparent 60%),
-          radial-gradient(ellipse 100% 70% at 50% 90%, rgba(29,78,216,0.12) 0%, transparent 50%)
+          radial-gradient(ellipse 120% 80% at 50% 10%, rgba(160,170,195,0.07) 0%, transparent 60%),
+          radial-gradient(ellipse 100% 70% at 50% 90%, rgba(100,120,160,0.05) 0%, transparent 50%)
         `
       }} />
 
@@ -420,19 +420,19 @@ function HomePageContent() {
             className="relative mb-6 animate-fade-in-up"
             style={{ animationDelay: '0.1s' }}
           >
-            {/* Ambient glow */}
+            {/* Ambient glow — neutral silver */}
             <div className="absolute -inset-6 rounded-[36px] pointer-events-none transition-opacity duration-700"
               style={{
-                background: `radial-gradient(ellipse 130% 120% at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(139,92,246,0.25) 0%, rgba(59,130,246,0.15) 50%, rgba(16,185,129,0.08) 70%, transparent 80%)`,
+                background: `radial-gradient(ellipse 130% 120% at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.12) 0%, rgba(160,170,195,0.06) 50%, transparent 80%)`,
                 filter: 'blur(28px)',
-                opacity: isHoveringIntro ? 1 : 0.4,
+                opacity: isHoveringIntro ? 1 : 0.3,
               }}
             />
             
-            {/* Gradient border */}
+            {/* Gradient border — chiseled glass, directional light */}
             <div className="absolute -inset-[1.5px] rounded-[28px] pointer-events-none"
               style={{
-                background: `linear-gradient(145deg, rgba(139,92,246,${isHoveringIntro ? 0.6 : 0.3}), rgba(59,130,246,${isHoveringIntro ? 0.5 : 0.25}), rgba(16,185,129,${isHoveringIntro ? 0.3 : 0.15}), rgba(255,255,255,0.08))`,
+                background: `linear-gradient(155deg, rgba(255,255,255,${isHoveringIntro ? 0.28 : 0.16}) 0%, rgba(200,210,230,${isHoveringIntro ? 0.18 : 0.10}) 35%, rgba(160,170,195,${isHoveringIntro ? 0.10 : 0.06}) 65%, rgba(255,255,255,0.04) 100%)`,
                 borderRadius: '26px',
               }}
             />
@@ -440,39 +440,43 @@ function HomePageContent() {
             {/* Card */}
             <div className="relative rounded-[26px] p-6 sm:p-8 overflow-hidden"
               style={{
-                background: 'linear-gradient(165deg, rgba(25,20,45,0.95) 0%, rgba(15,12,30,0.98) 50%, rgba(10,8,22,0.99) 100%)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                boxShadow: '0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.08)',
+                background: 'linear-gradient(165deg, rgba(38,38,46,0.92) 0%, rgba(28,28,34,0.95) 40%, rgba(20,20,26,0.97) 100%)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                boxShadow: '0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10), inset 1px 0 0 rgba(255,255,255,0.04)',
               }}
             >
-              {/* Mouse spotlight */}
+              {/* Mouse spotlight — neutral white */}
               <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
                 style={{
-                  background: `radial-gradient(circle 280px at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(139,92,246,0.12) 0%, rgba(59,130,246,0.06) 50%, transparent 70%)`,
+                  background: `radial-gradient(circle 280px at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.08) 0%, rgba(180,190,210,0.03) 50%, transparent 70%)`,
                   opacity: isHoveringIntro ? 1 : 0,
                 }}
               />
 
-              {/* Top shimmer */}
+              {/* Top shimmer — silver */}
               <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.5), rgba(59,130,246,0.4), rgba(16,185,129,0.3), transparent)' }}
+                style={{ background: 'linear-gradient(90deg, transparent, rgba(200,210,230,0.35), rgba(255,255,255,0.25), rgba(200,210,230,0.35), transparent)' }}
               />
 
               {/* Content */}
               <div className="relative text-center space-y-5">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/20 shadow-lg">
-                  <svg className="w-7 h-7 text-purple-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border shadow-lg"
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(200,210,230,0.04) 100%)',
+                    borderColor: 'rgba(255,255,255,0.12)',
+                  }}
+                >
+                  <svg className="w-7 h-7 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
                   </svg>
                 </div>
 
                 <div className="space-y-2">
                   <h2 className="text-xl sm:text-2xl font-semibold text-white">
-                    Tu transformación comienza aquí
+                    Todo lo que necesitas. En un solo lugar.
                   </h2>
-                  <p className="text-white/50 text-sm leading-relaxed">
-                    Más de <span className="text-emerald-400 font-semibold">590€ en contenido exclusivo</span> que puede cambiar tu vida. 
-                    Todo esto por una fracción del valor real.
+                  <p className="text-white/45 text-sm leading-relaxed">
+                    Acceso completo a un ecosistema valorado en más de <span className="text-white/80 font-semibold">590€</span> — por lo que cuesta un café.
                   </p>
                 </div>
 
@@ -484,45 +488,41 @@ function HomePageContent() {
                     { icon: '🤖', text: 'NOVA AI Coach', value: '97€' },
                     { icon: '💎', text: 'Contenido extra exclusivo', value: '+197€' },
                   ].map((feature, i) => (
-                    <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl bg-white/[0.035] border border-white/[0.06]">
+                    <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl transition-colors duration-300 hover:bg-white/[0.04]"
+                      style={{
+                        background: 'rgba(255,255,255,0.025)',
+                        border: '0.5px solid rgba(255,255,255,0.06)',
+                      }}
+                    >
                       <div className="flex items-center gap-3">
                         <span className="text-base">{feature.icon}</span>
-                        <span className="text-white/70 text-sm">{feature.text}</span>
+                        <span className="text-white/65 text-sm">{feature.text}</span>
                       </div>
-                      <span className="text-emerald-400/90 text-xs font-semibold">{feature.value}</span>
+                      <span className="text-white/50 text-xs font-medium">{feature.value}</span>
                     </div>
                   ))}
                 </div>
 
-                {/* CTA Button - Glassmorphism Apple Style */}
+                {/* CTA Button — Premium neutral glass */}
                 <button
                   onClick={scrollToAuth}
                   className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.22) 0%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.08) 100%)',
-                    backdropFilter: 'blur(24px) saturate(200%)',
-                    WebkitBackdropFilter: 'blur(24px) saturate(200%)',
-                    border: '1px solid rgba(255,255,255,0.18)',
-                    boxShadow: '0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.18), inset 0 -1px 0 rgba(255,255,255,0.08)',
+                    background: 'linear-gradient(145deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06) 100%)',
+                    backdropFilter: 'blur(32px) saturate(180%) brightness(0.95)',
+                    WebkitBackdropFilter: 'blur(32px) saturate(180%) brightness(0.95)',
+                    border: '1px solid rgba(255,255,255,0.16)',
+                    boxShadow: '0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -1px 0 rgba(255,255,255,0.05)',
                   }}
                 >
                   <span className="relative z-10 flex flex-col items-center justify-center gap-1.5">
-                    {/* Animated pricing info - blur fade in */}
                     <span 
-                      className="text-[10px] uppercase tracking-[0.15em] text-white/50 font-medium animate-blur-fade-in"
-                      style={{
-                        animationDelay: '0.15s',
-                        animationFillMode: 'backwards',
-                      }}
+                      className="text-[10px] uppercase tracking-[0.15em] text-white/40 font-medium"
                     >
-                      Total: <span className="text-white/70 line-through text-[9px] mr-1">591€</span>
-                      <span className="text-white/80">17€</span>
-                      <span className="text-white/30 mx-1">/</span>
-                      <span className="text-emerald-300">Gratis</span>
+                      Acceso completo · 17€
                     </span>
-                    {/* Main CTA */}
                     <span className="text-base font-bold text-white flex items-center gap-2">
-                      Cruzar el Portal
+                      Comenzar ahora
                       <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                       </svg>
@@ -554,15 +554,15 @@ function HomePageContent() {
               {/* Ambient glow */}
               <div className="absolute -inset-5 rounded-[34px] pointer-events-none transition-opacity duration-700"
                 style={{
-                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.22) 0%, rgba(59,130,246,0.12) 50%, transparent 70%)`,
+                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.10) 0%, rgba(160,170,195,0.05) 50%, transparent 70%)`,
                   filter: 'blur(26px)',
-                  opacity: isHoveringCard ? 1 : 0.35,
+                  opacity: isHoveringCard ? 1 : 0.3,
                 }}
               />
               {/* Gradient border */}
               <div className="absolute -inset-[1.5px] rounded-3xl pointer-events-none"
                 style={{
-                  background: `linear-gradient(140deg, rgba(139,92,246,${isHoveringCard ? 0.55 : 0.28}), rgba(59,130,246,${isHoveringCard ? 0.45 : 0.22}), rgba(255,255,255,0.06))`,
+                  background: `linear-gradient(155deg, rgba(255,255,255,${isHoveringCard ? 0.24 : 0.14}), rgba(200,210,230,${isHoveringCard ? 0.14 : 0.08}), rgba(255,255,255,0.04))`,
                   borderRadius: '26px',
                 }}
               />
@@ -570,19 +570,19 @@ function HomePageContent() {
               {/* Card */}
               <div className="relative rounded-[26px] p-6 sm:p-8 overflow-hidden"
                 style={{
-                  background: 'linear-gradient(165deg, rgba(28,22,52,0.96) 0%, rgba(18,14,38,0.98) 100%)',
-                  border: '1px solid rgba(255,255,255,0.09)',
-                  boxShadow: '0 36px 90px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.07)',
+                  background: 'linear-gradient(165deg, rgba(38,38,46,0.96) 0%, rgba(28,28,34,0.98) 100%)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 36px 90px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)',
                 }}
               >
                 <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
                   style={{
-                    background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.1) 0%, transparent 70%)`,
+                    background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.07) 0%, transparent 70%)`,
                     opacity: isHoveringCard ? 1 : 0,
                   }}
                 />
                 <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
-                  style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.45), rgba(59,130,246,0.35), transparent)' }}
+                  style={{ background: 'linear-gradient(90deg, transparent, rgba(200,210,230,0.30), rgba(255,255,255,0.20), transparent)' }}
                 />
 
                 <button
@@ -641,16 +641,16 @@ function HomePageContent() {
               {/* Ambient glow exterior */}
               <div className="absolute -inset-5 rounded-[34px] pointer-events-none transition-opacity duration-700"
                 style={{
-                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.22) 0%, rgba(59,130,246,0.12) 50%, transparent 70%)`,
+                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.10) 0%, rgba(160,170,195,0.05) 50%, transparent 70%)`,
                   filter: 'blur(26px)',
-                  opacity: isHoveringCard ? 1 : 0.35,
+                  opacity: isHoveringCard ? 1 : 0.3,
                 }}
               />
 
               {/* Gradient border */}
               <div className="absolute -inset-[1.5px] rounded-3xl pointer-events-none"
                 style={{
-                  background: `linear-gradient(140deg, rgba(139,92,246,${isHoveringCard ? 0.55 : 0.28}), rgba(59,130,246,${isHoveringCard ? 0.45 : 0.22}), rgba(255,255,255,0.06))`,
+                  background: `linear-gradient(155deg, rgba(255,255,255,${isHoveringCard ? 0.24 : 0.14}), rgba(200,210,230,${isHoveringCard ? 0.14 : 0.08}), rgba(255,255,255,0.04))`,
                   borderRadius: '26px',
                 }}
               />
@@ -658,9 +658,9 @@ function HomePageContent() {
               {/* Card */}
               <div
                 style={{
-                  background: 'linear-gradient(165deg, rgba(28,22,52,0.96) 0%, rgba(18,14,38,0.98) 100%)',
-                  border: '1px solid rgba(255,255,255,0.09)',
-                  boxShadow: `0 36px 90px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.07)`,
+                  background: 'linear-gradient(165deg, rgba(38,38,46,0.96) 0%, rgba(28,28,34,0.98) 100%)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: `0 36px 90px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)`,
                   height: cardHeight === 'auto' ? 'auto' : `${cardHeight}px`,
                   overflow: 'hidden',
                   transition: 'height 0.5s cubic-bezier(0.34,1.26,0.64,1)',
@@ -681,13 +681,13 @@ function HomePageContent() {
                   {/* Mouse spotlight */}
                   <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
                     style={{
-                      background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(139,92,246,0.1) 0%, transparent 70%)`,
+                      background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.07) 0%, transparent 70%)`,
                       opacity: isHoveringCard ? 1 : 0,
                     }}
                   />
                   {/* Shimmer top */}
                   <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(139,92,246,0.45), rgba(59,130,246,0.35), transparent)' }}
+                    style={{ background: 'linear-gradient(90deg, transparent, rgba(200,210,230,0.30), rgba(255,255,255,0.20), transparent)' }}
                   />
                   
                   {/* Mode toggle pills */}
