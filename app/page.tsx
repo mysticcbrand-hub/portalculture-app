@@ -320,27 +320,27 @@ function HomePageContent() {
       {/* ── Enhanced Deband Background for Large Screens ── */}
       <div className="fixed inset-0 pointer-events-none hidden lg:block" style={{
         background: `
-          radial-gradient(ellipse 140% 100% at 0% 0%, rgba(180,190,210,0.08) 0%, rgba(140,150,170,0.04) 40%, transparent 70%),
-          radial-gradient(ellipse 120% 100% at 100% 0%, rgba(120,140,180,0.07) 0%, rgba(80,100,140,0.03) 40%, transparent 70%),
-          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(100,120,150,0.05) 0%, rgba(80,100,130,0.02) 40%, transparent 60%),
-          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(160,170,190,0.03) 0%, transparent 50%)
+          radial-gradient(ellipse 140% 100% at 0% 0%, rgba(100,120,180,0.18) 0%, rgba(60,80,140,0.07) 40%, transparent 70%),
+          radial-gradient(ellipse 120% 100% at 100% 0%, rgba(80,100,160,0.14) 0%, rgba(50,70,130,0.05) 40%, transparent 70%),
+          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(60,90,140,0.08) 0%, rgba(40,70,120,0.03) 40%, transparent 60%),
+          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(80,100,160,0.05) 0%, transparent 50%)
         `
       }} />
       
       {/* Medium screens */}
       <div className="fixed inset-0 pointer-events-none hidden md:block lg:hidden" style={{
         background: `
-          radial-gradient(ellipse 130% 90% at 10% 10%, rgba(160,170,195,0.08) 0%, rgba(120,130,160,0.03) 40%, transparent 70%),
-          radial-gradient(ellipse 110% 80% at 90% 80%, rgba(100,120,160,0.06) 0%, rgba(80,100,140,0.02) 40%, transparent 70%),
-          radial-gradient(ellipse 70% 50% at 50% 100%, rgba(130,145,170,0.04) 0%, transparent 50%)
+          radial-gradient(ellipse 130% 90% at 10% 10%, rgba(100,120,180,0.15) 0%, rgba(60,80,140,0.05) 40%, transparent 70%),
+          radial-gradient(ellipse 110% 80% at 90% 80%, rgba(60,90,150,0.12) 0%, rgba(40,70,130,0.04) 40%, transparent 70%),
+          radial-gradient(ellipse 70% 50% at 50% 100%, rgba(80,110,160,0.06) 0%, transparent 50%)
         `
       }} />
       
       {/* Mobile */}
       <div className="fixed inset-0 pointer-events-none md:hidden" style={{
         background: `
-          radial-gradient(ellipse 120% 80% at 50% 10%, rgba(160,170,195,0.07) 0%, transparent 60%),
-          radial-gradient(ellipse 100% 70% at 50% 90%, rgba(100,120,160,0.05) 0%, transparent 50%)
+          radial-gradient(ellipse 120% 80% at 50% 10%, rgba(100,120,180,0.12) 0%, transparent 60%),
+          radial-gradient(ellipse 100% 70% at 50% 90%, rgba(60,90,150,0.09) 0%, transparent 50%)
         `
       }} />
 
@@ -396,7 +396,7 @@ function HomePageContent() {
         <div className="text-center mb-6 sm:mb-8">
           <div className="relative inline-block">
             <div className="absolute -inset-10 bg-white/6 blur-3xl rounded-full opacity-60" />
-            <h1 className="relative text-2.5 sm:text-3.5 font-bold tracking-tight"
+            <h1 className="relative text-2.5 sm:text-3.5 font-bold tracking-tight animate-word-drop"
               style={{
                 background: 'linear-gradient(135deg, #ffffff 0%, rgba(255,255,255,0.85) 40%, #ffffff 60%, rgba(255,255,255,0.9) 100%)',
                 WebkitBackgroundClip: 'text',
@@ -407,7 +407,7 @@ function HomePageContent() {
               PORTAL CULTURE
             </h1>
           </div>
-          <p className="text-white/35 text-xs sm:text-sm mt-2 tracking-[0.25em] uppercase font-light">Desbloquea tu potencial</p>
+          <p className="text-white/35 text-xs sm:text-sm mt-2 tracking-[0.25em] uppercase font-light animate-fade-rise" style={{ animationDelay: '0.15s' }}>Desbloquea tu potencial</p>
         </div>
 
         {/* ── INTRO CARD ── */}
@@ -460,8 +460,9 @@ function HomePageContent() {
 
               {/* Content */}
               <div className="relative text-center space-y-5">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border shadow-lg"
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border shadow-lg animate-word-drop"
                   style={{
+                    animationDelay: '0.2s',
                     background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(200,210,230,0.04) 100%)',
                     borderColor: 'rgba(255,255,255,0.12)',
                   }}
@@ -472,11 +473,11 @@ function HomePageContent() {
                 </div>
 
                 <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-white">
+                  <h2 className="text-xl sm:text-2xl font-semibold text-white animate-word-drop" style={{ animationDelay: '0.35s' }}>
                     Todo lo que necesitas. En un solo lugar.
                   </h2>
-                  <p className="text-white/45 text-sm leading-relaxed">
-                    Acceso completo a un ecosistema valorado en más de <span className="text-white/80 font-semibold">590€</span> — por lo que cuesta un café.
+                  <p className="text-white/45 text-sm leading-relaxed animate-fade-rise" style={{ animationDelay: '0.5s' }}>
+                    Acceso completo a un ecosistema valorado en más de <span className="text-white/80 font-semibold">590€</span> — a un precio que no te creerás.
                   </p>
                 </div>
 
@@ -488,8 +489,9 @@ function HomePageContent() {
                     { icon: '🤖', text: 'NOVA AI Coach', value: '97€' },
                     { icon: '💎', text: 'Contenido extra exclusivo', value: '+197€' },
                   ].map((feature, i) => (
-                    <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl transition-colors duration-300 hover:bg-white/[0.04]"
+                    <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl transition-colors duration-300 hover:bg-white/[0.04] animate-fade-rise"
                       style={{
+                        animationDelay: `${0.6 + i * 0.08}s`,
                         background: 'rgba(255,255,255,0.025)',
                         border: '0.5px solid rgba(255,255,255,0.06)',
                       }}
@@ -506,8 +508,9 @@ function HomePageContent() {
                 {/* CTA Button — Premium neutral glass */}
                 <button
                   onClick={scrollToAuth}
-                  className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+                  className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer animate-fade-rise"
                   style={{
+                    animationDelay: '0.92s',
                     background: 'linear-gradient(145deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06) 100%)',
                     backdropFilter: 'blur(32px) saturate(180%) brightness(0.95)',
                     WebkitBackdropFilter: 'blur(32px) saturate(180%) brightness(0.95)',
