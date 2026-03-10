@@ -317,30 +317,30 @@ function HomePageContent() {
 
   return (
     <div className="min-h-screen flex flex-col items-center relative overflow-hidden" style={{ background: '#000' }}>
-      {/* ── Enhanced Deband Background for Large Screens ── */}
+      {/* ── Enhanced Deband Background for Large Screens — matched-RGB, zero transparent ── */}
       <div className="fixed inset-0 pointer-events-none hidden lg:block" style={{
         background: `
-          radial-gradient(ellipse 140% 100% at 0% 0%, rgba(100,120,180,0.18) 0%, rgba(60,80,140,0.07) 40%, transparent 70%),
-          radial-gradient(ellipse 120% 100% at 100% 0%, rgba(80,100,160,0.14) 0%, rgba(50,70,130,0.05) 40%, transparent 70%),
-          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(60,90,140,0.08) 0%, rgba(40,70,120,0.03) 40%, transparent 60%),
-          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(80,100,160,0.05) 0%, transparent 50%)
+          radial-gradient(ellipse 140% 100% at 0% 0%, rgba(100,120,180,0.18) 0%, rgba(60,80,140,0.07) 40%, rgba(40,60,120,0) 70%),
+          radial-gradient(ellipse 120% 100% at 100% 0%, rgba(80,100,160,0.14) 0%, rgba(50,70,130,0.05) 40%, rgba(30,50,110,0) 70%),
+          radial-gradient(ellipse 100% 80% at 50% 100%, rgba(60,90,140,0.08) 0%, rgba(40,70,120,0.03) 40%, rgba(20,50,100,0) 60%),
+          radial-gradient(ellipse 80% 60% at 50% 50%, rgba(80,100,160,0.05) 0%, rgba(60,80,140,0) 50%)
         `
       }} />
       
       {/* Medium screens */}
       <div className="fixed inset-0 pointer-events-none hidden md:block lg:hidden" style={{
         background: `
-          radial-gradient(ellipse 130% 90% at 10% 10%, rgba(100,120,180,0.15) 0%, rgba(60,80,140,0.05) 40%, transparent 70%),
-          radial-gradient(ellipse 110% 80% at 90% 80%, rgba(60,90,150,0.12) 0%, rgba(40,70,130,0.04) 40%, transparent 70%),
-          radial-gradient(ellipse 70% 50% at 50% 100%, rgba(80,110,160,0.06) 0%, transparent 50%)
+          radial-gradient(ellipse 130% 90% at 10% 10%, rgba(100,120,180,0.15) 0%, rgba(60,80,140,0.05) 40%, rgba(40,60,120,0) 70%),
+          radial-gradient(ellipse 110% 80% at 90% 80%, rgba(60,90,150,0.12) 0%, rgba(40,70,130,0.04) 40%, rgba(20,50,110,0) 70%),
+          radial-gradient(ellipse 70% 50% at 50% 100%, rgba(80,110,160,0.06) 0%, rgba(60,90,140,0) 50%)
         `
       }} />
       
       {/* Mobile */}
       <div className="fixed inset-0 pointer-events-none md:hidden" style={{
         background: `
-          radial-gradient(ellipse 120% 80% at 50% 10%, rgba(100,120,180,0.12) 0%, transparent 60%),
-          radial-gradient(ellipse 100% 70% at 50% 90%, rgba(60,90,150,0.09) 0%, transparent 50%)
+          radial-gradient(ellipse 120% 80% at 50% 10%, rgba(100,120,180,0.12) 0%, rgba(60,80,140,0) 60%),
+          radial-gradient(ellipse 100% 70% at 50% 90%, rgba(60,90,150,0.09) 0%, rgba(40,70,130,0) 50%)
         `
       }} />
 
@@ -352,9 +352,25 @@ function HomePageContent() {
         mixBlendMode: 'overlay',
       }} />
 
-      {/* Vignette */}
+      {/* SVG dither layer — fractal noise kills banding in vignette and brand ambient */}
+      <svg
+        aria-hidden="true"
+        style={{
+          position: 'fixed', inset: 0, width: '100vw', height: '100vh',
+          pointerEvents: 'none', zIndex: 0, opacity: 0.028,
+          mixBlendMode: 'screen' as React.CSSProperties['mixBlendMode'],
+        }}
+      >
+        <filter id="app-dither">
+          <feTurbulence type="fractalNoise" baseFrequency="0.72" numOctaves="4" stitchTiles="stitch" />
+          <feColorMatrix type="matrix" values="0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0.33 0.33 0.33 0 0 0 0 0 1 0" />
+        </filter>
+        <rect width="100%" height="100%" filter="url(#app-dither)" />
+      </svg>
+
+      {/* Vignette — matched-RGB */}
       <div className="fixed inset-0 pointer-events-none" style={{
-        background: `radial-gradient(ellipse 90% 90% at 50% 50%, transparent 30%, rgba(0,0,0,0.5) 100%)`
+        background: `radial-gradient(ellipse 110% 110% at 50% 50%, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 35%, rgba(0,0,0,0) 55%, rgba(0,0,0,0.180) 75%, rgba(0,0,0,0.420) 100%)`
       }} />
 
       {/* Toast */}
@@ -423,7 +439,7 @@ function HomePageContent() {
             {/* Ambient glow — neutral silver */}
             <div className="absolute -inset-6 rounded-[36px] pointer-events-none transition-opacity duration-700"
               style={{
-                background: `radial-gradient(ellipse 130% 120% at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.12) 0%, rgba(160,170,195,0.06) 50%, transparent 80%)`,
+                background: `radial-gradient(ellipse 130% 120% at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.12) 0%, rgba(160,170,195,0.06) 50%, rgba(160,170,195,0) 80%)`,
                 filter: 'blur(28px)',
                 opacity: isHoveringIntro ? 1 : 0.3,
               }}
@@ -448,14 +464,14 @@ function HomePageContent() {
               {/* Mouse spotlight — neutral white */}
               <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
                 style={{
-                  background: `radial-gradient(circle 280px at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.08) 0%, rgba(180,190,210,0.03) 50%, transparent 70%)`,
+                  background: `radial-gradient(circle 280px at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.08) 0%, rgba(180,190,210,0.03) 50%, rgba(180,190,210,0) 70%)`,
                   opacity: isHoveringIntro ? 1 : 0,
                 }}
               />
 
               {/* Top shimmer — silver */}
               <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, transparent, rgba(200,210,230,0.35), rgba(255,255,255,0.25), rgba(200,210,230,0.35), transparent)' }}
+                style={{ background: 'linear-gradient(90deg, rgba(200,210,230,0), rgba(200,210,230,0.35), rgba(255,255,255,0.25), rgba(200,210,230,0.35), rgba(200,210,230,0))' }}
               />
 
               {/* Content */}
@@ -532,9 +548,9 @@ function HomePageContent() {
                     </span>
                   </span>
                   {/* Shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
+                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)' }} />
                   {/* Subtle inner glow */}
-                  <div className="absolute inset-0 bg-gradient-to-b from-white/8 to-transparent opacity-60" />
+                  <div className="absolute inset-0 opacity-60" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%)' }} />
                 </button>
               </div>
             </div>
@@ -557,7 +573,7 @@ function HomePageContent() {
               {/* Ambient glow */}
               <div className="absolute -inset-5 rounded-[34px] pointer-events-none transition-opacity duration-700"
                 style={{
-                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.10) 0%, rgba(160,170,195,0.05) 50%, transparent 70%)`,
+                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.10) 0%, rgba(160,170,195,0.05) 50%, rgba(160,170,195,0) 70%)`,
                   filter: 'blur(26px)',
                   opacity: isHoveringCard ? 1 : 0.3,
                 }}
@@ -580,12 +596,12 @@ function HomePageContent() {
               >
                 <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
                   style={{
-                    background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.07) 0%, transparent 70%)`,
+                    background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.07) 0%, rgba(200,210,230,0) 70%)`,
                     opacity: isHoveringCard ? 1 : 0,
                   }}
                 />
                 <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
-                  style={{ background: 'linear-gradient(90deg, transparent, rgba(200,210,230,0.30), rgba(255,255,255,0.20), transparent)' }}
+                  style={{ background: 'linear-gradient(90deg, rgba(200,210,230,0), rgba(200,210,230,0.30), rgba(255,255,255,0.20), rgba(200,210,230,0))' }}
                 />
 
                 <button
@@ -614,8 +630,8 @@ function HomePageContent() {
                         required
                       />
                       <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none"
-                        style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.18), transparent)' }} />
-                      <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                        style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.18), rgba(59,130,246,0))' }} />
+                      <div className="absolute inset-x-5 top-0 h-px opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0), rgba(168,85,247,0.4), rgba(168,85,247,0))' }} />
                     </div>
                   </div>
 
@@ -625,8 +641,8 @@ function HomePageContent() {
                     className="relative w-full py-4 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 hover:shadow-[0_0_55px_rgba(139,92,246,0.35)] hover:scale-[1.02] active:scale-[0.98]"
                   >
                     <span className="relative z-10">{loading ? 'Enviando...' : 'Enviar enlace'}</span>
-                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                    <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
+                    <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.3) 50%, rgba(255,255,255,0) 100%)' }} />
+                    <div className="absolute inset-0 opacity-50" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 100%)' }} />
                   </button>
                 </form>
               </div>
@@ -644,7 +660,7 @@ function HomePageContent() {
               {/* Ambient glow exterior */}
               <div className="absolute -inset-5 rounded-[34px] pointer-events-none transition-opacity duration-700"
                 style={{
-                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.10) 0%, rgba(160,170,195,0.05) 50%, transparent 70%)`,
+                  background: `radial-gradient(ellipse 130% 120% at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.10) 0%, rgba(160,170,195,0.05) 50%, rgba(160,170,195,0) 70%)`,
                   filter: 'blur(26px)',
                   opacity: isHoveringCard ? 1 : 0.3,
                 }}
@@ -661,9 +677,19 @@ function HomePageContent() {
               {/* Card */}
               <div
                 style={{
-                  background: 'linear-gradient(165deg, rgba(38,38,46,0.96) 0%, rgba(28,28,34,0.98) 100%)',
+                  background: `
+                    radial-gradient(ellipse 80% 40% at 30% 0%, rgba(180,140,255,0.045) 0%, rgba(160,120,235,0) 100%),
+                    linear-gradient(160deg, rgba(22,18,38,0.96) 0%, rgba(14,11,26,0.98) 100%)
+                  `,
                   border: '1px solid rgba(255,255,255,0.08)',
-                  boxShadow: `0 36px 90px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.08)`,
+                  boxShadow: `
+                    inset 0 1px 0 rgba(255,255,255,0.12),
+                    inset 1px 0 0 rgba(255,255,255,0.06),
+                    0 4px 8px rgba(0,0,0,0.32),
+                    0 12px 32px rgba(0,0,0,0.42),
+                    0 32px 64px rgba(0,0,0,0.36),
+                    0 0 0 0.5px rgba(0,0,0,0.5)
+                  `,
                   height: cardHeight === 'auto' ? 'auto' : `${cardHeight}px`,
                   overflow: 'hidden',
                   transition: 'height 0.5s cubic-bezier(0.34,1.26,0.64,1)',
@@ -684,13 +710,13 @@ function HomePageContent() {
                   {/* Mouse spotlight */}
                   <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
                     style={{
-                      background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.07) 0%, transparent 70%)`,
+                      background: `radial-gradient(circle 240px at ${mouseGlow.x}% ${mouseGlow.y}%, rgba(200,210,230,0.07) 0%, rgba(200,210,230,0) 70%)`,
                       opacity: isHoveringCard ? 1 : 0,
                     }}
                   />
                   {/* Shimmer top */}
                   <div className="absolute top-0 left-8 right-8 h-[1px] pointer-events-none"
-                    style={{ background: 'linear-gradient(90deg, transparent, rgba(200,210,230,0.30), rgba(255,255,255,0.20), transparent)' }}
+                    style={{ background: 'linear-gradient(90deg, rgba(200,210,230,0), rgba(200,210,230,0.30), rgba(255,255,255,0.20), rgba(200,210,230,0))' }}
                   />
                   
                   {/* Mode toggle pills */}
@@ -727,8 +753,8 @@ function HomePageContent() {
                             required
                           />
                           <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none"
-                            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.18), transparent)' }} />
-                          <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.18), rgba(59,130,246,0))' }} />
+                          <div className="absolute inset-x-5 top-0 h-px opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0), rgba(168,85,247,0.4), rgba(168,85,247,0))' }} />
                         </div>
                       </div>
 
@@ -762,8 +788,8 @@ function HomePageContent() {
                             )}
                           </button>
                           <div className="absolute -inset-[1px] rounded-2xl opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500 pointer-events-none"
-                            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.18), transparent)' }} />
-                          <div className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-purple-500/40 to-transparent opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" />
+                            style={{ background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(59,130,246,0.18), rgba(59,130,246,0))' }} />
+                          <div className="absolute inset-x-5 top-0 h-px opacity-0 group-focus-within/input:opacity-100 transition-opacity duration-500" style={{ background: 'linear-gradient(90deg, rgba(168,85,247,0), rgba(168,85,247,0.4), rgba(168,85,247,0))' }} />
                         </div>
                       </div>
 
@@ -779,7 +805,12 @@ function HomePageContent() {
                       <button
                         type="submit"
                         disabled={loading}
-                        className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-[0_0_55px_rgba(147,197,253,0.45),0_0_90px_rgba(96,165,250,0.25)] hover:scale-[1.02] active:scale-[0.98]"
+                        className="relative w-full py-4 mt-2 text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.975]"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(140,90,255,1) 0%, rgba(110,60,235,1) 50%, rgba(90,40,215,1) 100%)',
+                          color: 'rgba(255,255,255,0.97)',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.12), 0 4px 16px rgba(110,60,220,0.35), 0 2px 6px rgba(110,60,220,0.25)',
+                        }}
                       >
                         <span className="relative z-10 flex items-center justify-center gap-2">
                           {loading ? (
@@ -792,8 +823,8 @@ function HomePageContent() {
                             </>
                           ) : 'Iniciar sesión'}
                         </span>
-                        <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
-                        <div className="absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-50" />
+                        {/* Shimmer sweep on hover */}
+                        <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-[450ms]" style={{ background: 'linear-gradient(105deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.110) 50%, rgba(255,255,255,0) 70%)' }} />
                       </button>
 
                       <div className="relative flex items-center gap-3 py-2">
@@ -821,7 +852,7 @@ function HomePageContent() {
                           <span className="flex-1 text-center">
                             {oauthLoading === 'google' ? 'Conectando...' : 'Continuar con Google'}
                           </span>
-                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/oauth:opacity-100 pointer-events-none" />
+                          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/oauth:opacity-100 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0) 100%)' }} />
                         </button>
 
                         {/* Discord */}
@@ -839,7 +870,7 @@ function HomePageContent() {
                           <span className="flex-1 text-center">
                             {oauthLoading === 'discord' ? 'Conectando...' : 'Continuar con Discord'}
                           </span>
-                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/oauth:opacity-100 pointer-events-none" />
+                          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/oauth:opacity-100 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0) 100%)' }} />
                         </button>
                       </div>
 
@@ -979,7 +1010,7 @@ function HomePageContent() {
                           <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center transition-all duration-300 ${
                             acceptedTerms 
                               ? 'bg-white border-white' 
-                              : 'bg-transparent border-white/25 group-hover/check:border-white/45'
+                              : 'bg-[rgba(0,0,0,0)] border-white/25 group-hover/check:border-white/45'
                           }`}>
                             {acceptedTerms && (
                               <svg className="w-3 h-3 text-black" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1008,7 +1039,12 @@ function HomePageContent() {
                       <button
                         type="submit"
                         disabled={loading || !isPasswordValid || !passwordsMatch || !acceptedTerms}
-                        className="relative w-full py-4 mt-2 bg-white text-black text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed hover:shadow-[0_0_55px_rgba(255,255,255,0.25)] active:scale-[0.98]"
+                        className="relative w-full py-4 mt-2 text-sm font-semibold rounded-2xl overflow-hidden group/btn transition-all duration-300 disabled:opacity-35 disabled:cursor-not-allowed hover:scale-[1.02] active:scale-[0.975]"
+                        style={{
+                          background: 'linear-gradient(135deg, rgba(140,90,255,1) 0%, rgba(110,60,235,1) 50%, rgba(90,40,215,1) 100%)',
+                          color: 'rgba(255,255,255,0.97)',
+                          boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.22), inset 0 -1px 0 rgba(0,0,0,0.12), 0 4px 16px rgba(110,60,220,0.35), 0 2px 6px rgba(110,60,220,0.25)',
+                        }}
                       >
                         <span className="relative z-10 flex items-center justify-center gap-2">
                           {loading ? (
@@ -1021,7 +1057,8 @@ function HomePageContent() {
                             </>
                           ) : 'Crear cuenta'}
                         </span>
-                        <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000 bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+                        {/* Shimmer sweep */}
+                        <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-[450ms]" style={{ background: 'linear-gradient(105deg, rgba(255,255,255,0) 30%, rgba(255,255,255,0.110) 50%, rgba(255,255,255,0) 70%)' }} />
                       </button>
 
                       <div className="relative flex items-center gap-3 py-2">
@@ -1048,7 +1085,7 @@ function HomePageContent() {
                           <span className="flex-1 text-center">
                             {oauthLoading === 'google' ? 'Conectando...' : 'Registrarse con Google'}
                           </span>
-                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/oauth:opacity-100 pointer-events-none" />
+                          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/oauth:opacity-100 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0) 100%)' }} />
                         </button>
 
                         <button
@@ -1065,7 +1102,7 @@ function HomePageContent() {
                           <span className="flex-1 text-center">
                             {oauthLoading === 'discord' ? 'Conectando...' : 'Registrarse con Discord'}
                           </span>
-                          <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover/oauth:opacity-100 pointer-events-none" />
+                          <div className="absolute inset-0 rounded-2xl opacity-0 group-hover/oauth:opacity-100 pointer-events-none" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0) 100%)' }} />
                         </button>
                       </div>
                     </form>

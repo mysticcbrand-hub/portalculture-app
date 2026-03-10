@@ -97,7 +97,7 @@ body {
     180deg,
     rgba(255, 255, 255, 0.10) 0%,
     rgba(255, 255, 255, 0.05) 40%,
-    transparent 100%
+    rgba(255, 255, 255, 0) 100%
   );
   border-radius: 20px 20px 100% 100%;
   pointer-events: none;
@@ -163,9 +163,9 @@ body {
   height: 100%;
   background: linear-gradient(
     90deg,
-    transparent 0%,
+    rgba(255, 255, 255, 0) 0%,
     rgba(255, 255, 255, 0.15) 50%,
-    transparent 100%
+    rgba(255, 255, 255, 0) 100%
   );
   transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -232,7 +232,7 @@ body {
   background: linear-gradient(
     180deg,
     rgba(255, 255, 255, 0.2) 0%,
-    transparent 100%
+    rgba(255, 255, 255, 0) 100%
   );
   border-radius: 20px 20px 100% 100%;
   pointer-events: none;
@@ -294,7 +294,7 @@ body {
     180deg,
     rgba(255, 255, 255, 0.06) 0%,
     rgba(255, 255, 255, 0.02) 50%,
-    transparent 100%
+    rgba(255, 255, 255, 0) 100%
   );
   pointer-events: none;
 }
@@ -309,7 +309,7 @@ body {
   background: radial-gradient(
     600px circle at var(--mouse-x, 50%) var(--mouse-y, 30%),
     rgba(255, 255, 255, 0.08) 0%,
-    transparent 40%
+    rgba(255, 255, 255, 0) 40%
   );
   opacity: 0;
   transition: opacity 0.4s;
@@ -443,7 +443,7 @@ body {
   background: radial-gradient(
     circle at 30% 30%,
     rgba(255, 255, 255, 0.15) 0%,
-    transparent 60%
+    rgba(255, 255, 255, 0) 60%
   );
   pointer-events: none;
 }
@@ -691,4 +691,19 @@ body::after {
 .animate-fade-rise {
   opacity: 0;
   animation: fade-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* ============================================
+   AUTOFILL OVERRIDE — preserve dark input styling
+   ============================================ */
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92);
+  -webkit-box-shadow: 
+    0 0 0 1000px rgba(20, 16, 32, 0.95) inset,
+    0 0 0 3px rgba(150, 100, 255, 0.12);
+  transition: background-color 5000s ease-in-out 0s;
+  caret-color: rgba(255, 255, 255, 0.7);
 }
