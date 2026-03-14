@@ -135,7 +135,7 @@ export default function Cuestionario() {
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const [ageValue, setAgeValue] = useState<number>(25) // Default to 25
 
-  const totalSteps = 9 // Aumentado de 6 a 9
+  const totalSteps = 7
 
   // Check if user is authenticated and their status
   useEffect(() => {
@@ -214,8 +214,10 @@ export default function Cuestionario() {
       case 4:
         return formData.descripcion !== ''
       case 5:
-        return formData.frenos.length > 0
+        return formData.intentosCambio.trim().length > 0
       case 6:
+        return formData.frenos.length > 0
+      case 7:
         return formData.porqueEntrar.trim().length >= 20
       default:
         return false
@@ -833,8 +835,8 @@ export default function Cuestionario() {
             </div>
           )}
 
-          {/* Step 6: Why should we let you in */}
-          {step === 6 && (
+          {/* Step 7: Why should we let you in */}
+          {step === 7 && (
             <div className="animate-fadeIn space-y-6">
               <div>
                 <h2 className="text-2xl md:text-3xl font-semibold text-white mb-2">
