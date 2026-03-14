@@ -607,7 +607,8 @@ export default function SeleccionarAcceso() {
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 style={{
-                  width: '100%',
+                  display: 'block',
+                  width: 'calc(100% - 64px)',
                   padding: '18px',
                   borderRadius: '20px',
                   border: '1px solid rgba(255,255,255,0.15)',
@@ -627,7 +628,6 @@ export default function SeleccionarAcceso() {
                   position: 'absolute',
                   bottom: '32px',
                   left: '32px',
-                  right: '32px',
                 }}
               >
                 Entrar ahora →
@@ -717,7 +717,8 @@ export default function SeleccionarAcceso() {
                 whileHover={{ scale: 1.01, boxShadow: '0 8px 40px rgba(100,160,255,0.15)' }}
                 whileTap={{ scale: 0.99 }}
                 style={{
-                  width: '100%',
+                  display: 'block',
+                  width: 'calc(100% - 64px)',
                   padding: '18px',
                   borderRadius: '20px',
                   border: '1px solid rgba(255,255,255,0.1)',
@@ -735,7 +736,6 @@ export default function SeleccionarAcceso() {
                   position: 'absolute',
                   bottom: '32px',
                   left: '32px',
-                  right: '32px',
                 }}
               >
                 Continuar gratis →
