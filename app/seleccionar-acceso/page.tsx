@@ -561,7 +561,7 @@ export default function SeleccionarAcceso() {
             />
             
             <div 
-              className="relative h-full rounded-[32px] p-8 pt-12"
+              className="relative h-full rounded-[32px] p-8 pt-12 pb-32"
               style={{
                 background: 'linear-gradient(165deg, rgba(255, 220, 140, 0.06) 0%, rgba(255,255,255,0.02) 40%, rgba(255, 180, 80, 0.04) 100%)',
                 backdropFilter: 'blur(40px) saturate(180%)',
@@ -672,7 +672,7 @@ export default function SeleccionarAcceso() {
             />
 
             <div 
-              className="relative h-full rounded-[32px] p-8 pt-12"
+              className="relative h-full rounded-[32px] p-8 pt-12 pb-32"
               style={{
                 background: 'linear-gradient(165deg, rgba(140,180,255,0.04) 0%, rgba(255,255,255,0.02) 40%, rgba(100,160,255,0.03) 100%)',
                 backdropFilter: 'blur(40px) saturate(180%)',
