@@ -316,7 +316,7 @@ function HomePageContent() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center relative overflow-hidden" style={{ background: '#000' }}>
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden" style={{ background: '#000' }}>
       {/* ── Enhanced Deband Background for Large Screens — matched-RGB, zero transparent ── */}
       <div className="fixed inset-0 pointer-events-none hidden lg:block" style={{
         background: `
@@ -426,141 +426,10 @@ function HomePageContent() {
           <p className="text-white/35 text-xs sm:text-sm mt-2 tracking-[0.25em] uppercase font-light animate-fade-rise" style={{ animationDelay: '0.15s' }}>Desbloquea tu potencial</p>
         </div>
 
-        {/* ── INTRO CARD ── */}
-        {!showAuth && (
-          <div
-            ref={introRef}
-            onMouseMove={handleIntroMouseMove}
-            onMouseEnter={() => setIsHoveringIntro(true)}
-            onMouseLeave={handleIntroMouseLeave}
-            className="relative mb-6 animate-fade-in-up"
-            style={{ animationDelay: '0.1s' }}
-          >
-            {/* Ambient glow — neutral silver */}
-            <div className="absolute -inset-6 rounded-[36px] pointer-events-none transition-opacity duration-700"
-              style={{
-                background: `radial-gradient(ellipse 130% 120% at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.12) 0%, rgba(160,170,195,0.06) 50%, rgba(160,170,195,0) 80%)`,
-                filter: 'blur(28px)',
-                opacity: isHoveringIntro ? 1 : 0.3,
-              }}
-            />
-            
-            {/* Gradient border — chiseled glass, directional light */}
-            <div className="absolute -inset-[1.5px] rounded-[28px] pointer-events-none"
-              style={{
-                background: `linear-gradient(155deg, rgba(255,255,255,${isHoveringIntro ? 0.28 : 0.16}) 0%, rgba(200,210,230,${isHoveringIntro ? 0.18 : 0.10}) 35%, rgba(160,170,195,${isHoveringIntro ? 0.10 : 0.06}) 65%, rgba(255,255,255,0.04) 100%)`,
-                borderRadius: '26px',
-              }}
-            />
-
-            {/* Card */}
-            <div className="relative rounded-[26px] p-6 sm:p-8 overflow-hidden"
-              style={{
-                background: 'linear-gradient(165deg, rgba(38,38,46,0.92) 0%, rgba(28,28,34,0.95) 40%, rgba(20,20,26,0.97) 100%)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                boxShadow: '0 40px 100px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.10), inset 1px 0 0 rgba(255,255,255,0.04)',
-              }}
-            >
-              {/* Mouse spotlight — neutral white */}
-              <div className="absolute inset-0 rounded-[26px] pointer-events-none transition-opacity duration-300"
-                style={{
-                  background: `radial-gradient(circle 280px at ${introMouseGlow.x}% ${introMouseGlow.y}%, rgba(200,210,230,0.08) 0%, rgba(180,190,210,0.03) 50%, rgba(180,190,210,0) 70%)`,
-                  opacity: isHoveringIntro ? 1 : 0,
-                }}
-              />
-
-              {/* Top shimmer — silver */}
-              <div className="absolute top-0 left-6 right-6 h-[1px] pointer-events-none"
-                style={{ background: 'linear-gradient(90deg, rgba(200,210,230,0), rgba(200,210,230,0.35), rgba(255,255,255,0.25), rgba(200,210,230,0.35), rgba(200,210,230,0))' }}
-              />
-
-              {/* Content */}
-              <div className="relative text-center space-y-5">
-                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl border shadow-lg animate-word-drop"
-                  style={{
-                    animationDelay: '0.2s',
-                    background: 'linear-gradient(135deg, rgba(255,255,255,0.08) 0%, rgba(200,210,230,0.04) 100%)',
-                    borderColor: 'rgba(255,255,255,0.12)',
-                  }}
-                >
-                  <svg className="w-7 h-7 text-white/70" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-                  </svg>
-                </div>
-
-                <div className="space-y-2">
-                  <h2 className="text-xl sm:text-2xl font-semibold text-white animate-word-drop" style={{ animationDelay: '0.35s' }}>
-                    Todo lo que necesitas. En un solo lugar.
-                  </h2>
-                  <p className="text-white/45 text-sm leading-relaxed animate-fade-rise" style={{ animationDelay: '0.5s' }}>
-                    Acceso completo a un ecosistema valorado en más de <span className="text-white/80 font-semibold">590€</span> — a un precio que no te creerás.
-                  </p>
-                </div>
-
-                {/* Features */}
-                <div className="grid grid-cols-1 gap-2.5 pt-2">
-                  {[
-                    { icon: '🚀', text: 'Comunidad de jóvenes ambiciosos', value: 'Invalorable' },
-                    { icon: '🏛️', text: '5 Templos de saber', value: '297€' },
-                    { icon: '🤖', text: 'NOVA AI Coach', value: '97€' },
-                    { icon: '💎', text: 'Contenido extra exclusivo', value: '+197€' },
-                  ].map((feature, i) => (
-                    <div key={i} className="flex items-center justify-between px-4 py-3 rounded-xl transition-colors duration-300 hover:bg-white/[0.04] animate-fade-rise"
-                      style={{
-                        animationDelay: `${0.6 + i * 0.08}s`,
-                        background: 'rgba(255,255,255,0.025)',
-                        border: '0.5px solid rgba(255,255,255,0.06)',
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className="text-base">{feature.icon}</span>
-                        <span className="text-white/65 text-sm">{feature.text}</span>
-                      </div>
-                      <span className="text-white/50 text-xs font-medium">{feature.value}</span>
-                    </div>
-                  ))}
-                </div>
-
-                {/* CTA Button — Premium neutral glass */}
-                <button
-                  onClick={scrollToAuth}
-                  className="relative w-full py-5 mt-4 rounded-2xl overflow-hidden group/btn transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] cursor-pointer animate-fade-rise"
-                  style={{
-                    animationDelay: '0.92s',
-                    background: 'linear-gradient(145deg, rgba(255,255,255,0.20) 0%, rgba(255,255,255,0.10) 50%, rgba(255,255,255,0.06) 100%)',
-                    backdropFilter: 'blur(32px) saturate(180%) brightness(0.95)',
-                    WebkitBackdropFilter: 'blur(32px) saturate(180%) brightness(0.95)',
-                    border: '1px solid rgba(255,255,255,0.16)',
-                    boxShadow: '0 8px 40px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.20), inset 0 -1px 0 rgba(255,255,255,0.05)',
-                  }}
-                >
-                  <span className="relative z-10 flex flex-col items-center justify-center gap-1.5">
-                    <span 
-                      className="text-[10px] uppercase tracking-[0.15em] text-white/40 font-medium"
-                    >
-                      Acceso completo · 17€
-                    </span>
-                    <span className="text-base font-bold text-white flex items-center gap-2">
-                      Comenzar ahora
-                      <svg className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                      </svg>
-                    </span>
-                  </span>
-                  {/* Shimmer effect */}
-                  <div className="absolute inset-0 -translate-x-full group-hover/btn:translate-x-full transition-transform duration-1000" style={{ background: 'linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0) 100%)' }} />
-                  {/* Subtle inner glow */}
-                  <div className="absolute inset-0 opacity-60" style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 100%)' }} />
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* ── AUTH SECTION ── */}
         <div 
           id="auth-section"
-          className={`transition-all duration-700 ${showAuth ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4 pointer-events-none absolute'}`}
+          className={`transition-all duration-700 opacity-100 translate-y-0`}
         >
           {/* Forgot Password Card */}
           {showForgotPassword ? (
