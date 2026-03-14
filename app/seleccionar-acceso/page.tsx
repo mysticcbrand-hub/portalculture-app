@@ -561,7 +561,7 @@ export default function SeleccionarAcceso() {
             />
             
             <div 
-              className="relative h-full rounded-[32px] p-8 pt-12 flex flex-col"
+              className="relative h-full rounded-[32px] p-8 pt-12"
               style={{
                 background: 'linear-gradient(165deg, rgba(255, 220, 140, 0.06) 0%, rgba(255,255,255,0.02) 40%, rgba(255, 180, 80, 0.04) 100%)',
                 backdropFilter: 'blur(40px) saturate(180%)',
@@ -623,13 +623,15 @@ export default function SeleccionarAcceso() {
                   fontSize: '15px',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  marginTop: 'auto',
                   WebkitFontSmoothing: 'antialiased',
+                  position: 'absolute',
+                  bottom: '32px',
+                  left: '32px',
+                  right: '32px',
                 }}
               >
                 Entrar ahora →
               </motion.button>
-              <p className="text-center text-[11px] text-white/15 mt-5">Pago seguro vía Whop</p>
 
               {/* Glare */}
               <div style={{
@@ -670,7 +672,7 @@ export default function SeleccionarAcceso() {
             />
 
             <div 
-              className="relative h-full rounded-[32px] p-8 pt-12 flex flex-col"
+              className="relative h-full rounded-[32px] p-8 pt-12"
               style={{
                 background: 'linear-gradient(165deg, rgba(140,180,255,0.04) 0%, rgba(255,255,255,0.02) 40%, rgba(100,160,255,0.03) 100%)',
                 backdropFilter: 'blur(40px) saturate(180%)',
@@ -697,7 +699,7 @@ export default function SeleccionarAcceso() {
               <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)' }} />
               
               <div className="space-y-4 mb-8">
-                {['Aprobación con cuestionario', 'Sin espera · sin aprobación', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
+                {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div 
                       className="w-5 h-5 rounded-full flex items-center justify-center"
@@ -729,13 +731,15 @@ export default function SeleccionarAcceso() {
                   color: 'rgba(255,255,255,0.8)',
                   fontSize: '15px',
                   fontWeight: 600,
-                  marginTop: 'auto',
                   WebkitFontSmoothing: 'antialiased',
+                  position: 'absolute',
+                  bottom: '32px',
+                  left: '32px',
+                  right: '32px',
                 }}
               >
                 Continuar gratis →
               </motion.button>
-              <p className="text-center text-[11px] text-white/15 mt-5">Aprobación en 24-48h</p>
 
               {/* Glare */}
               <div style={{
