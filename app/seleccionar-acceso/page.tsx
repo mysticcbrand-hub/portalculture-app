@@ -536,11 +536,12 @@ export default function SeleccionarAcceso() {
       <div className="relative z-10 w-full max-w-5xl hidden md:flex gap-8 px-4 items-stretch">
         
         {/* PAID - Premium Card */}
-        <div style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}>
+        <div className="flex-1" style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}>
           <motion.div 
             ref={paidCardRef}
             className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
             style={{ 
+              height: '100%',
               minHeight: '520px',
               transformStyle: 'preserve-3d',
               willChange: 'transform',
@@ -645,11 +646,12 @@ export default function SeleccionarAcceso() {
         </div>
 
         {/* FREE - Subtle Card */}
-        <div style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}>
+        <div className="flex-1" style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}>
           <motion.div 
             ref={freeCardRef}
             className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
             style={{ 
+              height: '100%',
               minHeight: '520px',
               transformStyle: 'preserve-3d',
               willChange: 'transform',
