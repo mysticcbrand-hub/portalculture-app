@@ -23,7 +23,9 @@ interface TextLineConfig {
 }
 
 const TEXT_SEQUENCE: TextLineConfig[] = [
-  { id: 'line3', text: 'No estás equivocado.', size: 28, weight: 600, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.035em', delay: 1.5, pauseAfter: 2.0, marginBottom: 0 },
+  { id: 'line1', text: 'Portal Culture', size: 42, weight: 700, color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.04em', delay: 0.3, pauseAfter: 0.8, marginBottom: 20 },
+  { id: 'line2', text: 'Tu espacio de conocimiento', size: 18, weight: 400, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.02em', delay: 1.2, pauseAfter: 1.2, marginBottom: 0 },
+  { id: 'line3', text: 'No estás equivocado.', size: 28, weight: 600, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.035em', delay: 2.8, pauseAfter: 2.0, marginBottom: 0 },
 ]
 
 function GrainLayer() {
@@ -95,53 +97,94 @@ function PortalEntrance({ onEnter }: { onEnter: () => void }) {
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const mainText = TEXT_SEQUENCE[0]
-
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.06, filter: 'blur(14px)' }} transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
       style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#080808', zIndex: 50 }}>
       <GrainLayer />
       <BreathingLogo isMobile={isMobile} />
       
-      {/* Main text with creative hover */}
+      {/* All text lines with staggered reveal */}
       <motion.div 
         ref={textRef}
-        initial={{ opacity: 0, y: 20, filter: 'blur(12px)' }}
-        animate={visibleLines.has('line3') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 20, filter: 'blur(12px)' }}
-        transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
-        onMouseEnter={() => setHoveredText(true)}
-        onMouseLeave={() => setHoveredText(false)}
-        style={{ cursor: 'default', zIndex: 1, marginTop: 48 }}
+        style={{ cursor: 'default', zIndex: 1, marginTop: 48, textAlign: 'center' }}
       >
+        {/* Portal Culture - Main heading */}
         <motion.div
-          animate={hoveredText ? { scale: 1.02 } : { scale: 1 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          initial={{ opacity: 0, y: 16, filter: 'blur(10px)' }}
+          animate={visibleLines.has('line1') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 16, filter: 'blur(10px)' }}
+          transition={{ duration: 1.0, ease: [0.25, 0.46, 0.45, 0.94] }}
         >
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 0.35em' }}>
-            {mainText.text.split(' ').map((word, i) => (
-              <motion.span
-                key={i}
-                initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
-                animate={visibleLines.has('line3') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 12, filter: 'blur(6px)' }}
-                transition={{ duration: 0.8, delay: i * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
-                style={{
-                  display: 'inline-block',
-                  fontSize: isMobile ? 24 : 32,
-                  fontWeight: mainText.weight,
-                  color: mainText.color,
-                  letterSpacing: mainText.letterSpacing,
-                  lineHeight: 1.2,
-                  WebkitFontSmoothing: 'antialiased',
-                }}
-              >
-                {word}
-              </motion.span>
-            ))}
-          </div>
+          <h1 style={{
+            fontSize: isMobile ? 36 : 48,
+            fontWeight: 700,
+            color: 'rgba(255,255,255,0.92)',
+            letterSpacing: '-0.04em',
+            lineHeight: 1.1,
+            WebkitFontSmoothing: 'antialiased',
+            background: 'linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.75) 50%, rgba(255,255,255,0.88) 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text',
+          }}>
+            {TEXT_SEQUENCE[0].text}
+          </h1>
+        </motion.div>
+
+        {/* Subtitle */}
+        <motion.div
+          initial={{ opacity: 0, y: 12, filter: 'blur(8px)' }}
+          animate={visibleLines.has('line2') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 12, filter: 'blur(8px)' }}
+          transition={{ duration: 0.85, ease: [0.25, 0.46, 0.45, 0.94] }}
+          style={{ marginTop: 16 }}
+        >
+          <p style={{
+            fontSize: 18,
+            fontWeight: 400,
+            color: 'rgba(255,255,255,0.45)',
+            letterSpacing: '0.02em',
+            lineHeight: 1.4,
+            WebkitFontSmoothing: 'antialiased',
+          }}>
+            {TEXT_SEQUENCE[1].text}
+          </p>
+        </motion.div>
+
+        {/* Emotional text - No estás equivocado */}
+        <motion.div
+          initial={{ opacity: 0, y: 20, filter: 'blur(12px)' }}
+          animate={visibleLines.has('line3') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 20, filter: 'blur(12px)' }}
+          transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+          onMouseEnter={() => setHoveredText(true)}
+          onMouseLeave={() => setHoveredText(false)}
+          style={{ marginTop: 40 }}
+        >
+          <motion.div
+            animate={hoveredText ? { scale: 1.03 } : { scale: 1 }}
+            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+          >
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 0.35em' }}>
+              {TEXT_SEQUENCE[2].text.split(' ').map((word, i) => (
+                <motion.span
+                  key={i}
+                  style={{
+                    display: 'inline-block',
+                    fontSize: isMobile ? 22 : 28,
+                    fontWeight: 600,
+                    color: 'rgba(255,255,255,0.96)',
+                    letterSpacing: '-0.035em',
+                    lineHeight: 1.2,
+                    WebkitFontSmoothing: 'antialiased',
+                  }}
+                >
+                  {word}
+                </motion.span>
+              ))}
+            </div>
+          </motion.div>
         </motion.div>
       </motion.div>
 
-      {/* CTA with shimmer */}
+      {/* CTA - simple */}
       <motion.div 
         initial={{ opacity: 0, filter: 'blur(8px)' }}
         animate={visibleLines.has('cta') ? { opacity: 1, filter: 'blur(0px)' } : { opacity: 0, filter: 'blur(8px)' }} 
@@ -156,45 +199,27 @@ function PortalEntrance({ onEnter }: { onEnter: () => void }) {
             background: 'none', 
             border: 'none', 
             cursor: 'pointer', 
-            padding: '12px 24px', 
+            padding: '12px 28px', 
             display: 'flex', 
             alignItems: 'center', 
-            gap: 14, 
+            gap: 12, 
             WebkitTapHighlightColor: 'transparent', 
             outline: 'none',
-            position: 'relative',
-            overflow: 'hidden',
           }} 
           whileTap={{ scale: 0.96 }} 
           transition={{ type: 'spring', stiffness: 500, damping: 30 }}
         >
-          {/* Shimmer effect */}
-          <motion.div 
-            style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 55%, transparent 80%)',
-              pointerEvents: 'none',
-            }}
-            animate={hovered ? { x: ['-100%', '100%'] } : { x: '-100%' }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-          />
-          
-          {/* Line */}
           <motion.div 
             style={{ 
               height: 1, 
               background: 'rgba(255,255,255,0.35)', 
               borderRadius: 1,
-              minWidth: 24,
             }} 
-            animate={{ width: hovered ? 36 : 24 }} 
+            animate={{ width: hovered ? 32 : 20 }} 
             transition={{ type: 'spring', stiffness: 400, damping: 28 }} 
           />
-          
-          {/* Text */}
           <motion.span
-            animate={{ color: hovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.45)' }}
+            animate={{ color: hovered ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)' }}
             transition={{ duration: 0.25 }}
             style={{
               fontSize: 13,
@@ -203,7 +228,6 @@ function PortalEntrance({ onEnter }: { onEnter: () => void }) {
               textTransform: 'uppercase',
               fontFamily: 'inherit',
               WebkitFontSmoothing: 'antialiased',
-              whiteSpace: 'nowrap',
             }}
           >
             Entrar
@@ -238,7 +262,7 @@ export default function HomePage() {
 }
 
 function HomePageContent() {
-  const [showPortal, setShowPortal] = useState(true)
+  const [showPortal, setShowPortal] = useState(false)
   const [mode, setMode] = useState<'login' | 'register'>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -524,10 +548,6 @@ function HomePageContent() {
 
   if (checkingSession) {
     return <PremiumLoader />
-  }
-
-  if (showPortal) {
-    return <PortalEntrance onEnter={() => setShowPortal(false)} />
   }
 
   return (

@@ -545,23 +545,25 @@ export default function SeleccionarAcceso() {
 
             <motion.button 
               onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
-              whileHover={{ scale: 1.01, boxShadow: '0 8px 40px rgba(255,200,100,0.25)' }}
-              whileTap={{ scale: 0.99 }}
+              whileHover={{ scale: 1.02, y: -2 }}
+              whileTap={{ scale: 0.98 }}
               style={{
                 width: '100%',
-                padding: '16px',
-                borderRadius: '18px',
+                padding: '18px',
+                borderRadius: '20px',
                 border: '1px solid rgba(255,255,255,0.15)',
                 background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,180,80,0.12))',
                 backdropFilter: 'blur(20px)',
                 WebkitBackdropFilter: 'blur(20px)',
                 boxShadow: `
                   inset 0 1px 0 rgba(255,255,255,0.2),
-                  0 8px 32px rgba(255,200,100,0.15)
+                  0 8px 32px rgba(255,200,100,0.15),
+                  0 2px 8px rgba(0,0,0,0.2)
                 `,
                 color: 'white',
                 fontSize: '15px',
                 fontWeight: 600,
+                cursor: 'pointer',
               }}
             >
               Entrar ahora →
