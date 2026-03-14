@@ -23,11 +23,7 @@ interface TextLineConfig {
 }
 
 const TEXT_SEQUENCE: TextLineConfig[] = [
-  { id: 'line1', text: 'Llevas tiempo sintiéndolo.', size: 22, weight: 500, color: 'rgba(255,255,255,0.92)', letterSpacing: '-0.025em', delay: 1.5, pauseAfter: 1.8, marginBottom: 20 },
-  { id: 'line2a', text: 'Que puedes más.', size: 17, weight: 400, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.015em', delay: 0, pauseAfter: 0, marginBottom: 4 },
-  { id: 'line2b', text: 'Que el entorno que tienes se te ha quedado pequeño.', size: 17, weight: 400, color: 'rgba(255,255,255,0.55)', letterSpacing: '-0.015em', delay: 0.55, pauseAfter: 2.2, marginBottom: 24 },
-  { id: 'line3', text: 'No estás equivocado.', size: 22, weight: 600, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.028em', delay: 0, pauseAfter: 1.8, marginBottom: 28 },
-  { id: 'line4', text: 'Portal Culture.', size: 13, weight: 500, color: 'rgba(255,255,255,0.28)', letterSpacing: '0.12em', textTransform: 'uppercase', delay: 0, pauseAfter: 1.2, marginBottom: 40 },
+  { id: 'line3', text: 'No estás equivocado.', size: 28, weight: 600, color: 'rgba(255,255,255,0.96)', letterSpacing: '-0.035em', delay: 1.5, pauseAfter: 2.0, marginBottom: 0 },
 ]
 
 function GrainLayer() {
@@ -71,6 +67,9 @@ function TextLine({ line, isVisible }: { line: TextLineConfig; isVisible: boolea
 function PortalEntrance({ onEnter }: { onEnter: () => void }) {
   const [visibleLines, setVisibleLines] = useState<Set<string>>(new Set())
   const [isMobile, setIsMobile] = useState(false)
+  const [hovered, setHovered] = useState(false)
+  const [hoveredText, setHoveredText] = useState(false)
+  const textRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 480)
@@ -91,33 +90,124 @@ function PortalEntrance({ onEnter }: { onEnter: () => void }) {
       cumulativeDelay += wordAnimDuration + line.pauseAfter * 1000
     })
 
-    const ctaDelay = cumulativeDelay + 200
+    const ctaDelay = cumulativeDelay + 400
     timers.push(setTimeout(() => setVisibleLines((prev) => new Set([...prev, 'cta'])), ctaDelay))
     return () => timers.forEach(clearTimeout)
   }, [])
 
-  const [hovered, setHovered] = useState(false)
+  const mainText = TEXT_SEQUENCE[0]
 
   return (
     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.06, filter: 'blur(14px)' }} transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }}
       style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#080808', zIndex: 50 }}>
       <GrainLayer />
       <BreathingLogo isMobile={isMobile} />
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0, textAlign: 'center', maxWidth: 480, padding: '0 24px', zIndex: 1 }}>
-        <div style={{ marginBottom: 20 }}><TextLine line={TEXT_SEQUENCE[0]} isVisible={visibleLines.has('line1')} /></div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, marginBottom: 24 }}>
-          <TextLine line={TEXT_SEQUENCE[1]} isVisible={visibleLines.has('line2a')} />
-          <TextLine line={TEXT_SEQUENCE[2]} isVisible={visibleLines.has('line2b')} />
-        </div>
-        <div style={{ marginBottom: 28 }}><TextLine line={TEXT_SEQUENCE[3]} isVisible={visibleLines.has('line3')} /></div>
-        <div style={{ marginBottom: 40 }}><TextLine line={TEXT_SEQUENCE[4]} isVisible={visibleLines.has('line4')} /></div>
-      </div>
-      <motion.div initial={{ opacity: 0, filter: 'blur(6px)' }} animate={visibleLines.has('cta') ? { opacity: 1, filter: 'blur(0px)' } : { opacity: 0, filter: 'blur(6px)' }} transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }} style={{ zIndex: 1 }}>
-        <motion.button onClick={onEnter} onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)}
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 0', display: 'flex', alignItems: 'center', gap: 12, WebkitTapHighlightColor: 'transparent', outline: 'none' }} whileTap={{ scale: 0.97 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }}>
-          <motion.div style={{ height: '0.5px', background: 'rgba(255,255,255,0.45)', borderRadius: 1 }} animate={{ width: hovered ? 32 : 16 }} transition={{ type: 'spring', stiffness: 400, damping: 28 }} />
-          <motion.span animate={{ color: hovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.50)' }} transition={{ duration: 0.2 }}
-            style={{ fontSize: 13, fontWeight: 500, letterSpacing: '0.10em', textTransform: 'uppercase', fontFamily: 'inherit', WebkitFontSmoothing: 'antialiased' }}>Entrar</motion.span>
+      
+      {/* Main text with creative hover */}
+      <motion.div 
+        ref={textRef}
+        initial={{ opacity: 0, y: 20, filter: 'blur(12px)' }}
+        animate={visibleLines.has('line3') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 20, filter: 'blur(12px)' }}
+        transition={{ duration: 1.2, ease: [0.25, 0.46, 0.45, 0.94] }}
+        onMouseEnter={() => setHoveredText(true)}
+        onMouseLeave={() => setHoveredText(false)}
+        style={{ cursor: 'default', zIndex: 1, marginTop: 48 }}
+      >
+        <motion.div
+          animate={hoveredText ? { scale: 1.02 } : { scale: 1 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        >
+          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0 0.35em' }}>
+            {mainText.text.split(' ').map((word, i) => (
+              <motion.span
+                key={i}
+                initial={{ opacity: 0, y: 12, filter: 'blur(6px)' }}
+                animate={visibleLines.has('line3') ? { opacity: 1, y: 0, filter: 'blur(0px)' } : { opacity: 0, y: 12, filter: 'blur(6px)' }}
+                transition={{ duration: 0.8, delay: i * 0.12, ease: [0.25, 0.46, 0.45, 0.94] }}
+                style={{
+                  display: 'inline-block',
+                  fontSize: isMobile ? 24 : 32,
+                  fontWeight: mainText.weight,
+                  color: mainText.color,
+                  letterSpacing: mainText.letterSpacing,
+                  lineHeight: 1.2,
+                  WebkitFontSmoothing: 'antialiased',
+                }}
+              >
+                {word}
+              </motion.span>
+            ))}
+          </div>
+        </motion.div>
+      </motion.div>
+
+      {/* CTA with shimmer */}
+      <motion.div 
+        initial={{ opacity: 0, filter: 'blur(8px)' }}
+        animate={visibleLines.has('cta') ? { opacity: 1, filter: 'blur(0px)' } : { opacity: 0, filter: 'blur(8px)' }} 
+        transition={{ duration: 0.8, ease: [0.32, 0.72, 0, 1] }} 
+        style={{ zIndex: 1, marginTop: 56 }}
+      >
+        <motion.button 
+          onClick={onEnter} 
+          onMouseEnter={() => setHovered(true)} 
+          onMouseLeave={() => setHovered(false)}
+          style={{ 
+            background: 'none', 
+            border: 'none', 
+            cursor: 'pointer', 
+            padding: '12px 24px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 14, 
+            WebkitTapHighlightColor: 'transparent', 
+            outline: 'none',
+            position: 'relative',
+            overflow: 'hidden',
+          }} 
+          whileTap={{ scale: 0.96 }} 
+          transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+        >
+          {/* Shimmer effect */}
+          <motion.div 
+            style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.08) 45%, rgba(255,255,255,0.15) 50%, rgba(255,255,255,0.08) 55%, transparent 80%)',
+              pointerEvents: 'none',
+            }}
+            animate={hovered ? { x: ['-100%', '100%'] } : { x: '-100%' }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+          />
+          
+          {/* Line */}
+          <motion.div 
+            style={{ 
+              height: 1, 
+              background: 'rgba(255,255,255,0.35)', 
+              borderRadius: 1,
+              minWidth: 24,
+            }} 
+            animate={{ width: hovered ? 36 : 24 }} 
+            transition={{ type: 'spring', stiffness: 400, damping: 28 }} 
+          />
+          
+          {/* Text */}
+          <motion.span
+            animate={{ color: hovered ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.45)' }}
+            transition={{ duration: 0.25 }}
+            style={{
+              fontSize: 13,
+              fontWeight: 500,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase',
+              fontFamily: 'inherit',
+              WebkitFontSmoothing: 'antialiased',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            Entrar
+          </motion.span>
         </motion.button>
       </motion.div>
     </motion.div>
