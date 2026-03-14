@@ -17,6 +17,89 @@ const CARD_TINTS = [
   { top: 'rgba(140, 180, 255, 0.06)', bottom: 'rgba(100, 160, 255, 0.08)', accent: '#64a0ff', glow: 'rgba(100, 160, 255, 0.12)' },
 ]
 
+function useTilt(cardRef: React.RefObject<HTMLDivElement | null>) {
+  const targetRef = useRef({ x: 0, y: 0 })
+  const currentRef = useRef({ x: 0, y: 0 })
+  const rafRef = useRef<number | null>(null)
+  const activeRef = useRef(false)
+
+  const TILT_MAX = 8
+  const LERP = 0.09
+
+  const loop = useCallback(() => {
+    const t = targetRef.current
+    const c = currentRef.current
+
+    currentRef.current = {
+      x: c.x + (t.x - c.x) * LERP,
+      y: c.y + (t.y - c.y) * LERP,
+    }
+
+    const settled =
+      !activeRef.current &&
+      Math.abs(currentRef.current.x) < 0.0015 &&
+      Math.abs(currentRef.current.y) < 0.0015
+
+    if (cardRef.current) {
+      const rx = -currentRef.current.y * TILT_MAX
+      const ry = currentRef.current.x * TILT_MAX
+      const mag = Math.sqrt(
+        currentRef.current.x ** 2 +
+        currentRef.current.y ** 2
+      )
+
+      cardRef.current.style.transform =
+        `rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg)`
+
+      const gx = (currentRef.current.x + 1) / 2 * 100
+      const gy = (currentRef.current.y + 1) / 2 * 100
+      cardRef.current.style.setProperty('--glare-x', `${gx.toFixed(1)}%`)
+      cardRef.current.style.setProperty('--glare-y', `${gy.toFixed(1)}%`)
+      cardRef.current.style.setProperty('--glare-o', `${(mag * 0.10).toFixed(4)}`)
+      cardRef.current.style.setProperty('--tilt-shadow-o', `${(0.25 + mag * 0.20).toFixed(4)}`)
+    }
+
+    if (!settled) {
+      rafRef.current = requestAnimationFrame(loop)
+    } else {
+      if (cardRef.current) {
+        cardRef.current.style.transform = ''
+        cardRef.current.style.setProperty('--glare-o', '0')
+        cardRef.current.style.setProperty('--tilt-shadow-o', '0.25')
+      }
+    }
+  }, [cardRef])
+
+  const onEnter = useCallback(() => {
+    activeRef.current = true
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+    rafRef.current = requestAnimationFrame(loop)
+  }, [loop])
+
+  const onLeave = useCallback(() => {
+    activeRef.current = false
+    targetRef.current = { x: 0, y: 0 }
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(loop)
+    }
+  }, [loop])
+
+  const onMove = useCallback((e: React.MouseEvent) => {
+    if (!cardRef.current) return
+    const r = cardRef.current.getBoundingClientRect()
+    targetRef.current = {
+      x: ((e.clientX - r.left) / r.width) * 2 - 1,
+      y: ((e.clientY - r.top) / r.height) * 2 - 1,
+    }
+  }, [cardRef])
+
+  useEffect(() => () => {
+    if (rafRef.current) cancelAnimationFrame(rafRef.current)
+  }, [])
+
+  return { onEnter, onLeave, onMove }
+}
+
 export default function SeleccionarAcceso() {
   const router = useRouter()
   const [user, setUser] = useState<any>(null)
@@ -36,6 +119,11 @@ export default function SeleccionarAcceso() {
   const dragStartX = useRef(0)
   const dragStartTime = useRef(0)
   const containerRef = useRef<HTMLDivElement>(null)
+  
+  const paidCardRef = useRef<HTMLDivElement>(null)
+  const freeCardRef = useRef<HTMLDivElement>(null)
+  const paidTilt = useTilt(paidCardRef)
+  const freeTilt = useTilt(freeCardRef)
   
   const supabase = createClient()
 
@@ -310,30 +398,6 @@ export default function SeleccionarAcceso() {
                     
                     {/* Content */}
                     <div className="relative h-full flex flex-col">
-                      {/* Badge */}
-                      {card.type === 'paid' && (
-                        <div className="absolute top-0 right-0">
-                          <motion.div 
-                            initial={{ scale: 0.8, opacity: 0 }}
-                            animate={{ scale: 1, opacity: 1 }}
-                            style={{
-                              padding: '6px 12px',
-                              borderRadius: '20px',
-                              fontSize: '9px',
-                              fontWeight: 700,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.05em',
-                              background: `linear-gradient(135deg, ${tint.accent}22, ${tint.accent}15)`,
-                              border: `1px solid ${tint.accent}35`,
-                              color: tint.accent,
-                              boxShadow: `0 0 24px ${tint.glow}`,
-                            }}
-                          >
-                            ⚡ Popular
-                          </motion.div>
-                        </div>
-                      )}
-                      
                       {/* Label */}
                       <div className="flex items-center gap-2 mb-3">
                         <motion.div 
@@ -472,187 +536,217 @@ export default function SeleccionarAcceso() {
       <div className="relative z-10 w-full max-w-5xl hidden md:flex gap-8 px-4 items-stretch">
         
         {/* PAID - Premium Card */}
-        <motion.div 
-          className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
-          style={{ minHeight: '520px' }}
-          whileHover={{ y: -4, transition: { duration: 0.3 } }}
-          whileTap={{ scale: 0.99 }}
-        >
-          {/* Ambient glow */}
+        <div style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}>
           <motion.div 
-            className="absolute inset-0 rounded-[32px]"
-            style={{
-              background: 'radial-gradient(ellipse at 40% 0%, rgba(255, 200, 100, 0.1) 0%, transparent 50%)',
+            ref={paidCardRef}
+            className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
+            style={{ 
+              minHeight: '520px',
+              transformStyle: 'preserve-3d',
+              willChange: 'transform',
+              boxShadow: '0 32px 80px -20px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,var(--tilt-shadow-o, 0.25))',
+              transition: 'box-shadow 0.25s ease',
             }}
-          />
-          
-          <div 
-            className="relative h-full rounded-[32px] p-8 pt-12"
-            style={{
-              background: 'linear-gradient(165deg, rgba(255, 220, 140, 0.06) 0%, rgba(255,255,255,0.02) 40%, rgba(255, 180, 80, 0.04) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              boxShadow: `
-                inset 0 1px 0 rgba(255, 255, 255, 0.15),
-                0 32px 80px -20px rgba(0,0,0,0.5),
-                0 0 80px rgba(255, 200, 100, 0.08)
-              `,
-            }}
+            onMouseEnter={paidTilt.onEnter}
+            onMouseLeave={paidTilt.onLeave}
+            onMouseMove={paidTilt.onMove}
           >
-            {/* Top shine */}
-            <div className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]" style={{
-              background: 'linear-gradient(90deg, transparent, rgba(255,200,100,0.2), transparent)'
-            }} />
+            {/* Ambient glow */}
+            <motion.div 
+              className="absolute inset-0 rounded-[32px]"
+              style={{
+                background: 'radial-gradient(ellipse at 40% 0%, rgba(255, 200, 100, 0.1) 0%, transparent 50%)',
+              }}
+            />
             
-            <div className="absolute top-7 right-7">
-              <span 
-                className="px-4 py-1.5 rounded-full text-[10px] font-bold uppercase"
+            <div 
+              className="relative h-full rounded-[32px] p-8 pt-12 flex flex-col"
+              style={{
+                background: 'linear-gradient(165deg, rgba(255, 220, 140, 0.06) 0%, rgba(255,255,255,0.02) 40%, rgba(255, 180, 80, 0.04) 100%)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.12)',
+                boxShadow: `
+                  inset 0 1px 0 rgba(255, 255, 255, 0.15),
+                  0 0 80px rgba(255, 200, 100, 0.08)
+                `,
+              }}
+            >
+              {/* Top shine */}
+              <div className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]" style={{
+                background: 'linear-gradient(90deg, transparent, rgba(255,200,100,0.2), transparent)'
+              }} />
+              
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-2 h-2 rounded-full" style={{ background: '#ffd700', boxShadow: '0 0 12px rgba(255,215,0,0.5)' }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffd700cc' }}>Acceso Inmediato</span>
+              </div>
+              
+              <div className="text-6xl font-bold text-white mb-2" style={{ textShadow: '0 0 40px rgba(255,200,100,0.3)' }}>17€</div>
+              <p className="text-sm text-white/35 mb-8">pago único · sin suscripción</p>
+              
+              <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent)' }} />
+              
+              <div className="space-y-4 mb-8">
+                {['Acceso completo inmediato', 'Sin espera ni aprobación', '5 Templos desbloqueados', 'NOVA AI Coach ilimitado', 'Discord exclusivo'].map((f, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div 
+                      className="w-5 h-5 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.25)' }}
+                    >
+                      <svg className="w-2.5 h-2.5" style={{ color: '#ffd700' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span className="text-sm text-white/70">{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              <motion.button 
+                onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
                 style={{
-                  background: 'linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,180,80,0.1))',
-                  border: '1px solid rgba(255,215,0,0.25)',
-                  color: '#ffd700',
-                  boxShadow: '0 0 30px rgba(255,215,0,0.15)',
+                  width: '100%',
+                  padding: '18px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,180,80,0.12))',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  boxShadow: `
+                    inset 0 1px 0 rgba(255,255,255,0.2),
+                    0 8px 32px rgba(255,200,100,0.15),
+                    0 2px 8px rgba(0,0,0,0.2)
+                  `,
+                  color: 'white',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  cursor: 'pointer',
+                  marginTop: 'auto',
+                  WebkitFontSmoothing: 'antialiased',
                 }}
               >
-                ⚡ Popular
-              </span>
-            </div>
+                Entrar ahora →
+              </motion.button>
+              <p className="text-center text-[11px] text-white/15 mt-5">Pago seguro vía Whop</p>
 
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-2 h-2 rounded-full" style={{ background: '#ffd700', boxShadow: '0 0 12px rgba(255,215,0,0.5)' }} />
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#ffd700cc' }}>Acceso Inmediato</span>
+              {/* Glare */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                borderRadius: 'inherit',
+                pointerEvents: 'none',
+                zIndex: 10,
+                overflow: 'hidden',
+                mixBlendMode: 'screen',
+                background: `radial-gradient(circle 110px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255, var(--glare-o, 0)) 0%, rgba(255,255,255, calc(var(--glare-o,0) * 0.45)) 38%, rgba(255,255,255, calc(var(--glare-o,0) * 0.15)) 60%, rgba(255,255,255, 0) 100%)`,
+              }}/>
             </div>
-            
-            <div className="text-6xl font-bold text-white mb-2" style={{ textShadow: '0 0 40px rgba(255,200,100,0.3)' }}>17€</div>
-            <p className="text-sm text-white/35 mb-8">pago único · sin suscripción</p>
-            
-            <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(255,215,0,0.2), transparent)' }} />
-            
-            <div className="space-y-4 mb-8">
-              {['Acceso completo inmediato', 'Sin espera ni aprobación', '5 Templos desbloqueados', 'NOVA AI Coach ilimitado', 'Discord exclusivo'].map((f, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div 
-                    className="w-5 h-5 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(255,215,0,0.12)', border: '1px solid rgba(255,215,0,0.25)' }}
-                  >
-                    <svg className="w-2.5 h-2.5" style={{ color: '#ffd700' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                  <span className="text-sm text-white/70">{f}</span>
-                </div>
-              ))}
-            </div>
-
-            <motion.button 
-              onClick={() => window.open('https://whop.com/portalculture/acceso-inmediato', '_blank', 'noopener,noreferrer')}
-              whileHover={{ scale: 1.02, y: -2 }}
-              whileTap={{ scale: 0.98 }}
-              style={{
-                width: '100%',
-                padding: '18px',
-                borderRadius: '20px',
-                border: '1px solid rgba(255,255,255,0.15)',
-                background: 'linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,180,80,0.12))',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
-                boxShadow: `
-                  inset 0 1px 0 rgba(255,255,255,0.2),
-                  0 8px 32px rgba(255,200,100,0.15),
-                  0 2px 8px rgba(0,0,0,0.2)
-                `,
-                color: 'white',
-                fontSize: '15px',
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Entrar ahora →
-            </motion.button>
-            <p className="text-center text-[11px] text-white/15 mt-5">Pago seguro vía Whop</p>
-          </div>
-        </motion.div>
+          </motion.div>
+        </div>
 
         {/* FREE - Subtle Card */}
-        <motion.div 
-          className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
-          style={{ minHeight: '520px' }}
-          whileHover={{ y: -4, transition: { duration: 0.3 } }}
-          whileTap={{ scale: 0.99 }}
-        >
+        <div style={{ perspective: '900px', perspectiveOrigin: '50% 50%' }}>
           <motion.div 
-            className="absolute inset-0 rounded-[32px]"
-            style={{
-              background: 'radial-gradient(ellipse at 60% 0%, rgba(100,160,255,0.06) 0%, transparent 50%)',
+            ref={freeCardRef}
+            className="flex-1 rounded-[32px] overflow-hidden cursor-pointer relative"
+            style={{ 
+              minHeight: '520px',
+              transformStyle: 'preserve-3d',
+              willChange: 'transform',
+              boxShadow: '0 32px 80px -20px rgba(0,0,0,0.5), 0 8px 32px rgba(0,0,0,var(--tilt-shadow-o, 0.25))',
+              transition: 'box-shadow 0.25s ease',
             }}
-          />
-
-          <div 
-            className="relative h-full rounded-[32px] p-8 pt-12"
-            style={{
-              background: 'linear-gradient(165deg, rgba(140,180,255,0.04) 0%, rgba(255,255,255,0.02) 40%, rgba(100,160,255,0.03) 100%)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              boxShadow: `
-                inset 0 1px 0 rgba(255, 255, 255, 0.08),
-                0 32px 80px -20px rgba(0,0,0,0.5),
-                0 0 60px rgba(100,160,255,0.04)
-              `,
-            }}
+            onMouseEnter={freeTilt.onEnter}
+            onMouseLeave={freeTilt.onLeave}
+            onMouseMove={freeTilt.onMove}
           >
-            <div className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]" style={{
-              background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)'
-            }} />
-
-            <div className="flex items-center gap-2 mb-6">
-              <div className="w-2 h-2 rounded-full" style={{ background: '#64a0ff', boxShadow: '0 0 12px rgba(100,160,255,0.4)' }} />
-              <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#64a0ffcc' }}>Lista de Espera</span>
-            </div>
-            
-            <div className="text-6xl font-bold text-white/80 mb-2">Gratis</div>
-            <p className="text-sm text-white/25 mb-8">tras aprobación manual</p>
-            
-            <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)' }} />
-            
-            <div className="space-y-4 mb-8">
-              {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
-                <div key={i} className="flex items-center gap-3">
-                  <div 
-                    className="w-5 h-5 rounded-full flex items-center justify-center"
-                    style={{ background: 'rgba(100,160,255,0.08)', border: '1px solid rgba(100,160,255,0.15)' }}
-                  >
-                    <svg className="w-2.5 h-2.5" style={{ color: '#64a0ff' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
-                  </div>
-                  <span className="text-sm text-white/40">{f}</span>
-                </div>
-              ))}
-            </div>
-
-            <motion.button 
-              onClick={() => router.push('/cuestionario')}
-              whileHover={{ scale: 1.01, boxShadow: '0 8px 40px rgba(100,160,255,0.15)' }}
-              whileTap={{ scale: 0.99 }}
+            <motion.div 
+              className="absolute inset-0 rounded-[32px]"
               style={{
-                width: '100%',
-                padding: '16px',
-                borderRadius: '18px',
-                border: '1px solid rgba(255,255,255,0.1)',
-                background: 'linear-gradient(135deg, rgba(100,160,255,0.1), rgba(100,160,255,0.05))',
-                backdropFilter: 'blur(20px)',
-                WebkitBackdropFilter: 'blur(20px)',
+                background: 'radial-gradient(ellipse at 60% 0%, rgba(100,160,255,0.06) 0%, transparent 50%)',
+              }}
+            />
+
+            <div 
+              className="relative h-full rounded-[32px] p-8 pt-12 flex flex-col"
+              style={{
+                background: 'linear-gradient(165deg, rgba(140,180,255,0.04) 0%, rgba(255,255,255,0.02) 40%, rgba(100,160,255,0.03) 100%)',
+                backdropFilter: 'blur(40px) saturate(180%)',
+                WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
                 boxShadow: `
-                  inset 0 1px 0 rgba(255,255,255,0.1),
-                  0 8px 32px rgba(100,160,255,0.08)
+                  inset 0 1px 0 rgba(255, 255, 255, 0.08),
+                  0 0 60px rgba(100,160,255,0.04)
                 `,
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '15px',
-                fontWeight: 600,
               }}
             >
-              Continuar gratis →
-            </motion.button>
-          </div>
-        </motion.div>
+              <div className="absolute top-0 left-0 right-0 h-px rounded-t-[32px]" style={{
+                background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)'
+              }} />
+
+              <div className="flex items-center gap-2 mb-6">
+                <div className="w-2 h-2 rounded-full" style={{ background: '#64a0ff', boxShadow: '0 0 12px rgba(100,160,255,0.4)' }} />
+                <span className="text-xs font-semibold uppercase tracking-wider" style={{ color: '#64a0ffcc' }}>Lista de Espera</span>
+              </div>
+              
+              <div className="text-6xl font-bold text-white/80 mb-2">Gratis</div>
+              <p className="text-sm text-white/25 mb-8">tras aprobación manual</p>
+              
+              <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)' }} />
+              
+              <div className="space-y-4 mb-8">
+                {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <div 
+                      className="w-5 h-5 rounded-full flex items-center justify-center"
+                      style={{ background: 'rgba(100,160,255,0.08)', border: '1px solid rgba(100,160,255,0.15)' }}
+                    >
+                      <svg className="w-2.5 h-2.5" style={{ color: '#64a0ff' }} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>
+                    </div>
+                    <span className="text-sm text-white/40">{f}</span>
+                  </div>
+                ))}
+              </div>
+
+              <motion.button 
+                onClick={() => router.push('/cuestionario')}
+                whileHover={{ scale: 1.01, boxShadow: '0 8px 40px rgba(100,160,255,0.15)' }}
+                whileTap={{ scale: 0.99 }}
+                style={{
+                  width: '100%',
+                  padding: '18px',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: 'linear-gradient(135deg, rgba(100,160,255,0.1), rgba(100,160,255,0.05))',
+                  backdropFilter: 'blur(20px)',
+                  WebkitBackdropFilter: 'blur(20px)',
+                  boxShadow: `
+                    inset 0 1px 0 rgba(255,255,255,0.1),
+                    0 8px 32px rgba(100,160,255,0.08)
+                  `,
+                  color: 'rgba(255,255,255,0.8)',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  marginTop: 'auto',
+                  WebkitFontSmoothing: 'antialiased',
+                }}
+              >
+                Continuar gratis →
+              </motion.button>
+
+              {/* Glare */}
+              <div style={{
+                position: 'absolute', inset: 0,
+                borderRadius: 'inherit',
+                pointerEvents: 'none',
+                zIndex: 10,
+                overflow: 'hidden',
+                mixBlendMode: 'screen',
+                background: `radial-gradient(circle 110px at var(--glare-x, 50%) var(--glare-y, 50%), rgba(255,255,255, var(--glare-o, 0)) 0%, rgba(255,255,255, calc(var(--glare-o,0) * 0.45)) 38%, rgba(255,255,255, calc(var(--glare-o,0) * 0.15)) 60%, rgba(255,255,255, 0) 100%)`,
+              }}/>
+            </div>
+          </motion.div>
+        </div>
 
       </div>
 
