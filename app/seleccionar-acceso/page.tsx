@@ -697,7 +697,7 @@ export default function SeleccionarAcceso() {
               <div className="w-full h-px mb-8" style={{ background: 'linear-gradient(90deg, transparent, rgba(100,160,255,0.15), transparent)' }} />
               
               <div className="space-y-4 mb-8">
-                {['Aprobación con cuestionario', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
+                {['Aprobación con cuestionario', 'Sin espera · sin aprobación', 'Templos progresivos', 'NOVA AI (10 msg/día)', 'Discord exclusivo'].map((f, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div 
                       className="w-5 h-5 rounded-full flex items-center justify-center"
@@ -735,6 +735,7 @@ export default function SeleccionarAcceso() {
               >
                 Continuar gratis →
               </motion.button>
+              <p className="text-center text-[11px] text-white/15 mt-5">Aprobación en 24-48h</p>
 
               {/* Glare */}
               <div style={{
