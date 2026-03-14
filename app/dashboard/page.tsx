@@ -47,7 +47,7 @@ const courses: Course[] = [
     description: 'Sana tu salud mental y traumas',
     link: 'https://whop.com/joined/portalculture/ebook-templo-de-zeus-aAmozpsLlv08Py/app/',
     accent: 'rgba(34,197,94,0.35)', border: 'rgba(34,197,94,0.5)',
-    badge: 'Liderazgo',
+    badge: 'Salud Mental',
   },
   {
     id: 5, emoji: '🌹', name: 'Templo de Adonis', short: 'Adonis',
